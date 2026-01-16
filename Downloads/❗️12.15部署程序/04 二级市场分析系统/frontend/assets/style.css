@@ -1,0 +1,192 @@
+/* V13.2 视觉基底 - 前后端分离版 */
+:root {
+    --bg-base: #09090b;
+    --bg-panel: #18181b;
+    --border-color: #27272a;
+    --accent-primary: #8b5cf6; 
+    --accent-up: #ef4444;     
+    --accent-down: #10b981;   
+    --text-main: #e4e4e7;
+    --text-muted: #71717a;
+}
+
+body {
+    background-color: var(--bg-base);
+    color: var(--text-main);
+    font-family: 'PingFang SC', 'Microsoft YaHei', 'JetBrains Mono', monospace;
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+}
+
+.scan-line {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--accent-primary), transparent);
+    opacity: 0.5;
+    animation: scan 4s linear infinite;
+    pointer-events: none;
+    z-index: 20;
+}
+@keyframes scan { 
+    0% { top: 0%; opacity: 0; } 
+    10% { opacity: 0.8; } 
+    90% { opacity: 0.8; } 
+    100% { top: 100%; opacity: 0; } 
+}
+
+.modal-backdrop {
+    position: fixed; 
+    top: 0; 
+    left: 0; 
+    width: 100%; 
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8); 
+    backdrop-filter: blur(4px);
+    z-index: 90; 
+    display: none; 
+    cursor: pointer; 
+    opacity: 0; 
+    transition: opacity 0.2s;
+}
+.modal-backdrop.active { 
+    display: block; 
+    opacity: 1; 
+}
+
+.ai-modal {
+    position: fixed; 
+    top: 50%; 
+    left: 50%;
+    transform: translate(-50%, -45%) scale(0.95);
+    width: 700px; 
+    max-width: 95%; 
+    max-height: 85vh;
+    background: #18181b; 
+    border: 1px solid var(--accent-primary);
+    box-shadow: 0 0 60px rgba(139, 92, 246, 0.15);
+    z-index: 100; 
+    display: none; 
+    flex-direction: column;
+    border-radius: 12px; 
+    overflow: hidden; 
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.ai-modal.active { 
+    display: flex; 
+    transform: translate(-50%, -50%) scale(1); 
+    opacity: 1; 
+}
+
+.ai-content { 
+    font-size: 0.9rem; 
+    line-height: 1.7; 
+    color: #d4d4d8; 
+    padding: 1.5rem; 
+    overflow-y: auto; 
+}
+.ai-content h1, .ai-content h2 { 
+    color: #fff; 
+    font-weight: bold; 
+    margin: 1rem 0 0.5rem; 
+}
+.ai-content p { 
+    margin-bottom: 0.8rem; 
+}
+.ai-content strong { 
+    color: var(--accent-primary); 
+}
+.ai-content li { 
+    margin-left: 1rem; 
+    list-style: disc; 
+    color: #a1a1aa; 
+}
+
+.chat-widget {
+    position: fixed; 
+    bottom: 24px; 
+    right: 24px;
+    width: 340px; 
+    height: 480px;
+    background: #18181b; 
+    border: 1px solid var(--border-color);
+    border-radius: 12px; 
+    display: flex; 
+    flex-direction: column;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.6); 
+    z-index: 50;
+    transform: translateY(120%); 
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.chat-widget.open { 
+    transform: translateY(0); 
+}
+.chat-messages { 
+    flex: 1; 
+    overflow-y: auto; 
+    padding: 10px 14px; 
+    background: #09090b; 
+}
+.chat-bubble { 
+    padding: 10px 14px; 
+    border-radius: 12px; 
+    margin-bottom: 10px; 
+    max-width: 85%; 
+    font-size: 0.85rem; 
+    line-height: 1.4; 
+}
+.bubble-ai { 
+    background: #27272a; 
+    color: #e4e4e7; 
+    border-bottom-left-radius: 2px; 
+}
+.bubble-user { 
+    background: var(--accent-primary); 
+    color: #fff; 
+    align-self: flex-end; 
+    border-bottom-right-radius: 2px; 
+}
+
+.badge-live { 
+    background: rgba(239, 68, 68, 0.15); 
+    color: #fca5a5; 
+    border: 1px solid rgba(239, 68, 68, 0.3); 
+    animation: pulse-red 2s infinite; 
+}
+.badge-sim { 
+    background: rgba(168, 85, 247, 0.15); 
+    color: #d8b4fe; 
+    border: 1px solid rgba(168, 85, 247, 0.3); 
+}
+@keyframes pulse-red { 
+    0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); } 
+    70% { box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); } 
+    100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } 
+}
+
+.btn-feature { 
+    position: relative; 
+    overflow: hidden; 
+    transition: all 0.3s; 
+}
+.btn-feature:hover { 
+    background: rgba(255,255,255,0.05); 
+    border-color: rgba(255,255,255,0.2); 
+    transform: translateX(2px); 
+}
+
+.loader {
+    width: 20px; 
+    height: 20px; 
+    border: 2px solid rgba(255,255,255,0.1);
+    border-radius: 50%; 
+    border-top-color: var(--accent-primary);
+    animation: spin 0.8s ease-in-out infinite;
+}
+@keyframes spin { 
+    0% { transform: rotate(0deg); } 
+    100% { transform: rotate(360deg); } 
+}

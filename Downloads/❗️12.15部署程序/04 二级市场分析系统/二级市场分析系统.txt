@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alpha-Core | 掠食者雷达 V13.2 (API Ready)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        /* V13.2 视觉基底 */
+        :root {
+            --bg-base: #09090b;
+            --bg-panel: #18181b;
+            --border-color: #27272a;
+            --accent-primary: #8b5cf6; 
+            --accent-up: #ef4444;     
+            --accent-down: #10b981;   
+            --text-main: #e4e4e7;
+            --text-muted: #71717a;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            font-family: 'PingFang SC', 'Microsoft YaHei', 'JetBrains Mono', monospace;
+            overflow: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .scan-line {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            background: linear-gradient(to right, transparent, var(--accent-primary), transparent);
+            opacity: 0.5;
+            animation: scan 4s linear infinite;
+            pointer-events: none;
+            z-index: 20;
+        }
+        @keyframes scan { 0% { top: 0%; opacity: 0; } 10% { opacity: 0.8; } 90% { opacity: 0.8; } 100% { top: 100%; opacity: 0; } }
+
+        .modal-backdrop {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(4px);
+            z-index: 90; display: none; cursor: pointer; opacity: 0; transition: opacity 0.2s;
+        }
+        .modal-backdrop.active { display: block; opacity: 1; }
+
+        .ai-modal {
+            position: fixed; top: 50%; left: 50%;
+            transform: translate(-50%, -45%) scale(0.95);
+            width: 700px; max-width: 95%; max-height: 85vh;
+            background: #18181b; border: 1px solid var(--accent-primary);
+            box-shadow: 0 0 60px rgba(139, 92, 246, 0.15);
+            z-index: 100; display: none; flex-direction: column;
+            border-radius: 12px; overflow: hidden; opacity: 0;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .ai-modal.active { display: flex; transform: translate(-50%, -50%) scale(1); opacity: 1; }
+        
+        .ai-content { font-size: 0.9rem; line-height: 1.7; color: #d4d4d8; padding: 1.5rem; overflow-y: auto; }
+        .ai-content h1, .ai-content h2 { color: #fff; font-weight: bold; margin: 1rem 0 0.5rem; }
+        .ai-content p { margin-bottom: 0.8rem; }
+        .ai-content strong { color: var(--accent-primary); }
+        .ai-content li { margin-left: 1rem; list-style: disc; color: #a1a1aa; }
+        
+        .chat-widget {
+            position: fixed; bottom: 24px; right: 24px;
+            width: 340px; height: 480px;
+            background: #18181b; border: 1px solid var(--border-color);
+            border-radius: 12px; display: flex; flex-direction: column;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6); z-index: 50;
+            transform: translateY(120%); transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .chat-widget.open { transform: translateY(0); }
+        .chat-messages { flex: 1; overflow-y: auto; padding: 10px 14px; background: #09090b; }
+        .chat-bubble { padding: 10px 14px; border-radius: 12px; margin-bottom: 10px; max-width: 85%; font-size: 0.85rem; line-height: 1.4; }
+        .bubble-ai { background: #27272a; color: #e4e4e7; border-bottom-left-radius: 2px; }
+        .bubble-user { background: var(--accent-primary); color: #fff; align-self: flex-end; border-bottom-right-radius: 2px; }
+
+        .badge-live { background: rgba(239, 68, 68, 0.15); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.3); animation: pulse-red 2s infinite; }
+        .badge-sim { background: rgba(168, 85, 247, 0.15); color: #d8b4fe; border: 1px solid rgba(168, 85, 247, 0.3); }
+        @keyframes pulse-red { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); } 70% { box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
+
+        .btn-feature { position: relative; overflow: hidden; transition: all 0.3s; }
+        .btn-feature:hover { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.2); transform: translateX(2px); }
+        
+        .loader {
+            width: 20px; height: 20px; border: 2px solid rgba(255,255,255,0.1);
+            border-radius: 50%; border-top-color: var(--accent-primary);
+            animation: spin 0.8s ease-in-out infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body class="h-screen flex flex-col text-xs select-none">
+
+    <!-- 顶部导航 -->
+    <header class="h-12 border-b border-[#27272a] flex items-center justify-between px-6 bg-[#09090b]/80 backdrop-blur-md z-30">
+        <div class="flex items-center gap-6">
+            <div class="flex flex-col">
+                <span class="font-bold text-base tracking-widest text-violet-400">ALPHA-CORE</span>
+                <span class="text-[9px] text-gray-500 tracking-[0.2em]">架构开放版 V13.2</span>
+            </div>
+            <div class="h-6 w-[1px] bg-[#27272a]"></div>
+            <div class="flex items-center gap-2 px-3 py-1.5 bg-[#18181b] rounded-full border border-[#27272a]">
+                <span class="w-2 h-2 rounded-full bg-yellow-500 transition-colors duration-500" id="status-dot"></span>
+                <span class="text-[10px] text-gray-400" id="connection-text">接口初始化...</span>
+            </div>
+            <div class="flex items-center gap-0 bg-[#18181b] rounded-lg border border-[#27272a] p-0.5">
+                <span class="px-3 text-[10px] text-gray-500">代码</span>
+                <input type="text" id="stock-code" value="sh600519" 
+                    class="bg-transparent border-none text-white w-24 font-bold focus:outline-none uppercase text-center placeholder-gray-700" 
+                    placeholder="sh/sz..." onblur="autoPrefix(this)" onkeydown="if(event.key==='Enter') changeStock()">
+                <button onclick="changeStock()" class="text-[10px] bg-violet-600/20 text-violet-300 px-3 py-1 rounded hover:bg-violet-600 hover:text-white transition-all">连接数据</button>
+            </div>
+        </div>
+        <div class="flex bg-[#18181b] rounded-lg p-1 border border-[#27272a] gap-1">
+            <button id="mode-soros" class="px-4 py-1 rounded text-gray-400 hover:text-white transition-all text-[10px] font-bold" onclick="switchMode('soros')">索罗斯 (进攻)</button>
+            <button id="mode-buffett" class="px-4 py-1 rounded text-gray-400 hover:text-white transition-all text-[10px] font-bold" onclick="switchMode('buffett')">巴菲特 (防御)</button>
+        </div>
+    </header>
+
+    <!-- 主工作区 -->
+    <div class="flex-1 flex overflow-hidden relative">
+        <div class="scan-line"></div>
+
+        <!-- 左侧：盘口与主力识别 -->
+        <div class="w-72 border-r border-[#27272a] flex flex-col bg-[#0e0e11]">
+            <div class="p-4 border-b border-[#27272a] bg-[#121214]">
+                <div class="flex justify-between items-center mb-3">
+                    <span class="text-[10px] text-gray-500 tracking-wider">主力身份识别</span>
+                    <button onclick="identifyPredator()" class="text-[9px] text-violet-400 border border-violet-500/30 px-2 py-0.5 rounded bg-violet-500/10 hover:bg-violet-500 hover:text-white transition">AI 扫描</button>
+                </div>
+                <div id="predator-profile" class="h-20 border border-[#27272a] rounded bg-black/40 p-3 text-gray-400 text-[10px] leading-relaxed overflow-y-auto">
+                    等待盘口数据流...
+                </div>
+            </div>
+            <div class="px-4 py-2 border-b border-[#27272a] flex justify-between items-center bg-[#121214]">
+                <span class="text-[10px] text-gray-500">五档盘口 (L1)</span>
+                <span class="px-1.5 py-0.5 rounded text-[9px] font-bold badge-live" id="data-mode-label">实盘</span>
+            </div>
+            <div id="asks" class="flex-1 flex flex-col-reverse justify-end overflow-hidden pb-2 pt-2 bg-[#09090b]"></div>
+            <div class="h-16 border-y border-[#27272a] flex items-center justify-between px-5 bg-[#121214]">
+                <div class="flex flex-col">
+                    <span id="current-price" class="text-2xl font-bold text-gray-200 tracking-tight transition-colors duration-300">--.--</span>
+                </div>
+                <div class="flex flex-col items-end">
+                    <span id="price-change" class="text-sm font-bold text-gray-500">--%</span>
+                    <span id="total-vol" class="text-[10px] text-gray-600 mt-0.5">量: --</span>
+                </div>
+            </div>
+            <div id="bids" class="flex-1 overflow-hidden pt-2 bg-[#09090b]"></div>
+            
+            <!-- 数据源切换器 -->
+            <div class="p-3 border-t border-[#27272a] bg-[#121214]">
+                <div class="text-[9px] text-gray-500 mb-1">数据通道 (扩展接口)</div>
+                <select id="data-source-select" class="w-full bg-[#09090b] text-gray-300 text-[10px] border border-[#27272a] rounded p-1" onchange="switchDataSource(this.value)">
+                    <option value="public">公网聚合 (腾讯/新浪)</option>
+                    <option value="wind">Wind 机构专线 (需API Key)</option>
+                    <option value="eastmoney">东方财富 L2 (需Token)</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- 中间：图表与核心功能 -->
+        <div class="flex-1 flex flex-col relative bg-[#09090b]">
+            <div class="flex-1 relative group" id="chart-container">
+                <div class="absolute inset-0 pointer-events-none" style="background-image: linear-gradient(#1f1f22 1px, transparent 1px), linear-gradient(90deg, #1f1f22 1px, transparent 1px); background-size: 40px 40px; opacity: 0.5;"></div>
+                
+                <!-- 仪表盘 HUD -->
+                <div class="absolute top-4 right-6 z-10 flex flex-col items-end pointer-events-none">
+                    <div class="text-[9px] text-gray-600 mb-1">ALPHA 置信度</div>
+                    <div class="flex items-baseline gap-2">
+                        <span id="alpha-score" class="text-6xl font-bold text-gray-700 transition-all duration-500">00</span>
+                        <span class="text-xl text-gray-700">/100</span>
+                    </div>
+                    <div id="signal-text" class="text-[10px] font-bold px-2 py-1 rounded bg-gray-900 border border-gray-800 text-gray-500 mt-2">等待信号</div>
+                </div>
+
+                <!-- 悬浮工具栏 (全中文) -->
+                <div class="absolute top-4 left-4 z-20 flex flex-col gap-2">
+                    <button onclick="analyzeChartVision()" class="btn-feature flex items-center gap-3 bg-[#18181b]/90 backdrop-blur border border-[#27272a] px-3 py-2 rounded-lg text-gray-300 w-40 hover:border-violet-500/50 group">
+                        <span class="text-base group-hover:scale-110 transition">📸</span>
+                        <div class="flex flex-col items-start"><span class="text-[10px] font-bold">视觉分析</span><span class="text-[8px] text-gray-500">VISION PRO</span></div>
+                    </button>
+                    <button onclick="generateSentimentTotem()" class="btn-feature flex items-center gap-3 bg-[#18181b]/90 backdrop-blur border border-[#27272a] px-3 py-2 rounded-lg text-gray-300 w-40 hover:border-pink-500/50 group">
+                        <span class="text-base group-hover:scale-110 transition">🎨</span>
+                        <div class="flex flex-col items-start"><span class="text-[10px] font-bold">情绪图腾</span><span class="text-[8px] text-gray-500">IMAGEN 4</span></div>
+                    </button>
+                    <button onclick="openDebate()" class="btn-feature flex items-center gap-3 bg-[#18181b]/90 backdrop-blur border border-[#27272a] px-3 py-2 rounded-lg text-gray-300 w-40 hover:border-blue-500/50 group">
+                        <span class="text-base group-hover:scale-110 transition">⚖️</span>
+                        <div class="flex flex-col items-start"><span class="text-[10px] font-bold">多空庭辩</span><span class="text-[8px] text-gray-500">双重人格博弈</span></div>
+                    </button>
+                    <button onclick="consultRiskOfficer()" class="btn-feature flex items-center gap-3 bg-[#18181b]/90 backdrop-blur border border-[#27272a] px-3 py-2 rounded-lg text-gray-300 w-40 hover:border-rose-500/50 group">
+                        <span class="text-base group-hover:scale-110 transition">🔮</span>
+                        <div class="flex flex-col items-start"><span class="text-[10px] font-bold">首席风控官</span><span class="text-[8px] text-gray-500">RISK CONTROL</span></div>
+                    </button>
+                    <button onclick="openWarRoom()" class="btn-feature flex items-center gap-3 bg-[#18181b]/90 backdrop-blur border border-[#27272a] px-3 py-2 rounded-lg text-gray-300 w-40 hover:border-amber-500/50 group">
+                        <span class="text-base group-hover:scale-110 transition">⚔️</span>
+                        <div class="flex flex-col items-start"><span class="text-[10px] font-bold">沙盘推演</span><span class="text-[8px] text-gray-500">压力测试</span></div>
+                    </button>
+                    <button onclick="findHistoricalMatch()" class="btn-feature flex items-center gap-3 bg-[#18181b]/90 backdrop-blur border border-[#27272a] px-3 py-2 rounded-lg text-gray-300 w-40 hover:border-yellow-500/50 group">
+                        <span class="text-base group-hover:scale-110 transition">📜</span>
+                        <div class="flex flex-col items-start"><span class="text-[10px] font-bold">历史回溯</span><span class="text-[8px] text-gray-500">以史为鉴</span></div>
+                    </button>
+                </div>
+
+                <canvas id="mainChart" class="w-full h-full block"></canvas>
+                
+                <div class="absolute bottom-3 left-4 flex gap-6 text-[10px] text-gray-600">
+                    <span>名称: <span id="stock-name" class="text-gray-400">--</span></span>
+                    <span>最高: <span id="high-price" class="text-gray-400">--</span></span>
+                    <span>最低: <span id="low-price" class="text-gray-400">--</span></span>
+                </div>
+            </div>
+
+            <!-- 底部日志区 -->
+            <div class="h-40 border-t border-[#27272a] bg-[#0e0e11] flex flex-col">
+                <div class="flex border-b border-[#27272a] justify-between pr-4 bg-[#121214] items-center h-8">
+                    <div class="px-4 text-[10px] font-bold text-gray-500 flex items-center gap-2">
+                        <span class="w-1.5 h-1.5 bg-violet-500 rounded-full animate-pulse"></span> 系统运行日志
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="consultTherapist()" class="flex items-center gap-1.5 px-3 py-0.5 text-[10px] text-teal-300 border border-teal-800/30 rounded bg-teal-900/10 hover:bg-teal-900/30 transition"><span>🧘</span> 心理按摩</button>
+                        <button onclick="askStrategyCore()" class="flex items-center gap-1.5 px-3 py-0.5 text-[10px] text-violet-300 border border-violet-800/30 rounded bg-violet-900/10 hover:bg-violet-900/30 transition"><span>✨</span> 智能策略</button>
+                    </div>
+                </div>
+                <div class="flex-1 flex overflow-hidden">
+                    <div class="flex-1 p-3 overflow-y-auto font-mono text-[10px] leading-5 space-y-1" id="trade-log">
+                        <div class="text-gray-600 italic">// 系统初始化完成...</div>
+                    </div>
+                    <div class="w-60 border-l border-[#27272a] p-3 flex flex-col gap-2 bg-[#121214]">
+                        <div class="text-[9px] text-gray-500 font-bold mb-1 tracking-wider">博弈工具箱</div>
+                        <button onclick="mineWebSentiment()" class="w-full py-1.5 bg-[#1f1f22] border border-[#27272a] text-yellow-500 rounded hover:bg-yellow-900/20 hover:border-yellow-800 transition text-[10px]">
+                            ⚡ 全网舆情挖掘
+                        </button>
+                        <button onclick="toggleChat()" class="mt-1 w-full py-1.5 bg-[#1f1f22] border border-[#27272a] text-blue-400 rounded hover:bg-blue-900/20 hover:border-blue-800 transition text-[10px] flex items-center justify-center gap-2"><span>👻</span> 呼叫 "幽灵"</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 右侧：因子分析 -->
+        <div class="w-72 border-l border-[#27272a] bg-[#0e0e11] flex flex-col p-4 gap-5">
+            <div>
+                <div class="text-[10px] text-gray-500 mb-2 flex justify-between tracking-wider">
+                    <span>资金合力 (M-Factor)</span><span class="text-red-500 animate-pulse">●</span>
+                </div>
+                <div class="h-28 bg-[#121214] rounded border border-[#27272a] relative overflow-hidden flex items-end justify-between px-3 pb-2" id="flow-chart">
+                    <div class="w-[30%] bg-[#27272a] h-1/2 rounded-t hover:bg-gray-600 transition-all"></div>
+                    <div class="w-[30%] bg-red-900/50 border-t border-r border-l border-red-500/50 h-3/4 rounded-t relative"><div class="absolute bottom-0 w-full h-full bg-red-500/10 animate-pulse"></div></div>
+                    <div class="w-[30%] bg-red-900/30 h-2/3 rounded-t"></div>
+                </div>
+                <div class="flex justify-between text-[9px] text-gray-600 mt-1 px-3"><span>散户</span><span>游资</span><span>机构</span></div>
+            </div>
+            <div>
+                <div class="text-[10px] text-gray-500 mb-2 flex justify-between items-center tracking-wider">
+                    <span>基本面 (F-Factor)</span><button onclick="generateFundamentalReport()" class="text-[9px] text-violet-400 hover:text-white transition">生成报告</button>
+                </div>
+                <div class="bg-[#121214] rounded border border-[#27272a] p-3 space-y-3">
+                    <div>
+                        <div class="flex justify-between mb-1 text-[10px] text-gray-400"><span>真实 ROE</span><span class="text-white">--%</span></div>
+                        <div class="w-full h-1 bg-[#27272a] rounded overflow-hidden"><div class="h-full bg-violet-500 rounded w-[85%]"></div></div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between mb-1 text-[10px] text-gray-400"><span>造假风险</span><span class="text-green-500">检测中</span></div>
+                        <div class="w-full h-1 bg-[#27272a] rounded overflow-hidden"><div class="h-full bg-green-500 rounded w-[15%]"></div></div>
+                    </div>
+                </div>
+            </div>
+            <div class="flex-1 flex flex-col min-h-0">
+                <div class="text-[10px] text-gray-500 mb-2 flex justify-between items-center tracking-wider">
+                    <span>情绪 (T-Factor)</span>
+                    <button onclick="mineWebSentiment()" class="text-[9px] text-blue-400 hover:text-white transition flex items-center gap-1">🌐 全网侦察</button>
+                </div>
+                <div class="bg-[#121214] rounded border border-[#27272a] p-2 flex-1 overflow-y-auto space-y-2" id="nlp-feed"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 弹窗与遮罩 -->
+    <div id="modal-backdrop" class="modal-backdrop" onclick="closeModal()"></div>
+    <div id="ai-modal" class="ai-modal">
+        <div class="h-10 border-b border-[#27272a] bg-[#121214] flex items-center justify-between px-4">
+            <div class="flex items-center gap-2"><span class="text-violet-400 text-lg">✨</span><span class="font-bold text-xs text-white tracking-wide" id="modal-title">AI 分析报告</span></div>
+            <button onclick="closeModal()" class="text-gray-500 hover:text-white transition p-1 text-xl cursor-pointer">×</button>
+        </div>
+        <div class="flex-1 bg-[#09090b] text-gray-300 ai-content" id="modal-content"></div>
+        <div id="audio-control" class="hidden h-12 border-t border-[#27272a] bg-[#121214] px-4 items-center justify-between">
+            <span id="audio-status" class="text-gray-500 text-[10px]">语音引擎就绪</span>
+            <button onclick="playStrategyAudio()" id="btn-play-audio" class="px-3 py-1.5 bg-violet-600 text-white rounded text-[10px] font-bold hover:bg-violet-500 transition disabled:opacity-50 flex items-center gap-2"><span>🔊</span> 播放简报</button>
+        </div>
+    </div>
+
+    <div id="chat-widget" class="chat-widget">
+        <div class="h-10 bg-[#121214] border-b border-[#27272a] flex items-center justify-between px-4 rounded-t-xl">
+            <span class="text-xs font-bold text-purple-400 flex items-center gap-2"><span>👻</span> 幽灵协议 (内部人)</span>
+            <button onclick="toggleChat()" class="text-gray-500 hover:text-white transition">✕</button>
+        </div>
+        <div id="chat-messages" class="chat-messages">
+            <div class="chat-bubble bubble-ai">我是“幽灵”。关于这个票，你想知道什么？别问我怎么知道的。</div>
+        </div>
+        <div class="p-3 border-t border-[#27272a] bg-[#121214] flex gap-2 rounded-b-xl">
+            <input type="text" id="chat-input" class="flex-1 bg-[#27272a] border border-[#3f3f46] rounded px-3 py-1.5 text-white text-xs focus:outline-none focus:border-violet-500 transition placeholder-gray-600" placeholder="问点敏感的..." onkeypress="if(event.key==='Enter') sendChat()">
+            <button onclick="sendChat()" class="px-3 py-1.5 bg-violet-600 text-white rounded text-xs hover:bg-violet-500 transition font-bold">发送</button>
+        </div>
+    </div>
+
+    <script>
+        const apiKey = ''; 
+        let currentStrategyText = "";
+        let pollInterval = null;
+        let chartData = [];
+        let chatHistory = [];
+        let simulationMode = false;
+        
+        // V13.2 优化：标准数据模型
+        const state = {
+            code: 'sh600519',
+            name: '贵州茅台',
+            price: 1750.00,
+            prevClose: 1740.00,
+            open: 1740.00,
+            high: 1760.00,
+            low: 1730.00,
+            vol: 1000000,
+            mode: 'soros',
+            sentiment: 0.5,
+            asks: [],
+            bids: [],
+            source: 'public', // public, wind, eastmoney
+            rumors: []
+        };
+
+        // --- 扩展接口区域 (专业版预留) ---
+        // 如果您拥有 Wind/东方财富 的API权限，请在此处配置
+        const adapters = {
+            wind: {
+                enabled: false,
+                apiKey: 'YOUR_WIND_API_KEY', // 填入 Key
+                endpoint: 'https://api.wind.com.cn/v1/market/realtime' // 示例端点
+            },
+            eastmoney: {
+                enabled: false,
+                token: 'YOUR_EM_TOKEN',
+                endpoint: 'https://push2.eastmoney.com/api/qt/stock/get' // 示例端点
+            }
+        };
+
+        // --- 数据适配器 ---
+        async function fetchWindData(code) {
+            // 示例代码：如何接入 Wind 接口
+            // 由于跨域限制，通常需要后端代理。这里展示前端 fetch 逻辑
+            if (!adapters.wind.enabled) return null;
+            logTrade("正在尝试连接 Wind 机构专线...", "info");
+            // const res = await fetch(`${adapters.wind.endpoint}?code=${code}&key=${adapters.wind.apiKey}`);
+            // const data = await res.json();
+            // return standardizeWindData(data);
+            return null; // 暂未配置
+        }
+
+        async function fetchEastMoneyData(code) {
+            // 示例代码：如何接入东方财富接口
+            if (!adapters.eastmoney.enabled) return null;
+            logTrade("正在尝试连接东财 L2 极速行情...", "info");
+            // const res = await fetch(`${adapters.eastmoney.endpoint}?secid=${code}&token=${adapters.eastmoney.token}`);
+            // return standardizeEmData(await res.json());
+            return null;
+        }
+
+        // --- 核心业务逻辑 ---
+
+        function switchDataSource(source) {
+            state.source = source;
+            logTrade(`切换数据源通道至: ${source.toUpperCase()}`, 'info');
+            changeStock(); // 重新连接
+        }
+
+        function safeSetText(id, text) {
+            const el = document.getElementById(id);
+            if (el) el.innerText = text;
+        }
+
+        function autoPrefix(input) {
+            let val = input.value.trim();
+            if(/^\d{6}$/.test(val)) {
+                if(val.startsWith('6')) input.value = 'sh' + val;
+                else input.value = 'sz' + val;
+            }
+        }
+
+        function showModal(t, c, a=false) { 
+            const m = document.getElementById('ai-modal'); 
+            const bd = document.getElementById('modal-backdrop');
+            document.getElementById('modal-title').innerText = t; 
+            document.getElementById('modal-content').innerHTML = c || '<div class="h-40 flex flex-col items-center justify-center gap-4"><div class="loader"></div><div class="text-[10px] text-gray-500 font-mono animate-pulse">正在处理数据...</div></div>'; 
+            document.getElementById('audio-control').style.display = a ? 'flex' : 'none'; 
+            m.classList.add('active'); bd.classList.add('active');
+        }
+        function closeModal() { 
+            const m = document.getElementById('ai-modal');
+            const bd = document.getElementById('modal-backdrop');
+            if(m) m.classList.remove('active'); 
+            if(bd) bd.classList.remove('active'); 
+        }
+        
+        function logTrade(msg, type) { 
+            const l = document.getElementById('trade-log'); 
+            if (!l) return;
+            let colorClass = 'text-gray-500';
+            if(type === 'alert') colorClass = 'text-red-400 font-bold';
+            const time = new Date().toLocaleTimeString('zh-CN',{hour12:false});
+            l.innerHTML = `<div class="mb-1 ${colorClass} hover:bg-[#18181b] px-1 -mx-1 rounded transition"><span class="opacity-40 mr-2 font-mono text-[9px]">[${time}]</span>${msg}</div>` + l.innerHTML; 
+        }
+
+        function changeStock() {
+            const val = document.getElementById('stock-code').value.trim();
+            if(!val) return;
+            state.code = val;
+            chartData = [];
+            chatHistory = []; 
+            state.rumors = [];
+            simulationMode = false;
+            
+            const chatMsgEl = document.getElementById('chat-messages');
+            if (chatMsgEl) chatMsgEl.innerHTML = '<div class="chat-bubble bubble-ai">我是“幽灵”。关于这个票，你想知道什么？</div>';
+            
+            const nlpFeedEl = document.getElementById('nlp-feed');
+            if (nlpFeedEl) nlpFeedEl.innerHTML = ''; 
+            
+            logTrade(`正在初始化 ${val} 数据通道 (${state.source})...`, 'info');
+            setConnectionStatus('connecting');
+            
+            if (state.source === 'public') {
+                fetchRealStockData();
+                fetchIntradayData();
+            } else if (state.source === 'wind') {
+                fetchWindData(val); // 预留调用
+                setTimeout(() => { logTrade("Wind 接口未配置 Key，回退至公网", "alert"); state.source='public'; fetchRealStockData(); fetchIntradayData(); }, 1000);
+            } else if (state.source === 'eastmoney') {
+                fetchEastMoneyData(val); // 预留调用
+                setTimeout(() => { logTrade("东财接口未配置 Token，回退至公网", "alert"); state.source='public'; fetchRealStockData(); fetchIntradayData(); }, 1000);
+            }
+        }
+
+        function fetchRealStockData() {
+            const ts = Date.now();
+            const scriptT = document.createElement('script');
+            scriptT.src = `https://qt.gtimg.cn/q=${state.code}&_=${ts}`;
+            scriptT.referrerPolicy = "no-referrer"; 
+            scriptT.id = 'script-tencent';
+            
+            scriptT.onload = () => { processTencentData(); scriptT.remove(); };
+            scriptT.onerror = () => { activateSimulationMode(); scriptT.remove(); };
+            
+            document.body.appendChild(scriptT);
+        }
+
+        function fetchIntradayData() {
+            const ts = Date.now();
+            const cbName = 'tencent_min_' + ts;
+            window[cbName] = function(res) {
+                processTencentMinute(res);
+                delete window[cbName];
+                const s = document.getElementById('script-min-tencent');
+                if(s) s.remove();
+            };
+
+            const script = document.createElement('script');
+            script.src = `https://web.ifzq.gtimg.cn/appstock/app/minute/query?code=${state.code}&callback=${cbName}`;
+            script.id = 'script-min-tencent';
+            script.onerror = () => { logTrade("分时数据获取失败", "alert"); };
+            document.body.appendChild(script);
+        }
+
+        function processTencentMinute(res) {
+            if(!res || !res.data || !res.data[state.code]) return;
+            const data = res.data[state.code].data.data;
+            if(!data) return;
+
+            const prices = data.map(item => parseFloat(item.split(' ')[1]));
+            
+            if(prices.length > 0) {
+                chartData = prices;
+                logTrade(`同步了 ${chartData.length} 个分时数据点`, 'info');
+                drawChart();
+            }
+        }
+
+        function setConnectionStatus(status) {
+            const dot = document.getElementById('status-dot');
+            const text = document.getElementById('connection-text');
+            const label = document.getElementById('data-mode-label');
+            
+            if (!dot || !text || !label) return;
+
+            if(status === 'live') {
+                dot.className = "w-2 h-2 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]";
+                text.innerText = "链路稳定";
+                label.innerText = "L1 实盘";
+                label.className = "px-1.5 py-0.5 rounded text-[9px] font-bold badge-live";
+            } else if (status === 'sim') {
+                dot.className = "w-2 h-2 rounded-full bg-violet-500 shadow-[0_0_8px_rgba(139,92,246,0.5)]";
+                text.innerText = "量子仿真中";
+                label.innerText = "仿真";
+                label.className = "px-1.5 py-0.5 rounded text-[9px] font-bold badge-sim";
+            } else {
+                dot.className = "w-2 h-2 rounded-full bg-yellow-500 animate-pulse";
+                text.innerText = "连接中...";
+            }
+        }
+        
+        function activateSimulationMode() {
+            if(simulationMode) return;
+            simulationMode = true;
+            logTrade("检测到网络拦截，切换至量子仿真。", "alert");
+            setConnectionStatus('sim');
+            if(state.price === 0) {
+                state.name = state.code.toUpperCase() + " (仿真)";
+                state.price = 20.00; state.prevClose = 19.50; state.high = 20.10; state.low = 19.50; state.vol = 500000;
+            }
+            updateUI();
+        }
+
+        function runSimulationTick() {
+            if(!simulationMode) return;
+            const volatility = 0.003;
+            const change = (Math.random() - 0.45) * state.price * volatility;
+            state.price += change;
+            if(state.price > state.high) state.high = state.price;
+            if(state.price < state.low) state.low = state.price;
+            state.vol += Math.floor(Math.random() * 500);
+            
+            state.asks = []; state.bids = [];
+            for(let i=0; i<5; i++) {
+                state.asks.push({ price: state.price + (0.01 * (5-i)), vol: Math.floor(Math.random() * 500) + 10 });
+                state.bids.push({ price: state.price - (0.01 * (i+1)), vol: Math.floor(Math.random() * 500) + 10 });
+            }
+            updateUI();
+        }
+
+        function processTencentData() {
+            const dataStr = window[`v_${state.code}`];
+            if (!dataStr) return;
+            const parts = dataStr.split('~');
+            if(parts.length < 30) return;
+            
+            setConnectionStatus('live');
+            state.name = parts[1];
+            state.price = parseFloat(parts[3]);
+            state.prevClose = parseFloat(parts[4]);
+            state.vol = parseFloat(parts[6]) * 100; 
+            state.high = parseFloat(parts[33]);
+            state.low = parseFloat(parts[34]);
+
+            state.bids = []; for(let i=0; i<5; i++) state.bids.push({ price: parseFloat(parts[9 + i*2]), vol: parseFloat(parts[10 + i*2]) });
+            state.asks = []; for(let i=0; i<5; i++) state.asks.push({ price: parseFloat(parts[19 + i*2]), vol: parseFloat(parts[20 + i*2]) });
+            state.asks.reverse();
+            updateUI();
+        }
+
+        function updateUI() {
+            safeSetText('stock-name', state.name);
+            safeSetText('high-price', state.high.toFixed(2));
+            safeSetText('low-price', state.low.toFixed(2));
+            
+            const priceEl = document.getElementById('current-price');
+            if (priceEl) priceEl.innerText = state.price.toFixed(2);
+            
+            let change = 0;
+            if(state.prevClose > 0) change = ((state.price - state.prevClose) / state.prevClose) * 100;
+            
+            const changeEl = document.getElementById('price-change');
+            if (changeEl) changeEl.innerText = (change > 0 ? "+" : "") + change.toFixed(2) + "%";
+            
+            const colorClass = change >= 0 ? 'text-[#ff333a]' : 'text-[#00e676]';
+            if (priceEl) priceEl.className = `text-2xl font-bold tracking-tight transition-colors duration-300 ${colorClass}`;
+            if (changeEl) changeEl.className = `text-sm font-bold ${colorClass}`;
+            
+            safeSetText('total-vol', "量: " + (state.vol / 10000).toFixed(0) + "万");
+
+            renderOrderBook();
+            
+            if(simulationMode || chartData.length === 0) {
+                chartData.push(state.price);
+                if(chartData.length > 240) chartData.shift(); 
+            } else {
+                chartData[chartData.length - 1] = state.price;
+            }
+            
+            drawChart();
+            updateAlphaScore(change);
+        }
+
+        function renderOrderBook() {
+            const asksContainer = document.getElementById('asks');
+            const bidsContainer = document.getElementById('bids');
+            
+            if (!asksContainer || !bidsContainer) return;
+
+            asksContainer.innerHTML = ''; bidsContainer.innerHTML = '';
+            const allVols = [...state.asks, ...state.bids].map(x => x.vol);
+            const maxVol = Math.max(...allVols, 100); 
+            
+            state.asks.forEach((ask, i) => {
+                const width = (ask.vol / maxVol) * 100;
+                const div = document.createElement('div');
+                div.className = 'flex justify-between items-center px-4 py-0.5 text-[10px] relative hover:bg-gray-800 cursor-pointer group';
+                div.innerHTML = `<div class="absolute top-0 right-0 h-full bg-green-900/10 transition-all duration-300" style="width: ${width}%"></div><span class="z-10 text-gray-500 w-8">卖${5-i}</span><span class="z-10 text-green-500 w-16 text-right group-hover:text-white transition">${ask.price.toFixed(2)}</span><span class="z-10 text-gray-500 w-12 text-right">${Math.floor(ask.vol)}</span>`;
+                asksContainer.appendChild(div);
+            });
+            state.bids.forEach((bid, i) => {
+                const width = (bid.vol / maxVol) * 100;
+                const div = document.createElement('div');
+                div.className = 'flex justify-between items-center px-4 py-0.5 text-[10px] relative hover:bg-gray-800 cursor-pointer group';
+                div.innerHTML = `<div class="absolute top-0 right-0 h-full bg-red-900/10 transition-all duration-300" style="width: ${width}%"></div><span class="z-10 text-gray-500 w-8">买${i+1}</span><span class="z-10 text-red-500 w-16 text-right group-hover:text-white transition">${bid.price.toFixed(2)}</span><span class="z-10 text-gray-500 w-12 text-right">${Math.floor(bid.vol)}</span>`;
+                bidsContainer.appendChild(div);
+            });
+        }
+
+        // --- Gemini AI ---
+        async function callGemini(payload) {
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+            try {
+                const r = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                const d = await r.json();
+                return d.candidates?.[0]?.content?.parts?.[0]?.text || "AI 暂时离线";
+            } catch(e) { return "网络错误"; }
+        }
+        async function callGeminiText(prompt) { return await callGemini({ contents: [{ parts: [{ text: prompt }] }] }); }
+        
+        async function callGeminiSearch(prompt) {
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+            const payload = { contents: [{ parts: [{ text: prompt }] }], tools: [{ "google_search": {} }] };
+            try {
+                const r = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                const d = await r.json();
+                return d.candidates?.[0]?.content?.parts?.[0]?.text || "侦察失败：AI 无法连接到外网";
+            } catch(e) { return "网络搜索错误"; }
+        }
+
+        async function callGeminiVision(base64Image, prompt) {
+            return await callGemini({ contents: [{ parts: [ { text: prompt }, { inlineData: { mimeType: "image/png", data: base64Image } } ] }] });
+        }
+        async function callImagen(promptText) {
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-generate-001:predict?key=${apiKey}`;
+            const payload = { instances: [{ prompt: promptText }], parameters: { sampleCount: 1 } };
+            try {
+                const r = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                const d = await r.json();
+                return d.predictions?.[0]?.bytesBase64Encoded ? `data:image/png;base64,${d.predictions[0].bytesBase64Encoded}` : null;
+            } catch(e) { console.error(e); return null; }
+        }
+        async function callGeminiChat(prompt) {
+            const contents = chatHistory.map(msg => ({ role: msg.role === 'user' ? 'user' : 'model', parts: [{ text: msg.text }] }));
+            contents.push({ role: 'user', parts: [{ text: prompt }] });
+            return await callGemini({ contents: contents, systemInstruction: { parts: [{ text: `你是一个中国A股市场的“匿名内部人”（代号：幽灵）。说话神秘、犀利，喜欢用黑话（如“庄家”、“洗盘”、“喝茶”）。` }] } });
+        }
+        async function callGeminiTTS(text) {
+             const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${apiKey}`;
+             const payload = { contents: [{ parts: [{ text: text }] }], generationConfig: { responseModalities: ["AUDIO"], speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: "Kore" } } } } };
+             try {
+                const r = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                const d = await r.json();
+                return d.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
+             } catch(e) { return null; }
+        }
+
+        // --- Features ---
+        // V13 Feature: Real Web Sentiment Mining
+        async function mineWebSentiment() {
+            const feed = document.getElementById('nlp-feed');
+            if (!feed) return;
+            const id = 'scan-' + Date.now();
+            feed.innerHTML = `<div id="${id}" class="mb-2 text-blue-400 border-l-2 border-blue-500 pl-2 text-[10px] animate-pulse">正在全网挖掘 ${state.name} 的小道消息...</div>` + feed.innerHTML;
+            
+            const prompt = `使用Google Search搜索中国A股"${state.name}"(${state.code})最近24小时在东方财富股吧、雪球、微博等平台的讨论、传闻或新闻。
+            请提炼出一条最劲爆的“小作文”风格的摘要（30字以内）。如果没有特别的，就找行业相关新闻。
+            格式：[类型] 内容
+            类型可以是：利好、利空、甚至传闻。`;
+            
+            const text = await callGeminiSearch(prompt);
+            const el = document.getElementById(id);
+            if(el) {
+                el.className = "mb-2 text-blue-300 border-l-2 border-blue-500 pl-2 text-[10px] cursor-pointer hover:text-white transition";
+                el.classList.remove("animate-pulse");
+                el.innerHTML = marked.parse(text);
+                state.rumors.push(`舆情: ${text.substring(0, 50)}...`);
+            }
+        }
+
+        async function findHistoricalMatch() {
+            showModal("历史镜像回溯", null);
+            const canvas = document.getElementById('mainChart');
+            const base64 = canvas.toDataURL('image/png').replace(/^data:image\/png;base64,/, "");
+            const change = ((state.price - state.prevClose) / state.prevClose * 100).toFixed(2);
+            const prompt = `分析${state.name}K线(涨跌${change}%)。寻找A股/美股历史上的相似走势。哪年哪只票? 相似点? 剧本推演?`;
+            const text = await callGeminiVision(base64, prompt);
+            const modalContent = document.getElementById('modal-content');
+            if (modalContent) modalContent.innerHTML = marked.parse(text);
+        }
+        async function consultRiskOfficer() {
+            showModal("首席风控官", null);
+            const modalContent = document.getElementById('modal-content');
+            if (modalContent) modalContent.innerHTML = '<div class="p-8 flex justify-center"><div class="loader"></div></div>';
+            const rumorsText = state.rumors.length > 0 ? state.rumors.join('; ') : "无重大传闻";
+            const change = ((state.price - state.prevClose) / state.prevClose * 100).toFixed(2);
+            const prompt = `CRO风控报告。标的:${state.name}。涨跌:${change}%。舆情:${rumorsText}。1.风险分(0-100)。2.风险点。3.强制指令。严厉口吻。`;
+            const text = await callGeminiText(prompt);
+            if (modalContent) modalContent.innerHTML = marked.parse(text);
+        }
+        async function consultTherapist() {
+            showModal("心理按摩", null);
+            const modalContent = document.getElementById('modal-content');
+            if (modalContent) modalContent.innerHTML = '<div class="p-8 flex justify-center"><div class="loader"></div></div>';
+            const change = ((state.price - state.prevClose) / state.prevClose * 100).toFixed(2);
+            const prompt = `心理医生干预。客户持有${state.name}，盈亏${change}%。风格:${state.mode}。涨则泼冷水，跌则安慰。温暖有力。`;
+            const text = await callGeminiText(prompt);
+            if (modalContent) modalContent.innerHTML = marked.parse(text);
+        }
+        async function generateSentimentTotem() {
+            showModal("情绪图腾", null);
+            const modalContent = document.getElementById('modal-content');
+            if (modalContent) modalContent.innerHTML = '<div class="p-8 flex flex-col items-center justify-center gap-4"><div class="loader"></div><div class="text-xs text-pink-400">Imagen 4 绘图中...</div></div>';
+            const change = ((state.price - state.prevClose) / state.prevClose * 100).toFixed(2);
+            let artPrompt = change > 3 ? "Surreal golden bull charging up fire mountain" : (change < -3 ? "Cyberpunk broken bear robot in rain" : "Mysterious foggy lake");
+            const imageUrl = await callImagen(artPrompt);
+            if (modalContent) modalContent.innerHTML = imageUrl ? `<div class="flex flex-col items-center"><p class="text-gray-500 italic mb-2">"AI 感知的市场情绪"</p><img src="${imageUrl}" class="w-full max-w-md h-auto border border-pink-500/30"></div>` : '<p class="text-red-500">生成失败</p>';
+        }
+        async function openDebate() {
+            showModal("多空庭辩", null);
+            const modalContent = document.getElementById('modal-content');
+            if (modalContent) modalContent.innerHTML = '<div class="p-8 flex justify-center"><div class="loader"></div></div>';
+            const change = ((state.price - state.prevClose) / state.prevClose * 100).toFixed(2);
+            const prompt = `模拟A股${state.name}多空辩论。涨跌${change}%。多头vs空头。4回合。语言犀利。`;
+            const text = await callGeminiText(prompt);
+            if (modalContent) modalContent.innerHTML = marked.parse(text);
+        }
+        async function analyzeChartVision() {
+            showModal("视觉分析");
+            const canvas = document.getElementById('mainChart');
+            const base64 = canvas.toDataURL('image/png').replace(/^data:image\/png;base64,/, "");
+            const prompt = `视觉分析K线。1.形态。2.美学。3.预测。`;
+            const text = await callGeminiVision(base64, prompt);
+            const modalContent = document.getElementById('modal-content');
+            if (modalContent) modalContent.innerHTML = marked.parse(text);
+        }
+        function toggleChat() { 
+            const widget = document.getElementById('chat-widget');
+            if (widget) widget.classList.toggle('open'); 
+        }
+        async function sendChat() {
+            const input = document.getElementById('chat-input');
+            const val = input.value.trim();
+            if(!val) return;
+            addChatBubble(val, 'user');
+            input.value = '';
+            const loadingId = addChatBubble("...", 'ai');
+            const response = await callGeminiChat(val);
+            const loadingEl = document.getElementById(loadingId);
+            if (loadingEl) loadingEl.innerText = response;
+            chatHistory.push({ role: 'user', text: val }, { role: 'model', text: response });
+        }
+        function addChatBubble(text, type) {
+            const c = document.getElementById('chat-messages');
+            const d = document.createElement('div');
+            d.id = 'msg-' + Date.now();
+            d.className = `chat-bubble ${type === 'user' ? 'bubble-user' : 'bubble-ai'}`;
+            d.innerText = text;
+            c.appendChild(d); c.scrollTop = c.scrollHeight;
+            return d.id;
+        }
+        async function identifyPredator() {
+            const profile = document.getElementById('predator-profile');
+            if (profile) profile.innerHTML = '<div class="loader"></div>';
+            const change = ((state.price - state.prevClose) / state.prevClose * 100).toFixed(2);
+            const prompt = `分析${state.name}实盘。涨跌${change}%。侧写主力属性。3句话。`;
+            const text = await callGeminiText(prompt);
+            if (profile) profile.innerHTML = marked.parse(text);
+        }
+        async function openWarRoom() {
+            const scenario = window.prompt("宏观事件假设:", "人民币汇率大幅升值");
+            if(!scenario) return;
+            showModal("沙盘推演");
+            const aiPrompt = `推演${state.name}在"${scenario}"下的表现。`;
+            const text = await callGeminiText(aiPrompt);
+            const modalContent = document.getElementById('modal-content');
+            if (modalContent) modalContent.innerHTML = marked.parse(text);
+        }
+        async function askStrategyCore() {
+            showModal("智能策略", null, true);
+            const prompt = `Alpha-Core策略。${state.name}。风格:${state.mode}。口语化建议。`;
+            const text = await callGeminiText(prompt);
+            currentStrategyText = text;
+            const modalContent = document.getElementById('modal-content');
+            if (modalContent) modalContent.innerHTML = marked.parse(text);
+            const btn = document.getElementById('btn-play-audio');
+            const status = document.getElementById('audio-status');
+            if (btn) btn.disabled = false;
+            if (status) status.innerText = "语音就绪";
+        }
+        function switchMode(m) { 
+            state.mode=m; 
+            logTrade(`模式切换: ${m==='soros'?'索罗斯':'巴菲特'}`, 'info'); 
+            const btnSoros = document.getElementById('mode-soros');
+            const btnBuffett = document.getElementById('mode-buffett');
+            if (btnSoros) btnSoros.className = m==='soros' ? "px-4 py-1 rounded bg-blue-600 text-white font-bold transition-all text-[10px]" : "px-4 py-1 rounded text-gray-400 hover:text-white transition-all text-[10px]";
+            if (btnBuffett) btnBuffett.className = m==='buffett' ? "px-4 py-1 rounded bg-blue-600 text-white font-bold transition-all text-[10px]" : "px-4 py-1 rounded text-gray-400 hover:text-white transition-all text-[10px]";
+        }
+        async function playStrategyAudio() {
+            if(!currentStrategyText) return;
+            const btn = document.getElementById('btn-play-audio');
+            if (btn) btn.disabled=true;
+            const b64 = await callGeminiTTS(currentStrategyText);
+            if(b64) {
+                const wav = pcm16ToWav(base64ToArrayBuffer(b64));
+                new Audio(URL.createObjectURL(new Blob([wav],{type:'audio/wav'}))).play();
+                const status = document.getElementById('audio-status');
+                if (status) status.innerText="播放中...";
+            }
+            if (btn) btn.disabled=false;
+        }
+        function base64ToArrayBuffer(base64) { const binaryString = window.atob(base64); const bytes = new Uint8Array(binaryString.length); for (let i = 0; i < binaryString.length; i++) bytes[i] = binaryString.charCodeAt(i); return bytes.buffer; }
+        function pcm16ToWav(pcmData) { const numChannels=1, sampleRate=24000, bitsPerSample=16, dataSize=pcmData.byteLength; const buffer=new ArrayBuffer(44+dataSize), view=new DataView(buffer); const writeString=(v,o,s)=>{for(let i=0;i<s.length;i++)v.setUint8(o+i,s.charCodeAt(i))}; writeString(view,0,'RIFF');view.setUint32(4,36+dataSize,true);writeString(view,8,'WAVE');writeString(view,12,'fmt ');view.setUint32(16,16,true);view.setUint16(20,1,true);view.setUint16(22,numChannels,true);view.setUint32(24,sampleRate,true);view.setUint32(28,sampleRate*2,true);view.setUint16(32,2,true);view.setUint16(34,bitsPerSample,true);writeString(view,36,'data');view.setUint32(40,dataSize,true);new Uint8Array(buffer).set(new Uint8Array(pcmData),44);return buffer; }
+        
+        async function generateRumor() { mineWebSentiment(); }
+        async function generateFundamentalReport() { showModal("深度审计", null); const t = await callGeminiText(`审计${state.name}基本面`); const content = document.getElementById('modal-content'); if (content) content.innerHTML = marked.parse(t); }
+        function updateAlphaScore(change) { let score=50+change*5; if(state.mode==='soros'&&change>5)score+=20; if(state.mode==='buffett'&&change<-3)score+=20; score=Math.max(0,Math.min(100,Math.floor(score))); safeSetText('alpha-score', score); }
+        
+        function drawChart() { 
+            const cvs=document.getElementById('mainChart'); 
+            const ctx=cvs.getContext('2d'); 
+            cvs.width=cvs.parentElement.offsetWidth; 
+            cvs.height=cvs.parentElement.offsetHeight; 
+            ctx.clearRect(0,0,cvs.width,cvs.height); 
+            
+            if(chartData.length<2) {
+                ctx.fillStyle = "#333";
+                ctx.font = "12px monospace";
+                ctx.fillText("等待市场数据...", 20, 30);
+                return;
+            } 
+            
+            let min = Math.min(...chartData);
+            let max = Math.max(...chartData);
+            if (min === max) { min *= 0.99; max *= 1.01; }
+            else { min *= 0.998; max *= 1.002; }
+            const range = max - min;
+            
+            const grad=ctx.createLinearGradient(0,0,0,cvs.height); 
+            grad.addColorStop(0,'rgba(139, 92, 246, 0.2)'); 
+            grad.addColorStop(1,'rgba(139, 92, 246, 0)'); 
+            
+            ctx.beginPath(); 
+            chartData.forEach((p,i)=>{
+                const x=(i/(chartData.length-1))*cvs.width;
+                const y=cvs.height-((p-min)/range)*cvs.height;
+                i===0?ctx.moveTo(x,y):ctx.lineTo(x,y)
+            }); 
+            ctx.lineTo(cvs.width,cvs.height); 
+            ctx.lineTo(0,cvs.height); 
+            ctx.fillStyle=grad; 
+            ctx.fill(); 
+            
+            ctx.beginPath(); 
+            chartData.forEach((p,i)=>{
+                const x=(i/(chartData.length-1))*cvs.width;
+                const y=cvs.height-((p-min)/range)*cvs.height;
+                i===0?ctx.moveTo(x,y):ctx.lineTo(x,y)
+            }); 
+            ctx.strokeStyle='#8b5cf6'; 
+            ctx.lineWidth=2; 
+            ctx.stroke(); 
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            logTrade("Alpha-Core V13.0 系统就绪", 'info'); 
+            fetchRealStockData();
+            fetchIntradayData(); 
+            pollInterval = setInterval(() => { 
+                if(simulationMode) { runSimulationTick(); } 
+                else { fetchRealStockData(); } 
+            }, 3000); 
+        });
+    </script>
+</body>
+</html>

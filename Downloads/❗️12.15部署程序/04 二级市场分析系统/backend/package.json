@@ -1,0 +1,13 @@
+{
+  "name": "stock-analysis-backend",
+  "version": "1.0.0",
+  "description": "二级市场分析系统后端API",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vercel dev"
+  },
+  "keywords": ["stock", "analysis", "api"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {}
+}

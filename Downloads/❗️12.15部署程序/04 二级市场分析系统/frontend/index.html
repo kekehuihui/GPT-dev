@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alpha-Core | 掠食者雷达 V13.2 (前后端分离版)</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Marked.js for markdown parsing -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <!-- 外部样式文件 -->
+    <link rel="stylesheet" href="assets/style.css">
+</head>
+<body class="h-screen flex flex-col text-xs select-none">
+
+    <!-- 顶部导航 -->
+    <header class="h-12 border-b border-[#27272a] flex items-center justify-between px-6 bg-[#09090b]/80 backdrop-blur-md z-30">
+        <div class="flex items-center gap-6">
+            <div class="flex flex-col">
+                <span class="font-bold text-base tracking-widest text-violet-400">ALPHA-CORE</span>
+                <span class="text-[9px] text-gray-500 tracking-[0.2em]">架构开放版 V13.2</span>
+            </div>
+            <div class="h-6 w-[1px] bg-[#27272a]"></div>
+            <div class="flex items-center gap-2 px-3 py-1.5 bg-[#18181b] rounded-full border border-[#27272a]">
+                <span class="w-2 h-2 rounded-full bg-yellow-500 transition-colors duration-500" id="status-dot"></span>
+                <span class="text-[10px] text-gray-400" id="connection-text">接口初始化...</span>
+            </div>
+            <div class="flex items-center gap-0 bg-[#18181b] rounded-lg border border-[#27272a] p-0.5">
+                <span class="px-3 text-[10px] text-gray-500">代码</span>
+                <input type="text" id="stock-code" value="sh600519" 
+                    class="bg-transparent border-none text-white w-24 font-bold focus:outline-none uppercase text-center placeholder-gray-700" 
+                    placeholder="sh/sz..." onblur="autoPrefix(this)" onkeydown="if(event.key==='Enter') changeStock()">
+                <button onclick="changeStock()" class="text-[10px] bg-violet-600/20 text-violet-300 px-3 py-1 rounded hover:bg-violet-600 hover:text-white transition-all">连接数据</button>
+            </div>
+        </div>
+        <div class="flex bg-[#18181b] rounded-lg p-1 border border-[#27272a] gap-1">
+            <button id="mode-soros" class="px-4 py-1 rounded text-gray-400 hover:text-white transition-all text-[10px] font-bold" onclick="switchMode('soros')">索罗斯 (进攻)</button>
+            <button id="mode-buffett" class="px-4 py-1 rounded text-gray-400 hover:text-white transition-all text-[10px] font-bold" onclick="switchMode('buffett')">巴菲特 (防御)</button>
+        </div>
+    </header>
+
+    <!-- 主工作区 -->
+    <div class="flex-1 flex overflow-hidden relative">
+        <div class="scan-line"></div>
+
+        <!-- 左侧：盘口与主力识别 -->
+        <div class="w-72 border-r border-[#27272a] flex flex-col bg-[#0e0e11]">
+            <div class="p-4 border-b border-[#27272a] bg-[#121214]">
+                <div class="flex justify-between items-center mb-3">
+                    <span class="text-[10px] text-gray-500 tracking-wider">主力身份识别</span>
+                    <button onclick="identifyPredator()" class="text-[9px] text-violet-400 border border-violet-500/30 px-2 py-0.5 rounded bg-violet-500/10 hover:bg-violet-500 hover:text-white transition">AI 扫描</button>
+                </div>
+                <div id="predator-profile" class="h-20 border border-[#27272a] rounded bg-black/40 p-3 text-gray-400 text-[10px] leading-relaxed overflow-y-auto">
+                    等待盘口数据流...
+                </div>
+            </div>
+            <div class="px-4 py-2 border-b border-[#27272a] flex justify-between items-center bg-[#121214]">
+                <span class="text-[10px] text-gray-500">五档盘口 (L1)</span>
+                <span class="px-1.5 py-0.5 rounded text-[9px] font-bold badge-live" id="data-mode-label">实盘</span>
+            </div>
+            <div id="asks" class="flex-1 flex flex-col-reverse justify-end overflow-hidden pb-2 pt-2 bg-[#09090b]"></div>
+            <div class="h-16 border-y border-[#27272a] flex items-center justify-between px-5 bg-[#121214]">
+                <div class="flex flex-col">
+                    <span id="current-price" class="text-2xl font-bold text-gray-200 tracking-tight transition-colors duration-300">--.--</span>
+                </div>
+                <div class="flex flex-col items-end">
+                    <span id="price-change" class="text-sm font-bold text-gray-500">--%</span>
+                    <span id="total-vol" class="text-[10px] text-gray-600 mt-0.5">量: --</span>
+                </div>
+            </div>
+            <div id="bids" class="flex-1 overflow-hidden pt-2 bg-[#09090b]"></div>
+            
+            <!-- 数据源切换器 -->
+            <div class="p-3 border-t border-[#27272a] bg-[#121214]">
+                <div class="text-[9px] text-gray-500 mb-1">数据通道 (扩展接口)</div>
+                <select id="data-source-select" class="w-full bg-[#09090b] text-gray-300 text-[10px] border border-[#27272a] rounded p-1" onchange="switchDataSource(this.value)">
+                    <option value="public">公网聚合 (腾讯/新浪)</option>
+                    <option value="wind">Wind 机构专线 (需API Key)</option>
+                    <option value="eastmoney">东方财富 L2 (需Token)</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- 中间：图表与核心功能 -->
+        <div class="flex-1 flex flex-col relative bg-[#09090b]">
+            <div class="flex-1 relative group" id="chart-container">
+                <div class="absolute inset-0 pointer-events-none" style="background-image: linear-gradient(#1f1f22 1px, transparent 1px), linear-gradient(90deg, #1f1f22 1px, transparent 1px); background-size: 40px 40px; opacity: 0.5;"></div>
+                
+                <!-- 仪表盘 HUD -->
+                <div class="absolute top-4 right-6 z-10 flex flex-col items-end pointer-events-none">
+                    <div class="text-[9px] text-gray-600 mb-1">ALPHA 置信度</div>
+                    <div class="flex items-baseline gap-2">
+                        <span id="alpha-score" class="text-6xl font-bold text-gray-700 transition-all duration-500">00</span>
+                        <span class="text-xl text-gray-700">/100</span>
+                    </div>
+                    <div id="signal-text" class="text-[10px] font-bold px-2 py-1 rounded bg-gray-900 border border-gray-800 text-gray-500 mt-2">等待信号</div>
+                </div>
+
+                <!-- 悬浮工具栏 (全中文) -->
+                <div class="absolute top-4 left-4 z-20 flex flex-col gap-2">
+                    <button onclick="analyzeChartVision()" class="btn-feature flex items-center gap-3 bg-[#18181b]/90 backdrop-blur border border-[#27272a] px-3 py-2 rounded-lg text-gray-300 w-40 hover:border-violet-500/50 group">
+                        <span class="text-base group-hover:scale-110 transition">📸</span>
+                        <div class="flex flex-col items-start"><span class="text-[10px] font-bold">视觉分析</span><span class="text-[8px] text-gray-500">VISION PRO</span></div>
+                    </button>
+                    <button onclick="generateSentimentTotem()" class="btn-feature flex items-center gap-3 bg-[#18181b]/90 backdrop-blur border border-[#27272a] px-3 py-2 rounded-lg text-gray-300 w-40 hover:border-pink-500/50 group">
+                        <span class="text-base group-hover:scale-110 transition">🎨</span>
+                        <div class="flex flex-col items-start"><span class="text-[10px] font-bold">情绪图腾</span><span class="text-[8px] text-gray-500">IMAGEN 4</span></div>
+                    </button>
+                    <button onclick="openDebate()" class="btn-feature flex items-center gap-3 bg-[#18181b]/90 backdrop-blur border border-[#27272a] px-3 py-2 rounded-lg text-gray-300 w-40 hover:border-blue-500/50 group">
+                        <span class="text-base group-hover:scale-110 transition">⚖️</span>
+                        <div class="flex flex-col items-start"><span class="text-[10px] font-bold">多空庭辩</span><span class="text-[8px] text-gray-500">双重人格博弈</span></div>
+                    </button>
+                    <button onclick="consultRiskOfficer()" class="btn-feature flex items-center gap-3 bg-[#18181b]/90 backdrop-blur border border-[#27272a] px-3 py-2 rounded-lg text-gray-300 w-40 hover:border-rose-500/50 group">
+                        <span class="text-base group-hover:scale-110 transition">🔮</span>
+                        <div class="flex flex-col items-start"><span class="text-[10px] font-bold">首席风控官</span><span class="text-[8px] text-gray-500">RISK CONTROL</span></div>
+                    </button>
+                    <button onclick="openWarRoom()" class="btn-feature flex items-center gap-3 bg-[#18181b]/90 backdrop-blur border border-[#27272a] px-3 py-2 rounded-lg text-gray-300 w-40 hover:border-amber-500/50 group">
+                        <span class="text-base group-hover:scale-110 transition">⚔️</span>
+                        <div class="flex flex-col items-start"><span class="text-[10px] font-bold">沙盘推演</span><span class="text-[8px] text-gray-500">压力测试</span></div>
+                    </button>
+                    <button onclick="findHistoricalMatch()" class="btn-feature flex items-center gap-3 bg-[#18181b]/90 backdrop-blur border border-[#27272a] px-3 py-2 rounded-lg text-gray-300 w-40 hover:border-yellow-500/50 group">
+                        <span class="text-base group-hover:scale-110 transition">📜</span>
+                        <div class="flex flex-col items-start"><span class="text-[10px] font-bold">历史回溯</span><span class="text-[8px] text-gray-500">以史为鉴</span></div>
+                    </button>
+                </div>
+
+                <canvas id="mainChart" class="w-full h-full block"></canvas>
+                
+                <div class="absolute bottom-3 left-4 flex gap-6 text-[10px] text-gray-600">
+                    <span>名称: <span id="stock-name" class="text-gray-400">--</span></span>
+                    <span>最高: <span id="high-price" class="text-gray-400">--</span></span>
+                    <span>最低: <span id="low-price" class="text-gray-400">--</span></span>
+                </div>
+            </div>
+
+            <!-- 底部日志区 -->
+            <div class="h-40 border-t border-[#27272a] bg-[#0e0e11] flex flex-col">
+                <div class="flex border-b border-[#27272a] justify-between pr-4 bg-[#121214] items-center h-8">
+                    <div class="px-4 text-[10px] font-bold text-gray-500 flex items-center gap-2">
+                        <span class="w-1.5 h-1.5 bg-violet-500 rounded-full animate-pulse"></span> 系统运行日志
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="consultTherapist()" class="flex items-center gap-1.5 px-3 py-0.5 text-[10px] text-teal-300 border border-teal-800/30 rounded bg-teal-900/10 hover:bg-teal-900/30 transition"><span>🧘</span> 心理按摩</button>
+                        <button onclick="askStrategyCore()" class="flex items-center gap-1.5 px-3 py-0.5 text-[10px] text-violet-300 border border-violet-800/30 rounded bg-violet-900/10 hover:bg-violet-900/30 transition"><span>✨</span> 智能策略</button>
+                    </div>
+                </div>
+                <div class="flex-1 flex overflow-hidden">
+                    <div class="flex-1 p-3 overflow-y-auto font-mono text-[10px] leading-5 space-y-1" id="trade-log">
+                        <div class="text-gray-600 italic">// 系统初始化完成...</div>
+                    </div>
+                    <div class="w-60 border-l border-[#27272a] p-3 flex flex-col gap-2 bg-[#121214]">
+                        <div class="text-[9px] text-gray-500 font-bold mb-1 tracking-wider">博弈工具箱</div>
+                        <button onclick="mineWebSentiment()" class="w-full py-1.5 bg-[#1f1f22] border border-[#27272a] text-yellow-500 rounded hover:bg-yellow-900/20 hover:border-yellow-800 transition text-[10px]">
+                            ⚡ 全网舆情挖掘
+                        </button>
+                        <button onclick="toggleChat()" class="mt-1 w-full py-1.5 bg-[#1f1f22] border border-[#27272a] text-blue-400 rounded hover:bg-blue-900/20 hover:border-blue-800 transition text-[10px] flex items-center justify-center gap-2"><span>👻</span> 呼叫 "幽灵"</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 右侧：因子分析 -->
+        <div class="w-72 border-l border-[#27272a] bg-[#0e0e11] flex flex-col p-4 gap-5">
+            <div>
+                <div class="text-[10px] text-gray-500 mb-2 flex justify-between tracking-wider">
+                    <span>资金合力 (M-Factor)</span><span class="text-red-500 animate-pulse">●</span>
+                </div>
+                <div class="h-28 bg-[#121214] rounded border border-[#27272a] relative overflow-hidden flex items-end justify-between px-3 pb-2" id="flow-chart">
+                    <div class="w-[30%] bg-[#27272a] h-1/2 rounded-t hover:bg-gray-600 transition-all"></div>
+                    <div class="w-[30%] bg-red-900/50 border-t border-r border-l border-red-500/50 h-3/4 rounded-t relative"><div class="absolute bottom-0 w-full h-full bg-red-500/10 animate-pulse"></div></div>
+                    <div class="w-[30%] bg-red-900/30 h-2/3 rounded-t"></div>
+                </div>
+                <div class="flex justify-between text-[9px] text-gray-600 mt-1 px-3"><span>散户</span><span>游资</span><span>机构</span></div>
+            </div>
+            <div>
+                <div class="text-[10px] text-gray-500 mb-2 flex justify-between items-center tracking-wider">
+                    <span>基本面 (F-Factor)</span><button onclick="generateFundamentalReport()" class="text-[9px] text-violet-400 hover:text-white transition">生成报告</button>
+                </div>
+                <div class="bg-[#121214] rounded border border-[#27272a] p-3 space-y-3">
+                    <div>
+                        <div class="flex justify-between mb-1 text-[10px] text-gray-400"><span>真实 ROE</span><span class="text-white">--%</span></div>
+                        <div class="w-full h-1 bg-[#27272a] rounded overflow-hidden"><div class="h-full bg-violet-500 rounded w-[85%]"></div></div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between mb-1 text-[10px] text-gray-400"><span>造假风险</span><span class="text-green-500">检测中</span></div>
+                        <div class="w-full h-1 bg-[#27272a] rounded overflow-hidden"><div class="h-full bg-green-500 rounded w-[15%]"></div></div>
+                    </div>
+                </div>
+            </div>
+            <div class="flex-1 flex flex-col min-h-0">
+                <div class="text-[10px] text-gray-500 mb-2 flex justify-between items-center tracking-wider">
+                    <span>情绪 (T-Factor)</span>
+                    <button onclick="mineWebSentiment()" class="text-[9px] text-blue-400 hover:text-white transition flex items-center gap-1">🌐 全网侦察</button>
+                </div>
+                <div class="bg-[#121214] rounded border border-[#27272a] p-2 flex-1 overflow-y-auto space-y-2" id="nlp-feed"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 弹窗与遮罩 -->
+    <div id="modal-backdrop" class="modal-backdrop" onclick="closeModal()"></div>
+    <div id="ai-modal" class="ai-modal">
+        <div class="h-10 border-b border-[#27272a] bg-[#121214] flex items-center justify-between px-4">
+            <div class="flex items-center gap-2"><span class="text-violet-400 text-lg">✨</span><span class="font-bold text-xs text-white tracking-wide" id="modal-title">AI 分析报告</span></div>
+            <button onclick="closeModal()" class="text-gray-500 hover:text-white transition p-1 text-xl cursor-pointer">×</button>
+        </div>
+        <div class="flex-1 bg-[#09090b] text-gray-300 ai-content" id="modal-content"></div>
+        <div id="audio-control" class="hidden h-12 border-t border-[#27272a] bg-[#121214] px-4 items-center justify-between">
+            <span id="audio-status" class="text-gray-500 text-[10px]">语音引擎就绪</span>
+            <button onclick="playStrategyAudio()" id="btn-play-audio" class="px-3 py-1.5 bg-violet-600 text-white rounded text-[10px] font-bold hover:bg-violet-500 transition disabled:opacity-50 flex items-center gap-2"><span>🔊</span> 播放简报</button>
+        </div>
+    </div>
+
+    <div id="chat-widget" class="chat-widget">
+        <div class="h-10 bg-[#121214] border-b border-[#27272a] flex items-center justify-between px-4 rounded-t-xl">
+            <span class="text-xs font-bold text-purple-400 flex items-center gap-2"><span>👻</span> 幽灵协议 (内部人)</span>
+            <button onclick="toggleChat()" class="text-gray-500 hover:text-white transition">✕</button>
+        </div>
+        <div id="chat-messages" class="chat-messages">
+            <div class="chat-bubble bubble-ai">我是"幽灵"。关于这个票，你想知道什么？别问我怎么知道的。</div>
+        </div>
+        <div class="p-3 border-t border-[#27272a] bg-[#121214] flex gap-2 rounded-b-xl">
+            <input type="text" id="chat-input" class="flex-1 bg-[#27272a] border border-[#3f3f46] rounded px-3 py-1.5 text-white text-xs focus:outline-none focus:border-violet-500 transition placeholder-gray-600" placeholder="问点敏感的..." onkeypress="if(event.key==='Enter') sendChat()">
+            <button onclick="sendChat()" class="px-3 py-1.5 bg-violet-600 text-white rounded text-xs hover:bg-violet-500 transition font-bold">发送</button>
+        </div>
+    </div>
+
+    <!-- 外部JavaScript文件 -->
+    <!-- API客户端 - 必须先加载 -->
+    <script src="js/api.js"></script>
+    <!-- 应用主逻辑 -->
+    <script src="js/app.js"></script>
+</body>
+</html>
