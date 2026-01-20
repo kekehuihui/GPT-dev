@@ -1,0 +1,4 @@
+16:05:24 WRN [CacheFile] can't open cache file error=timeout
+16:05:24 ERR [Inbound] start failed error=listen udp 127.0.0.1:7890: bind: address already in use addr=127.0.0.1:7890 type=Mixed(http+socks)
+16:05:24 ERR [DNS] start DNS server failed error=listen udp 127.0.0.1:53: bind: address already in use addr=127.0.0.1:53
+16:05:24 ERR [Inbound] start failed error=listen udp 127.0.0.1:7890: bind: address already in use addr=127.0.0.1:7890 type=Mixed(http+socks)

@@ -1,0 +1,26 @@
+files:
+  - time: 1679743715735.yml
+    name: WgetCloud.yaml
+    url: https://bava8u2znaj6bdzzjnfb.wgetcloud.online/link/X0xYQfaoGj1JpE5?target=clash
+    selected:
+      - name: GLOBAL
+        now: 🇺🇲 美国 01
+      - name: 🚀 节点选择
+        now: 🇺🇲 美国 01
+      - name: 🎯 全球直连
+        now: DIRECT
+      - name: 🐟 漏网之鱼
+        now: 🚀 节点选择
+    interval: 0
+    subInfo:
+      upload: 0
+      download: 0
+      total: 0
+      expire: 1682335621
+    homeWeb: https://wgetcloud.ltd
+    mode: global
+  - url: ""
+    time: 1680846780605.yml
+    name: Discord
+    selected: []
+index: 0

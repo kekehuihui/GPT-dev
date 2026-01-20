@@ -1,0 +1,4933 @@
+user:
+<user_query>
+  设计一个页面
+
+## 要求：
+
+-页面元素尽量美观高级，遵守设计规范，注重UI 细节 - 所有数据都 mock，所有页面都可以点击交互
+
+- 图标使用 Lucide Static CDN 方式引入，如
+
+*https://unpkg.com/lucide-static@latest/icons/XXX.svg, mT 是手动输出 icon svg 路径
+
+-把设计生成在 design 目录下，将所有页面写入到一个 html中， 为了方便 demo，所有页面都直接可以点击交互
+
+-生成的设计图都是移动端的预览效果，可以用手机壳包装一下 -思考过程仅思考功能需求、设计整体风格等，不要在思考时就写代码，仅在最终结果中输出代码
+</user_query>
+
+assistant:
+[Thinking] 
+我先确定 `design` 目录的结构，然后会在其中创建一个包含多页面（可点击切换）的移动端预览 HTML，带手机壳效果和 Lucide 图标，并用 mock 数据完成基础交互。完成后我会把最终代码写入对应文件中，方便你直接打开预览。
+[Tool call] LS
+  target_directory: /Users/dongxuanke/Downloads/❗️12.15部署程序/【微信小程序】相关/02程序「会聊鸭」
+
+[Tool result] LS
+
+assistant:
+[Tool call] LS
+  target_directory: /Users/dongxuanke/Downloads/❗️12.15部署程序/【微信小程序】相关/02程序「会聊鸭」/design
+
+[Tool result] LS
+
+assistant:
+[Tool call] Read
+  path: /Users/dongxuanke/Downloads/❗️12.15部署程序/【微信小程序】相关/02程序「会聊鸭」/design
+
+[Tool result] Read
+
+assistant:
+[Thinking] **Considering design structure**
+
+So, the user mentioned "design 目录下" which suggests they expect a directory, but it's currently a file. I can't change the file type directly. Instead, I'll turn this file into an HTML document containing the design. It seems like they want multiple pages in one HTML file with clickable navigation. I'll use mock data and ensure it’s mobile-first, incorporating certain design elements like CSS centering. They might want SVG icons too, as suggested by their mention of manual icon paths.
+**Focusing on final output**
+
+The user’s instructions are clear: I should output only the HTML code in the final result, without any additional text. They've also mentioned the importance of design thinking regarding functionality, which I've touched on in my earlier Chinese explanations. For the final output, I need to construct the HTML string and then use the Write tool to save it in the design file, applying the functions.Write method. Let's make sure everything aligns with their expectations!
+我会把 `design` 文件直接作为一个 HTML 文件来用，在里面实现一个带手机壳、多页面可点击切换、使用 Lucide 图标和 mock 数据的交互式 DEMO。稍后你可以直接在浏览器里打开这个文件预览效果。
+[Tool call] Write
+  path: /Users/dongxuanke/Downloads/❗️12.15部署程序/【微信小程序】相关/02程序「会聊鸭」/design
+  contents: <!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>会聊鸭 - 设计预览</title>
+  <style>
+    :root {
+      --bg-body: radial-gradient(circle at top, #161b2b 0, #050711 55%, #020308 100%);
+      --phone-bg: #050815;
+      --accent: #4f46e5;
+      --accent-soft: rgba(79, 70, 229, 0.12);
+      --accent-strong: rgba(129, 140, 248, 0.95);
+      --accent-gradient: linear-gradient(135deg, #6366f1, #a855f7);
+      --text-main: #e5e7eb;
+      --text-muted: #9ca3af;
+      --border-subtle: rgba(148, 163, 184, 0.18);
+      --card-bg: rgba(15, 23, 42, 0.94);
+      --card-soft-bg: rgba(15, 23, 42, 0.78);
+      --danger: #f97373;
+      --success: #22c55e;
+      --shadow-strong: 0 24px 80px rgba(15, 23, 42, 0.88);
+      --radius-lg: 24px;
+      --radius-xl: 32px;
+      --blur-strong: 20px;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      background: var(--bg-body);
+      color: var(--text-main);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", sans-serif;
+    }
+
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 12px;
+    }
+
+    .stage {
+      position: relative;
+      width: min(420px, 100%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* 环境光与渐变光圈 */
+    .stage::before {
+      content: "";
+      position: absolute;
+      inset: -80px -40px auto;
+      background:
+        radial-gradient(circle at top left, rgba(96, 165, 250, 0.28), transparent 60%),
+        radial-gradient(circle at top right, rgba(244, 114, 182, 0.32), transparent 60%);
+      opacity: 0.85;
+      filter: blur(24px);
+      z-index: -2;
+    }
+
+    .stage::after {
+      content: "";
+      position: absolute;
+      inset: auto -30px -80px;
+      background: radial-gradient(circle at bottom, rgba(56, 189, 248, 0.3), transparent 65%);
+      filter: blur(22px);
+      opacity: 0.7;
+      z-index: -2;
+    }
+
+    /* 手机外壳 */
+    .phone-shell {
+      position: relative;
+      width: 390px;
+      max-width: 100%;
+      height: 844px;
+      border-radius: calc(var(--radius-xl) + 8px);
+      background:
+        radial-gradient(circle at 20% 0, rgba(56, 189, 248, 0.26), transparent 60%),
+        radial-gradient(circle at 80% 0, rgba(244, 114, 182, 0.38), transparent 65%),
+        linear-gradient(135deg, #020617, #020617);
+      padding: 10px;
+      box-shadow:
+        0 0 0 1px rgba(148, 163, 184, 0.32),
+        0 30px 80px rgba(15, 23, 42, 1);
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      justify-content: center;
+    }
+
+    .phone-shell::before {
+      content: "";
+      position: absolute;
+      inset: 22px 48px auto;
+      height: 26px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 50%, #0f172a, #020617);
+      box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.8);
+      top: 18px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .phone-shell::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      background: radial-gradient(circle at -10% 15%, rgba(148, 163, 184, 0.14), transparent 55%);
+      mix-blend-mode: screen;
+      opacity: 0.8;
+      pointer-events: none;
+    }
+
+    .phone-inner {
+      position: relative;
+      flex: 1;
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+      background:
+        radial-gradient(circle at top, rgba(15, 23, 42, 0.85), rgba(15, 23, 42, 1)),
+        linear-gradient(180deg, #020617, #020617);
+      box-shadow:
+        inset 0 0 0 1px rgba(15, 23, 42, 1),
+        inset 0 0 0 1px rgba(15, 23, 42, 0.9);
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* 顶部状态栏 */
+    .status-bar {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 18px 6px;
+      font-size: 11px;
+      color: #e5e7eb;
+      letter-spacing: 0.04em;
+      z-index: 2;
+    }
+
+    .status-bar-time {
+      font-weight: 600;
+    }
+
+    .status-bar-icons {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      opacity: 0.9;
+    }
+
+    .status-pill {
+      padding: 2px 6px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      font-size: 10px;
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      background: rgba(15, 23, 42, 0.8);
+      backdrop-filter: blur(10px);
+    }
+
+    .status-pill-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: radial-gradient(circle, #4ade80, #22c55e);
+      box-shadow: 0 0 6px rgba(74, 222, 128, 0.6);
+    }
+
+    /* 顶部导航 */
+    .top-nav {
+      position: relative;
+      padding: 10px 16px 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      z-index: 2;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 10px;
+      background: radial-gradient(circle at 0 0, #22c55e, #16a34a);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow:
+        0 0 0 1px rgba(34, 197, 94, 0.7),
+        0 10px 18px rgba(22, 163, 74, 0.65);
+    }
+
+    .brand-avatar-inner {
+      width: 18px;
+      height: 18px;
+      border-radius: 7px;
+      background: conic-gradient(from 200deg, #bbf7d0, #4ade80, #a7f3d0);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #052e16;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    .brand-text {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .brand-title {
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .brand-chip {
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 999px;
+      background: rgba(34, 197, 94, 0.12);
+      border: 1px solid rgba(34, 197, 94, 0.45);
+      color: #bbf7d0;
+    }
+
+    .brand-subtitle {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .icon-button {
+      width: 28px;
+      height: 28px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      background: rgba(15, 23, 42, 0.9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+    }
+
+    .icon-button img {
+      width: 15px;
+      height: 15px;
+      filter: drop-shadow(0 0 6px rgba(148, 163, 184, 0.7));
+    }
+
+    .icon-button.primary {
+      background: radial-gradient(circle at 0 0, #4f46e5, #7c3aed);
+      border-color: transparent;
+      box-shadow:
+        0 0 0 1px rgba(129, 140, 248, 0.5),
+        0 12px 24px rgba(79, 70, 229, 0.7);
+    }
+
+    .icon-button:active {
+      transform: scale(0.94) translateY(1px);
+      box-shadow: 0 4px 10px rgba(15, 23, 42, 0.8);
+    }
+
+    /* 标签页导航 */
+    .page-tabs {
+      padding: 0 16px 8px;
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+
+    .page-tabs::-webkit-scrollbar {
+      display: none;
+    }
+
+    .page-tab {
+      flex: 0 0 auto;
+      padding: 6px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      font-size: 11px;
+      color: var(--text-muted);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      background: linear-gradient(135deg, rgba(15, 23, 42, 0.96), rgba(15, 23, 42, 0.9));
+      backdrop-filter: blur(12px);
+      transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.16s ease, box-shadow 0.16s ease;
+    }
+
+    .page-tab img {
+      width: 14px;
+      height: 14px;
+      opacity: 0.85;
+    }
+
+    .page-tab span {
+      white-space: nowrap;
+    }
+
+    .page-tab.active {
+      color: #e5e7eb;
+      border-color: rgba(129, 140, 248, 0.9);
+      background:
+        radial-gradient(circle at 0 0, rgba(56, 189, 248, 0.24), transparent 55%),
+        linear-gradient(135deg, rgba(79, 70, 229, 0.92), rgba(129, 140, 248, 0.96));
+      box-shadow:
+        0 0 0 1px rgba(191, 219, 254, 0.3),
+        0 12px 28px rgba(79, 70, 229, 0.85);
+      transform: translateY(-1px);
+    }
+
+    .page-tab:active {
+      transform: scale(0.97) translateY(0);
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 1);
+    }
+
+    /* 内容区域 */
+    .content {
+      position: relative;
+      flex: 1;
+      padding: 4px 14px 10px;
+      overflow: hidden;
+    }
+
+    .page {
+      position: absolute;
+      inset: 0 0 0 0;
+      padding: 4px 2px 6px;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateX(10px);
+      transition: opacity 0.22s ease, transform 0.22s ease;
+      overflow-y: auto;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+
+    .page::-webkit-scrollbar {
+      display: none;
+    }
+
+    .page.active {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateX(0);
+    }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 2px 10px;
+      font-size: 13px;
+      letter-spacing: 0.02em;
+    }
+
+    .section-title-main {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .section-title-main strong {
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    .section-title-main span {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .section-title-right {
+      font-size: 11px;
+      color: var(--accent-strong);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(129, 140, 248, 0.45);
+      background: rgba(15, 23, 42, 0.96);
+    }
+
+    .section-title-right img {
+      width: 12px;
+      height: 12px;
+    }
+
+    .pill-row {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 0 2px 10px;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+      font-size: 11px;
+    }
+
+    .pill-row::-webkit-scrollbar {
+      display: none;
+    }
+
+    .pill {
+      flex: 0 0 auto;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      background: rgba(15, 23, 42, 0.98);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: border-color 0.16s ease, background 0.16s ease, color 0.16s ease, transform 0.16s ease;
+    }
+
+    .pill img {
+      width: 13px;
+      height: 13px;
+      opacity: 0.85;
+    }
+
+    .pill.active {
+      border-color: rgba(34, 197, 94, 0.9);
+      background: linear-gradient(135deg, rgba(22, 163, 74, 0.98), rgba(34, 197, 94, 1));
+      color: #ecfdf5;
+      box-shadow:
+        0 0 0 1px rgba(190, 242, 100, 0.4),
+        0 12px 24px rgba(21, 128, 61, 0.9);
+      transform: translateY(-1px);
+    }
+
+    /* 卡片基础样式 */
+    .card {
+      border-radius: 18px;
+      background: var(--card-bg);
+      border: 1px solid var(--border-subtle);
+      padding: 12px;
+      margin-bottom: 12px;
+      box-shadow:
+        0 18px 40px rgba(15, 23, 42, 0.95),
+        0 0 0 1px rgba(15, 23, 42, 0.9);
+    }
+
+    .card-soft {
+      border-radius: 16px;
+      background: var(--card-soft-bg);
+      border: 1px solid rgba(31, 41, 55, 0.8);
+      box-shadow: 0 14px 32px rgba(15, 23, 42, 0.95);
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .card-title {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .card-title-main {
+      font-size: 14px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .card-title-main img {
+      width: 16px;
+      height: 16px;
+    }
+
+    .card-title-sub {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .badge {
+      font-size: 10px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      color: var(--text-muted);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: rgba(15, 23, 42, 0.9);
+    }
+
+    .badge img {
+      width: 11px;
+      height: 11px;
+    }
+
+    /* 首页模块 */
+    .hero-card {
+      position: relative;
+      padding: 14px 14px 12px;
+      border-radius: 20px;
+      background:
+        radial-gradient(circle at 10% 0, rgba(34, 197, 94, 0.2), transparent 55%),
+        radial-gradient(circle at 90% 0, rgba(56, 189, 248, 0.3), transparent 55%),
+        linear-gradient(145deg, #020617, #020617);
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      overflow: hidden;
+      box-shadow: 0 24px 60px rgba(15, 23, 42, 1);
+      margin-bottom: 12px;
+    }
+
+    .hero-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .hero-chip-row {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .hero-chip-main {
+      font-size: 11px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: rgba(22, 163, 74, 0.16);
+      border: 1px solid rgba(22, 163, 74, 0.6);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: #bbf7d0;
+    }
+
+    .hero-chip-main img {
+      width: 13px;
+      height: 13px;
+    }
+
+    .hero-chip-sub {
+      font-size: 11px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .hero-chip-sub-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 999px;
+      background: radial-gradient(circle, #4ade80, #16a34a);
+      box-shadow: 0 0 6px rgba(74, 222, 128, 0.6);
+    }
+
+    .hero-ai-orb {
+      width: 52px;
+      height: 52px;
+      border-radius: 999px;
+      background:
+        conic-gradient(from 210deg, rgba(56, 189, 248, 0.15), rgba(249, 115, 22, 0.35), rgba(249, 115, 22, 0.75), rgba(56, 189, 248, 0.5), rgba(16, 185, 129, 0.75));
+      padding: 2px;
+      position: relative;
+      box-shadow:
+        0 0 0 1px rgba(148, 163, 184, 0.6),
+        0 18px 40px rgba(79, 70, 229, 0.9);
+    }
+
+    .hero-ai-orb-inner {
+      width: 100%;
+      height: 100%;
+      border-radius: inherit;
+      background: radial-gradient(circle at 25% 0, rgba(248, 250, 252, 0.65), rgba(15, 23, 42, 1));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-ai-orb-inner::before {
+      content: "";
+      position: absolute;
+      inset: 16% 14%;
+      border-radius: 50%;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      opacity: 0.7;
+    }
+
+    .hero-ai-orb-inner::after {
+      content: "";
+      width: 16px;
+      height: 16px;
+      border-radius: 8px;
+      background: radial-gradient(circle at 30% 20%, #e5f3ff, #3b82f6);
+      box-shadow:
+        0 0 0 1px rgba(191, 219, 254, 0.7),
+        0 0 18px rgba(56, 189, 248, 0.9);
+    }
+
+    .hero-body-title {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      margin-bottom: 4px;
+    }
+
+    .hero-body-sub {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+    }
+
+    .hero-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+
+    .hero-tag {
+      font-size: 10px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.45);
+      color: var(--text-muted);
+    }
+
+    .hero-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .hero-cta-button {
+      flex: 1;
+      padding: 9px 10px;
+      border-radius: 999px;
+      border: none;
+      outline: none;
+      background: var(--accent-gradient);
+      color: #e5e7eb;
+      font-size: 13px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      cursor: pointer;
+      box-shadow:
+        0 0 0 1px rgba(191, 219, 254, 0.45),
+        0 14px 30px rgba(79, 70, 229, 0.95);
+      transition: transform 0.16s ease, box-shadow 0.16s ease;
+    }
+
+    .hero-cta-button img {
+      width: 15px;
+      height: 15px;
+    }
+
+    .hero-cta-button:active {
+      transform: translateY(1px) scale(0.98);
+      box-shadow: 0 6px 16px rgba(15, 23, 42, 0.9);
+    }
+
+    .hero-stats {
+      font-size: 10px;
+      color: var(--text-muted);
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .hero-stats span strong {
+      color: #e5e7eb;
+    }
+
+    /* 聊天页 */
+    .chat-stream {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding: 4px 2px 6px;
+    }
+
+    .chat-bubble-row {
+      display: flex;
+      gap: 8px;
+      align-items: flex-end;
+    }
+
+    .chat-bubble-row.mine {
+      justify-content: flex-end;
+    }
+
+    .chat-avatar {
+      width: 26px;
+      height: 26px;
+      border-radius: 10px;
+      background: radial-gradient(circle at 0 0, #38bdf8, #1d4ed8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 600;
+      color: #eff6ff;
+      box-shadow: 0 10px 20px rgba(37, 99, 235, 0.7);
+      flex-shrink: 0;
+    }
+
+    .chat-bubble {
+      max-width: 75%;
+      padding: 7px 9px;
+      border-radius: 14px 14px 14px 4px;
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px solid rgba(51, 65, 85, 0.9);
+      font-size: 12px;
+      line-height: 1.5;
+      color: #e5e7eb;
+    }
+
+    .chat-bubble.mine {
+      border-radius: 14px 14px 4px 14px;
+      background: linear-gradient(135deg, #4f46e5, #6366f1);
+      border-color: rgba(191, 219, 254, 0.6);
+      color: #e5e7eb;
+      box-shadow:
+        0 0 0 1px rgba(129, 140, 248, 0.6),
+        0 12px 22px rgba(79, 70, 229, 0.8);
+    }
+
+    .chat-bubble-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 4px;
+      font-size: 10px;
+      color: var(--text-muted);
+    }
+
+    .chat-bubble-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: 6px;
+    }
+
+    .chat-bubble-tag {
+      padding: 2px 6px;
+      border-radius: 999px;
+      font-size: 10px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      color: var(--text-muted);
+    }
+
+    .chat-bubble-actions {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-top: 6px;
+      font-size: 10px;
+    }
+
+    .chat-action-btn {
+      padding: 2px 6px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      background: rgba(15, 23, 42, 0.9);
+      color: var(--text-muted);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+    }
+
+    .chat-action-btn img {
+      width: 11px;
+      height: 11px;
+    }
+
+    .chat-input-wrapper {
+      position: sticky;
+      bottom: 0;
+      margin: 6px 0 0;
+      padding: 8px 2px 4px;
+      background: linear-gradient(180deg, rgba(15, 23, 42, 0), #020617 40%, #020617 100%);
+    }
+
+    .chat-input-bar {
+      display: flex;
+      align-items: flex-end;
+      gap: 6px;
+      border-radius: 999px;
+      padding: 6px 8px 6px 10px;
+      background: rgba(15, 23, 42, 0.98);
+      border: 1px solid rgba(51, 65, 85, 0.9);
+      box-shadow:
+        0 10px 20px rgba(15, 23, 42, 0.98),
+        0 0 0 1px rgba(15, 23, 42, 1);
+    }
+
+    .chat-input-icons {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .chat-input-textarea {
+      flex: 1;
+      border: none;
+      outline: none;
+      resize: none;
+      background: transparent;
+      color: #e5e7eb;
+      font-size: 13px;
+      max-height: 60px;
+      min-height: 20px;
+      padding: 0;
+    }
+
+    .chat-input-textarea::placeholder {
+      color: rgba(148, 163, 184, 0.8);
+    }
+
+    .chat-send-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 999px;
+      border: none;
+      background: var(--accent-gradient);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow:
+        0 0 0 1px rgba(191, 219, 254, 0.6),
+        0 10px 20px rgba(79, 70, 229, 0.9);
+      transition: transform 0.14s ease, box-shadow 0.14s ease;
+    }
+
+    .chat-send-btn img {
+      width: 14px;
+      height: 14px;
+    }
+
+    .chat-send-btn:active {
+      transform: scale(0.94) translateY(1px);
+      box-shadow: 0 4px 10px rgba(15, 23, 42, 1);
+    }
+
+    .chat-suggestion-row {
+      display: flex;
+      gap: 6px;
+      margin-top: 6px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+      font-size: 11px;
+    }
+
+    .chat-suggestion-row::-webkit-scrollbar {
+      display: none;
+    }
+
+    .chat-suggestion-pill {
+      flex: 0 0 auto;
+      padding: 4px 8px;
+      border-radius: 999px;
+      border: 1px dashed rgba(148, 163, 184, 0.5);
+      background: rgba(15, 23, 42, 0.96);
+      color: var(--text-muted);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .chat-suggestion-pill img {
+      width: 11px;
+      height: 11px;
+    }
+
+    /* 工具页 */
+    .tool-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 2px;
+    }
+
+    .tool-card {
+      padding: 10px;
+      border-radius: 16px;
+      background: rgba(15, 23, 42, 0.96);
+      border: 1px solid rgba(31, 41, 55, 0.9);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      cursor: pointer;
+      transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease, background 0.16s ease;
+    }
+
+    .tool-card:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 14px 30px rgba(15, 23, 42, 1);
+      border-color: rgba(129, 140, 248, 0.8);
+      background: radial-gradient(circle at 0 0, rgba(56, 189, 248, 0.08), transparent 55%), rgba(15, 23, 42, 0.98);
+    }
+
+    .tool-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .tool-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 12px;
+      background: radial-gradient(circle at 0 0, rgba(147, 197, 253, 0.3), rgba(79, 70, 229, 0.95));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 10px 18px rgba(79, 70, 229, 0.8);
+    }
+
+    .tool-icon img {
+      width: 16px;
+      height: 16px;
+    }
+
+    .tool-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .tool-title {
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .tool-subtitle {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .tool-badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: 2px;
+      font-size: 10px;
+    }
+
+    .tool-badge {
+      padding: 2px 6px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(55, 65, 81, 0.9);
+      color: var(--text-muted);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .tool-metric-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 6px;
+      font-size: 10px;
+      color: var(--text-muted);
+    }
+
+    .tool-metric-pill {
+      padding: 2px 6px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.98);
+      border: 1px solid rgba(31, 41, 55, 0.9);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .tool-metric-pill strong {
+      color: #e5e7eb;
+    }
+
+    /* 个人页 */
+    .profile-header-card {
+      padding: 12px;
+      border-radius: 18px;
+      background:
+        radial-gradient(circle at 0 0, rgba(129, 140, 248, 0.25), transparent 60%),
+        radial-gradient(circle at 100% 0, rgba(244, 114, 182, 0.35), transparent 60%),
+        linear-gradient(150deg, #020617, #020617);
+      border: 1px solid rgba(129, 140, 248, 0.65);
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 12px;
+      box-shadow:
+        0 0 0 1px rgba(30, 64, 175, 0.8),
+        0 20px 40px rgba(15, 23, 42, 1);
+    }
+
+    .profile-avatar {
+      width: 46px;
+      height: 46px;
+      border-radius: 18px;
+      background:
+        radial-gradient(circle at 0 0, rgba(96, 165, 250, 0.5), rgba(37, 99, 235, 1));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #eff6ff;
+      font-size: 16px;
+      font-weight: 700;
+      box-shadow:
+        0 0 0 1px rgba(191, 219, 254, 0.7),
+        0 18px 30px rgba(30, 64, 175, 0.9);
+    }
+
+    .profile-meta {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .profile-name-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .profile-tag-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      font-size: 10px;
+      color: var(--text-muted);
+    }
+
+    .profile-tag-pill {
+      padding: 2px 6px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.88);
+      border: 1px solid rgba(148, 163, 184, 0.7);
+    }
+
+    .profile-meta-bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 2px;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .profile-meta-bottom span strong {
+      color: #e5e7eb;
+    }
+
+    .profile-chip-live {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: rgba(22, 163, 74, 0.16);
+      border: 1px solid rgba(22, 163, 74, 0.7);
+      color: #bbf7d0;
+      font-size: 10px;
+    }
+
+    .profile-list {
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid rgba(31, 41, 55, 0.9);
+      background: rgba(15, 23, 42, 0.98);
+      box-shadow: 0 18px 40px rgba(15, 23, 42, 1);
+      margin-bottom: 12px;
+    }
+
+    .profile-row {
+      padding: 10px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      border-bottom: 1px solid rgba(31, 41, 55, 0.9);
+      cursor: pointer;
+      transition: background 0.18s ease;
+    }
+
+    .profile-row:last-child {
+      border-bottom: none;
+    }
+
+    .profile-row:hover {
+      background: radial-gradient(circle at 0 0, rgba(56, 189, 248, 0.08), transparent 60%);
+    }
+
+    .profile-row-main {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex: 1;
+    }
+
+    .profile-row-icon {
+      width: 26px;
+      height: 26px;
+      border-radius: 11px;
+      background: rgba(15, 23, 42, 0.98);
+      border: 1px solid rgba(55, 65, 81, 1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .profile-row-icon img {
+      width: 15px;
+      height: 15px;
+    }
+
+    .profile-row-text {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      font-size: 12px;
+    }
+
+    .profile-row-text span:last-child {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .profile-row-right {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 10px;
+      color: var(--text-muted);
+    }
+
+    .toggle {
+      width: 34px;
+      height: 18px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.98);
+      border: 1px solid rgba(55, 65, 81, 1);
+      padding: 1px;
+      display: flex;
+      align-items: center;
+      transition: background 0.16s ease, border-color 0.16s ease;
+    }
+
+    .toggle-thumb {
+      width: 14px;
+      height: 14px;
+      border-radius: 999px;
+      background: #6b7280;
+      transition: transform 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .toggle.on {
+      background: linear-gradient(135deg, #22c55e, #4ade80);
+      border-color: rgba(190, 242, 100, 0.7);
+    }
+
+    .toggle.on .toggle-thumb {
+      transform: translateX(14px);
+      background: #ecfdf5;
+      box-shadow:
+        0 0 0 1px rgba(134, 239, 172, 0.7),
+        0 0 10px rgba(34, 197, 94, 0.9);
+    }
+
+    .profile-footer {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 10px;
+      color: var(--text-muted);
+    }
+
+    .profile-footer-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* 体验页（实验室） */
+    .lab-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .lab-card {
+      padding: 10px 10px 9px;
+      border-radius: 16px;
+      background: rgba(15, 23, 42, 0.96);
+      border: 1px solid rgba(55, 65, 81, 1);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      cursor: pointer;
+      transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease, background 0.16s ease;
+    }
+
+    .lab-card:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 16px 36px rgba(15, 23, 42, 1);
+      border-color: rgba(244, 114, 182, 0.8);
+      background: radial-gradient(circle at 0 0, rgba(244, 114, 182, 0.14), transparent 60%), rgba(15, 23, 42, 0.98);
+    }
+
+    .lab-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .lab-card-main {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .lab-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 12px;
+      background: radial-gradient(circle at 0 0, rgba(251, 113, 133, 0.35), rgba(236, 72, 153, 0.95));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 12px 20px rgba(236, 72, 153, 0.9);
+    }
+
+    .lab-icon img {
+      width: 16px;
+      height: 16px;
+    }
+
+    .lab-text {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .lab-title {
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .lab-subtitle {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .lab-tag-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      font-size: 10px;
+      margin-top: 2px;
+    }
+
+    .lab-tag-pill {
+      padding: 2px 6px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.96);
+      border: 1px solid rgba(55, 65, 81, 1);
+      color: var(--text-muted);
+    }
+
+    .lab-footer-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 10px;
+      color: var(--text-muted);
+    }
+
+    .lab-footer-row span strong {
+      color: #e5e7eb;
+    }
+
+    .lab-chip-beta {
+      padding: 2px 6px;
+      border-radius: 999px;
+      border: 1px solid rgba(244, 114, 182, 0.9);
+      color: #f9a8d4;
+      background: rgba(15, 23, 42, 0.96);
+    }
+
+    /* 全局底部导航 */
+    .global-tabbar {
+      position: relative;
+      padding: 6px 18px 10px;
+      background: radial-gradient(circle at 50% -60%, rgba(129, 140, 248, 0.5), transparent 60%), rgba(2, 6, 23, 0.98);
+      border-top: 1px solid rgba(15, 23, 42, 1);
+      box-shadow:
+        0 -1px 0 rgba(15, 23, 42, 1),
+        0 -20px 35px rgba(15, 23, 42, 0.96);
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      z-index: 3;
+    }
+
+    .global-tab-item {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      font-size: 10px;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 4px 0;
+      border-radius: 999px;
+      transition: background 0.18s ease, color 0.18s ease, transform 0.16s ease;
+    }
+
+    .global-tab-item img {
+      width: 16px;
+      height: 16px;
+      opacity: 0.9;
+    }
+
+    .global-tab-item.active {
+      color: #e5e7eb;
+      background: rgba(15, 23, 42, 0.95);
+      box-shadow:
+        0 0 0 1px rgba(30, 64, 175, 0.85),
+        0 6px 18px rgba(15, 23, 42, 0.98);
+      transform: translateY(-1px);
+    }
+
+    .global-center-pill {
+      position: absolute;
+      inset: -14px 34% auto 34%;
+      height: 26px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 50% -10%, rgba(129, 140, 248, 0.8), transparent 60%);
+      opacity: 0.7;
+      filter: blur(12px);
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    /* Toast */
+    .toast {
+      position: absolute;
+      left: 50%;
+      bottom: 70px;
+      transform: translateX(-50%) translateY(20px);
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.96);
+      border: 1px solid rgba(55, 65, 81, 1);
+      color: var(--text-muted);
+      font-size: 11px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.18s ease, transform 0.18s ease;
+      z-index: 4;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+      pointer-events: auto;
+    }
+
+    .toast img {
+      width: 13px;
+      height: 13px;
+    }
+
+    /* 小红点 */
+    .dot-badge {
+      position: absolute;
+      top: 3px;
+      right: 14px;
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: radial-gradient(circle, #f97373, #b91c1c);
+      box-shadow: 0 0 8px rgba(239, 68, 68, 0.9);
+    }
+
+    @media (max-width: 420px) {
+      body {
+        padding: 12px 8px;
+      }
+
+      .phone-shell {
+        height: 780px;
+      }
+
+      .global-tabbar {
+        padding-inline: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="stage">
+    <div class="phone-shell">
+      <div class="phone-inner">
+        <!-- 状态栏 -->
+        <div class="status-bar">
+          <div class="status-bar-time" id="statusTime">9:41</div>
+          <div class="status-bar-icons">
+            <div class="status-pill">
+              <span class="status-pill-dot"></span>
+              <span>在线</span>
+            </div>
+            <span>5G</span>
+            <span>92%</span>
+          </div>
+        </div>
+
+        <!-- 顶部导航 -->
+        <div class="top-nav">
+          <div class="brand">
+            <div class="brand-avatar">
+              <div class="brand-avatar-inner">鸭</div>
+            </div>
+            <div class="brand-text">
+              <div class="brand-title">
+                会聊鸭
+                <span class="brand-chip">智能会话 · 企业版</span>
+              </div>
+              <div class="brand-subtitle">帮你把每一句话，都说到点子上</div>
+            </div>
+          </div>
+          <div class="top-actions">
+            <button class="icon-button" data-toast="已切换浅色模式示意（Mock）">
+              <img src="https://unpkg.com/lucide-static@latest/icons/moon-star.svg" alt="theme" />
+            </button>
+            <button class="icon-button primary" data-toast="已创建新的会话（Mock）">
+              <img src="https://unpkg.com/lucide-static@latest/icons/sparkles.svg" alt="spark" />
+            </button>
+          </div>
+        </div>
+
+        <!-- 标签页导航（页面级） -->
+        <div class="page-tabs" id="pageTabs">
+          <div class="page-tab active" data-page="home">
+            <img src="https://unpkg.com/lucide-static@latest/icons/layout-dashboard.svg" alt="home" />
+            <span>概览</span>
+          </div>
+          <div class="page-tab" data-page="chat">
+            <img src="https://unpkg.com/lucide-static@latest/icons/message-circle.svg" alt="chat" />
+            <span>智能会话</span>
+          </div>
+          <div class="page-tab" data-page="tools">
+            <img src="https://unpkg.com/lucide-static@latest/icons/app-window.svg" alt="tools" />
+            <span>工具集</span>
+          </div>
+          <div class="page-tab" data-page="lab">
+            <img src="https://unpkg.com/lucide-static@latest/icons/atom.svg" alt="lab" />
+            <span>体验实验室</span>
+          </div>
+          <div class="page-tab" data-page="profile">
+            <img src="https://unpkg.com/lucide-static@latest/icons/user-round.svg" alt="me" />
+            <span>我的</span>
+          </div>
+        </div>
+
+        <!-- 内容区域 -->
+        <div class="content">
+          <!-- 首页：概览 -->
+          <section class="page active" id="page-home">
+            <div class="hero-card">
+              <div class="hero-top">
+                <div class="hero-chip-row">
+                  <div class="hero-chip-main">
+                    <img src="https://unpkg.com/lucide-static@latest/icons/sparkles.svg" alt="spark" />
+                    今日 · 12 个会话已优化
+                  </div>
+                  <div class="hero-chip-sub">
+                    <span class="hero-chip-sub-dot"></span>
+                    已为你自动提取 32 条关键话术
+                  </div>
+                </div>
+                <div class="hero-ai-orb">
+                  <div class="hero-ai-orb-inner"></div>
+                </div>
+              </div>
+              <div class="hero-body-title">一键升级你的「聊天战斗力」</div>
+              <div class="hero-body-sub">从寒暄开场，到成交 closing，每一步都有 AI 在旁轻声提醒。</div>
+              <div class="hero-tags">
+                <span class="hero-tag">实时话术提示</span>
+                <span class="hero-tag">客户画像洞察</span>
+                <span class="hero-tag">AI 代写回复</span>
+                <span class="hero-tag">敏感话术预警</span>
+              </div>
+              <div class="hero-footer">
+                <button class="hero-cta-button" data-open-page="chat">
+                  <img src="https://unpkg.com/lucide-static@latest/icons/message-circle-more.svg" alt="start" />
+                  立即开始一场「聪明」的对话
+                </button>
+                <div class="hero-stats">
+                  <span>今日节省沟通时长 <strong>48 分钟</strong></span>
+                  <span>回复命中率提升 <strong> +23%</strong></span>
+                </div>
+              </div>
+            </div>
+
+            <div class="section-title">
+              <div class="section-title-main">
+                <strong>常用场景</strong>
+                <span>一键进入你最常用的聊天场景</span>
+              </div>
+              <div class="section-title-right">
+                <img src="https://unpkg.com/lucide-static@latest/icons/wand-2.svg" alt="wand" />
+                智能推荐中
+              </div>
+            </div>
+
+            <div class="pill-row" id="scenePills">
+              <div class="pill active" data-scene="welcome">
+                <img src="https://unpkg.com/lucide-static@latest/icons/hand-heart.svg" alt="welcome" />
+                <span>首次加好友欢迎语</span>
+              </div>
+              <div class="pill" data-scene="follow">
+                <img src="https://unpkg.com/lucide-static@latest/icons/clock-3.svg" alt="follow" />
+                <span>跟进还没回消息</span>
+              </div>
+              <div class="pill" data-scene="close">
+                <img src="https://unpkg.com/lucide-static@latest/icons/badge-check.svg" alt="deal" />
+                <span>临门一脚促成交</span>
+              </div>
+              <div class="pill" data-scene="service">
+                <img src="https://unpkg.com/lucide-static@latest/icons/headset.svg" alt="service" />
+                <span>售后安抚与挽回</span>
+              </div>
+            </div>
+
+            <div class="card card-soft" id="sceneCard">
+              <div class="card-header">
+                <div class="card-title">
+                  <div class="card-title-main">
+                    <img src="https://unpkg.com/lucide-static@latest/icons/quote.svg" alt="quote" />
+                    推荐话术 · 首次加好友
+                  </div>
+                  <div class="card-title-sub">轻松打破尴尬，避免「加完就没下文」。</div>
+                </div>
+                <div class="badge">
+                  <img src="https://unpkg.com/lucide-static@latest/icons/sparkle.svg" alt="ai" />
+                  AI 根据你行业自动适配
+                </div>
+              </div>
+              <div style="font-size:12px; line-height:1.6; margin-bottom:8px;" id="sceneContent">
+                「嗨，我是<span style="color:#e5e7eb;"> 小周</span>，刚在<span style="color:#e5e7eb;">社群里看到你</span>，感觉你对<span style="color:#e5e7eb;">XXX</span>挺有想法的，就厚着脸皮加你一下～以后有好东西也第一时间想到了你。」
+              </div>
+              <div style="display:flex; justify-content:space-between; align-items:center; font-size:11px; color:var(--text-muted);">
+                <span>近 7 日命中率 <span style="color:#e5e7eb;">87%</span></span>
+                <div style="display:flex; gap:6px;">
+                  <button class="chat-action-btn" data-toast="已复制到剪贴板（Mock）">
+                    <img src="https://unpkg.com/lucide-static@latest/icons/copy.svg" alt="copy" />
+                    复制话术
+                  </button>
+                  <button class="chat-action-btn" data-toast="已替换为更活泼语气（Mock）">
+                    <img src="https://unpkg.com/lucide-static@latest/icons/sliders-horizontal.svg" alt="tone" />
+                    调整语气
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">
+                  <div class="card-title-main">
+                    <img src="https://unpkg.com/lucide-static@latest/icons/activity.svg" alt="metrics" />
+                    今日沟通健康度
+                  </div>
+                  <div class="card-title-sub">基于最近 50 条消息，实时评估你的聊天表现。</div>
+                </div>
+                <div class="badge">
+                  <img src="https://unpkg.com/lucide-static@latest/icons/shield-check.svg" alt="safe" />
+                  本地评估 · 不上传隐私
+                </div>
+              </div>
+              <div style="display:flex; gap:10px; margin-bottom:8px; font-size:11px;">
+                <div style="flex:1; padding:8px; border-radius:12px; background:rgba(15,23,42,0.96); border:1px solid rgba(55,65,81,1);">
+                  <div style="font-size:10px; color:var(--text-muted); margin-bottom:4px;">回应及时度</div>
+                  <div style="font-size:18px; font-weight:600; color:#22c55e;">92</div>
+                  <div style="font-size:10px; color:var(--text-muted);">平均 1.3 分钟内回复</div>
+                </div>
+                <div style="flex:1; padding:8px; border-radius:12px; background:rgba(15,23,42,0.96); border:1px solid rgba(55,65,81,1);">
+                  <div style="font-size:10px; color:var(--text-muted); margin-bottom:4px;">共情友好度</div>
+                  <div style="font-size:18px; font-weight:600; color:#facc15;">84</div>
+                  <div style="font-size:10px; color:var(--text-muted);">建议增加称呼与确认</div>
+                </div>
+              </div>
+              <div style="font-size:11px; color:var(--text-muted); display:flex; justify-content:space-between; align-items:center;">
+                <span>4 个会话存在「快要冷场」风险，建议跟进。</span>
+                <button class="chat-action-btn" data-open-page="chat">
+                  <img src="https://unpkg.com/lucide-static@latest/icons/list-check.svg" alt="detail" />
+                  去查看详情
+                </button>
+              </div>
+            </div>
+          </section>
+
+          <!-- 智能会话页 -->
+          <section class="page" id="page-chat">
+            <div class="section-title">
+              <div class="section-title-main">
+                <strong>智能会话</strong>
+                <span>像和习惯你很多年的搭档一起聊天。</span>
+              </div>
+              <div class="section-title-right">
+                <img src="https://unpkg.com/lucide-static@latest/icons/sparkles.svg" alt="spark" />
+                对话智能增强中
+              </div>
+            </div>
+
+            <div class="card card-soft" style="margin-bottom:8px;">
+              <div class="card-header">
+                <div class="card-title">
+                  <div class="card-title-main">
+                    <img src="https://unpkg.com/lucide-static@latest/icons/users.svg" alt="customer" />
+                    当前客户：来自社群的小林
+                  </div>
+                  <div class="card-title-sub">系统已识别为「对新事物感兴趣，偏理性决策」。</div>
+                </div>
+                <div class="badge">
+                  <img src="https://unpkg.com/lucide-static@latest/icons/sparkle.svg" alt="auto" />
+                  自动总结画像
+                </div>
+              </div>
+              <div style="display:flex; gap:8px; font-size:10px; color:var(--text-muted);">
+                <span>价格敏感：中</span>
+                <span>聊天节奏：偏慢</span>
+                <span>历史成交率：32%</span>
+              </div>
+            </div>
+
+            <div class="chat-stream" id="chatStream"></div>
+
+            <div class="chat-input-wrapper">
+              <div class="chat-input-bar">
+                <div class="chat-input-icons">
+                  <button class="icon-button" style="width:22px;height:22px; border-radius:10px;" data-toast="打开文件发送（Mock）">
+                    <img src="https://unpkg.com/lucide-static@latest/icons/file-plus-2.svg" alt="file" />
+                  </button>
+                  <button class="icon-button" style="width:22px;height:22px; border-radius:10px;" data-toast="打开图片选择器（Mock）">
+                    <img src="https://unpkg.com/lucide-static@latest/icons/image-plus.svg" alt="img" />
+                  </button>
+                </div>
+                <textarea class="chat-input-textarea" id="chatInput" rows="1" placeholder="和会聊鸭说说你现在这个聊天卡在哪儿了…"></textarea>
+                <button class="chat-send-btn" id="chatSendBtn">
+                  <img src="https://unpkg.com/lucide-static@latest/icons/send.svg" alt="send" />
+                </button>
+              </div>
+              <div class="chat-suggestion-row" id="chatSuggestions"></div>
+            </div>
+          </section>
+
+          <!-- 工具集 -->
+          <section class="page" id="page-tools">
+            <div class="section-title">
+              <div class="section-title-main">
+                <strong>工具集</strong>
+                <span>把高频动作封装成一键工具，省心省脑。</span>
+              </div>
+              <div class="section-title-right">
+                <img src="https://unpkg.com/lucide-static@latest/icons/scan-eye.svg" alt="scan" />
+                即将支持聊天自动识别场景
+              </div>
+            </div>
+
+            <div class="tool-grid" id="toolGrid"></div>
+          </section>
+
+          <!-- 体验实验室 -->
+          <section class="page" id="page-lab">
+            <div class="section-title">
+              <div class="section-title-main">
+                <strong>体验实验室</strong>
+                <span>一些还在打磨中的新能力，欢迎大胆试用。</span>
+              </div>
+              <div class="section-title-right">
+                <img src="https://unpkg.com/lucide-static@latest/icons/beaker.svg" alt="beaker" />
+                实验功能 · Mock
+              </div>
+            </div>
+
+            <div class="lab-grid" id="labGrid"></div>
+          </section>
+
+          <!-- 我的 -->
+          <section class="page" id="page-profile">
+            <div class="profile-header-card">
+              <div class="profile-avatar">周</div>
+              <div class="profile-meta">
+                <div class="profile-name-row">
+                  小周 · 会聊鸭
+                  <span style="font-size:10px; padding:2px 6px; border-radius:999px; background:rgba(15,23,42,0.96); border:1px solid rgba(148,163,184,0.7); color:var(--text-muted);">运营 / 私域转化</span>
+                </div>
+                <div class="profile-tag-row">
+                  <span class="profile-tag-pill">擅长：社群冷启动、私聊转化</span>
+                  <span class="profile-tag-pill">最近：在练习“不卑不亢”的拒绝话术</span>
+                </div>
+                <div class="profile-meta-bottom">
+                  <span>累计陪你优化 <strong>1,284</strong> 条消息</span>
+                  <span class="profile-chip-live">
+                    <span class="status-pill-dot"></span>
+                    今天也在线帮你打怪
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div class="profile-list">
+              <div class="profile-row" data-toast="Mock：打开偏好设置">
+                <div class="profile-row-main">
+                  <div class="profile-row-icon">
+                    <img src="https://unpkg.com/lucide-static@latest/icons/sliders-horizontal.svg" alt="pref" />
+                  </div>
+                  <div class="profile-row-text">
+                    <span>沟通偏好</span>
+                    <span>语气、称呼、表情包使用频率等个性化设置</span>
+                  </div>
+                </div>
+                <div class="profile-row-right">
+                  <span>偏理性 · 克制幽默</span>
+                  <img src="https://unpkg.com/lucide-static@latest/icons/chevron-right.svg" alt="more" />
+                </div>
+              </div>
+
+              <div class="profile-row" id="toggleSmartRiskRow">
+                <div class="profile-row-main">
+                  <div class="profile-row-icon">
+                    <img src="https://unpkg.com/lucide-static@latest/icons/shield-alert.svg" alt="risk" />
+                  </div>
+                  <div class="profile-row-text">
+                    <span>敏感话术预警</span>
+                    <span>检测「踩雷」风险词，提前拉你一把</span>
+                  </div>
+                </div>
+                <div class="profile-row-right">
+                  <span id="smartRiskLabel">已开启</span>
+                  <div class="toggle on" id="smartRiskToggle">
+                    <div class="toggle-thumb"></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="profile-row" data-toast="Mock：同步历史聊天数据用于训练">
+                <div class="profile-row-main">
+                  <div class="profile-row-icon">
+                    <img src="https://unpkg.com/lucide-static@latest/icons/database.svg" alt="data" />
+                  </div>
+                  <div class="profile-row-text">
+                    <span>历史聊天训练</span>
+                    <span>让会聊鸭学会你的表达风格</span>
+                  </div>
+                </div>
+                <div class="profile-row-right">
+                  <span>已分析 3,247 条</span>
+                  <img src="https://unpkg.com/lucide-static@latest/icons/chevron-right.svg" alt="more" />
+                </div>
+              </div>
+
+              <div class="profile-row" data-toast="Mock：进入反馈面板">
+                <div class="profile-row-main">
+                  <div class="profile-row-icon">
+                    <img src="https://unpkg.com/lucide-static@latest/icons/message-square-heart.svg" alt="feedback" />
+                  </div>
+                  <div class="profile-row-text">
+                    <span>我要吐槽 / 提需求</span>
+                    <span>每一条反馈，都会变成下一次的小惊喜</span>
+                  </div>
+                </div>
+                <div class="profile-row-right">
+                  <span>期待你的灵感</span>
+                  <img src="https://unpkg.com/lucide-static@latest/icons/chevron-right.svg" alt="more" />
+                </div>
+              </div>
+            </div>
+
+            <div class="profile-footer">
+              <div class="profile-footer-row">
+                <span>当前版本：<strong>会聊鸭 · 0.9.3-beta</strong></span>
+                <span style="display:flex; align-items:center; gap:4px;">
+                  <img src="https://unpkg.com/lucide-static@latest/icons/sparkles.svg" alt="spark" style="width:12px;height:12px;" />
+                  下次迭代：增加「多平台同步」
+                </span>
+              </div>
+              <div class="profile-footer-row" style="color:rgba(148,163,184,0.8);">
+                <span>所有示例数据均为 Mock，用于设计与演示。</span>
+                <span>© 会聊鸭 Design Preview</span>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <!-- 全局底部导航 -->
+        <div class="global-tabbar" id="bottomNav">
+          <div class="global-center-pill"></div>
+          <div class="global-tab-item active" data-page="home">
+            <img src="https://unpkg.com/lucide-static@latest/icons/layout-dashboard.svg" alt="home" />
+            <span>首页</span>
+          </div>
+          <div class="global-tab-item" data-page="chat">
+            <img src="https://unpkg.com/lucide-static@latest/icons/message-circle.svg" alt="chat" />
+            <span>会话</span>
+          </div>
+          <div class="global-tab-item" data-page="tools">
+            <img src="https://unpkg.com/lucide-static@latest/icons/app-window.svg" alt="tools" />
+            <span>工具</span>
+          </div>
+          <div class="global-tab-item" data-page="lab">
+            <img src="https://unpkg.com/lucide-static@latest/icons/atom.svg" alt="lab" />
+            <span>实验</span>
+          </div>
+          <div class="global-tab-item" data-page="profile">
+            <img src="https://unpkg.com/lucide-static@latest/icons/user-round.svg" alt="me" />
+            <span>我的</span>
+          </div>
+          <span class="dot-badge"></span>
+        </div>
+
+        <!-- Toast 提示 -->
+        <div class="toast" id="toast">
+          <img src="https://unpkg.com/lucide-static@latest/icons/info.svg" alt="info" />
+          <span id="toastText">这是一个示例提示</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 模拟状态栏时间
+    (function initStatusTime() {
+      const el = document.getElementById('statusTime');
+      if (!el) return;
+      const now = new Date();
+      const h = String(now.getHours()).padStart(2, '0');
+      const m = String(now.getMinutes()).padStart(2, '0');
+      el.textContent = h + ':' + m;
+    })();
+
+    const toastEl = document.getElementById('toast');
+    const toastText = document.getElementById('toastText');
+    let toastTimer = null;
+
+    function showToast(text) {
+      if (!toastEl) return;
+      toastText.textContent = text;
+      toastEl.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toastEl.classList.remove('show'), 1900);
+    }
+
+    // 页面切换
+    const pages = ['home', 'chat', 'tools', 'lab', 'profile'];
+
+    function switchPage(target) {
+      if (!pages.includes(target)) return;
+
+      pages.forEach((p) => {
+        const section = document.getElementById('page-' + p);
+        if (!section) return;
+        if (p === target) {
+          section.classList.add('active');
+        } else {
+          section.classList.remove('active');
+        }
+      });
+
+      document.querySelectorAll('.page-tab').forEach((tab) => {
+        const page = tab.getAttribute('data-page');
+        if (page === target) tab.classList.add('active');
+        else tab.classList.remove('active');
+      });
+
+      document.querySelectorAll('.global-tab-item').forEach((tab) => {
+        const page = tab.getAttribute('data-page');
+        if (page === target) tab.classList.add('active');
+        else tab.classList.remove('active');
+      });
+    }
+
+    document.getElementById('pageTabs').addEventListener('click', (e) => {
+      const tab = e.target.closest('.page-tab');
+      if (!tab) return;
+      const page = tab.getAttribute('data-page');
+      switchPage(page);
+    });
+
+    document.getElementById('bottomNav').addEventListener('click', (e) => {
+      const item = e.target.closest('.global-tab-item');
+      if (!item) return;
+      const page = item.getAttribute('data-page');
+      switchPage(page);
+    });
+
+    // 任意带 data-open-page 的按钮直接跳转
+    document.body.addEventListener('click', (e) => {
+      const target = e.target.closest('[data-open-page]');
+      if (target) {
+        const page = target.getAttribute('data-open-page');
+        switchPage(page);
+      }
+    });
+
+    // Toast 绑定
+    document.body.addEventListener('click', (e) => {
+      const btn = e.target.closest('[data-toast]');
+      if (!btn) return;
+      const text = btn.getAttribute('data-toast');
+      showToast(text || '示例交互（Mock）');
+    });
+
+    // 场景 Mock 数据
+    const sceneMap = {
+      welcome: {
+        title: '推荐话术 · 首次加好友',
+        desc: '轻松打破尴尬，避免「加完就没下文」。',
+        content:
+          '「嗨，我是<span style="color:#e5e7eb;"> 小周</span>，刚在<span style="color:#e5e7eb;">社群里看到你</span>，感觉你对<span style="color:#e5e7eb;">XXX</span>挺有想法的，就厚着脸皮加你一下～以后有好东西也第一时间想到了你。」',
+      },
+      follow: {
+        title: '推荐话术 · 跟进还没回消息',
+        desc: '既礼貌又不显得「追问」，给对方台阶也给自己台阶。',
+        content:
+          '「刚刚突然想到，怕你会不会被我之前那条消息打扰到，如果现在不方便看完全没关系～等你有空再聊，我这边会把你之前提到的<span style="color:#e5e7eb;">XXX</span>记在备忘里。」',
+      },
+      close: {
+        title: '推荐话术 · 临门一脚促成交',
+        desc: '避免「最后一步」硬推，用选项和安全感推进。',
+        content:
+          '「我帮你简单汇总了一下刚刚聊到的重点👇<br/>1）你现在最在意的是<span style="color:#e5e7eb;">XXX</span><br/>2）如果能在<span style="color:#e5e7eb;">YY 天内看到变化</span>你就愿意尝试；<br/>要不这样，我先帮你锁一份<span style="color:#e5e7eb;">可随时退款</span>的名额，你这两天再想想？不合适我也第一时间帮你取消。」',
+      },
+      service: {
+        title: '推荐话术 · 售后安抚与挽回',
+        desc: '承认问题 + 给到具体补偿，而不是泛泛道歉。',
+        content:
+          '「这次体验确实没有做到你一开始期待的那个样子，是我这边准备不充分。为了弥补这次的打扰，我可以为你做两件事👇<br/>1）额外提供一份<span style="color:#e5e7eb;">专属方案梳理</span>；<br/>2）如果最终还是觉得不合适，我会帮你<span style="color:#e5e7eb;">无条件退款</span>。<br/>你愿意再给我一次把事情处理好的机会吗？」',
+      },
+    };
+
+    const sceneCardTitle = document.querySelector('#sceneCard .card-title-main');
+    const sceneCardDesc = document.querySelector('#sceneCard .card-title-sub');
+    const sceneContent = document.getElementById('sceneContent');
+    const scenePills = document.getElementById('scenePills');
+
+    scenePills.addEventListener('click', (e) => {
+      const pill = e.target.closest('.pill');
+      if (!pill) return;
+      const key = pill.getAttribute('data-scene');
+      if (!sceneMap[key]) return;
+      scenePills.querySelectorAll('.pill').forEach((el) => el.classList.remove('active'));
+      pill.classList.add('active');
+      const data = sceneMap[key];
+      const textTitle = data.title || '';
+      const icon =
+        key === 'welcome'
+          ? 'quote'
+          : key === 'follow'
+          ? 'clock-3'
+          : key === 'close'
+          ? 'badge-check'
+          : 'headset';
+      sceneCardTitle.innerHTML =
+        '<img src="https://unpkg.com/lucide-static@latest/icons/' + icon + '.svg" alt="icon" />' +
+        textTitle;
+      sceneCardDesc.textContent = data.desc;
+      sceneContent.innerHTML = data.content;
+    });
+
+    // 聊天 Mock
+    const chatStream = document.getElementById('chatStream');
+    const chatInput = document.getElementById('chatInput');
+    const chatSendBtn = document.getElementById('chatSendBtn');
+    const chatSuggestions = document.getElementById('chatSuggestions');
+
+    const mockChatHistory = [
+      {
+        role: 'ai',
+        header: '会聊鸭 · 会话体检',
+        time: '刚刚',
+        text:
+          '我看了一眼你和小林的聊天记录：
+- 你已经很真诚地介绍了产品背景；
+- 小林多次提到「要再想想」，但没有给出具体原因。\n\n建议你下一条消息，帮他把顾虑说出来。',
+        tags: ['建议：帮对方说出顾虑', '风险：对方可能在比较同类产品'],
+        actions: ['生成一条更柔和的追问', '用更轻松的语气重新说一遍'],
+      },
+      {
+        role: 'me',
+        text: '他一直说要再想想，我又不太好意思问得太细…',
+      },
+      {
+        role: 'ai',
+        header: '会聊鸭 · 建议话术',
+        time: '30 秒前',
+        text:
+          '可以尝试这样问：\n\n「我完全理解你要多比较几家看看～只是怕我今天讲得不够清楚，
+如果方便的话，你最在意的是价格、效果，还是后期服务？我可以直接围绕你最关心的那块详细说说。」',
+        tags: ['保留对方体面', '引导说出真实顾虑'],
+        actions: ['帮我换成更简短一点的版本', '保持这个结构，换另一种说法'],
+      },
+    ];
+
+    const mockSuggestions = [
+      {
+        icon: 'sparkles',
+        text: '帮我改成更活泼一点，但不要太油',
+      },
+      {
+        icon: 'concert',
+        text: '生成一个适合发朋友圈的总结文案',
+      },
+      {
+        icon: 'file-pen-line',
+        text: '把刚刚这段对话整理成一份跟进笔记',
+      },
+    ];
+
+    function renderChatBubble(msg) {
+      const row = document.createElement('div');
+      row.className = 'chat-bubble-row ' + (msg.role === 'me' ? 'mine' : '');
+
+      if (msg.role === 'ai') {
+        const avatar = document.createElement('div');
+        avatar.className = 'chat-avatar';
+        avatar.textContent = '鸭';
+        row.appendChild(avatar);
+      }
+
+      const bubble = document.createElement('div');
+      bubble.className = 'chat-bubble ' + (msg.role === 'me' ? 'mine' : '');
+
+      if (msg.role === 'ai') {
+        const header = document.createElement('div');
+        header.className = 'chat-bubble-header';
+        const left = document.createElement('span');
+        left.textContent = msg.header || '会聊鸭';
+        const right = document.createElement('span');
+        right.textContent = msg.time || '刚刚';
+        header.appendChild(left);
+        header.appendChild(right);
+        bubble.appendChild(header);
+      }
+
+      const content = document.createElement('div');
+      content.style.whiteSpace = 'pre-line';
+      content.style.fontSize = '12px';
+      content.textContent = msg.text;
+      bubble.appendChild(content);
+
+      if (msg.tags && msg.tags.length) {
+        const tagWrap = document.createElement('div');
+        tagWrap.className = 'chat-bubble-tags';
+        msg.tags.forEach((t) => {
+          const tag = document.createElement('span');
+          tag.className = 'chat-bubble-tag';
+          tag.textContent = t;
+          tagWrap.appendChild(tag);
+        });
+        bubble.appendChild(tagWrap);
+      }
+
+      if (msg.actions && msg.actions.length) {
+        const actionWrap = document.createElement('div');
+        actionWrap.className = 'chat-bubble-actions';
+        msg.actions.forEach((a) => {
+          const btn = document.createElement('button');
+          btn.className = 'chat-action-btn';
+          btn.setAttribute('data-toast', 'Mock：' + a);
+          btn.innerHTML =
+            '<img src="https://unpkg.com/lucide-static@latest/icons/sparkles.svg" alt="act" />' + a;
+          actionWrap.appendChild(btn);
+        });
+        bubble.appendChild(actionWrap);
+      }
+
+      row.appendChild(bubble);
+      chatStream.appendChild(row);
+    }
+
+    function initChat() {
+      mockChatHistory.forEach(renderChatBubble);
+      chatStream.scrollTop = chatStream.scrollHeight;
+
+      mockSuggestions.forEach((s) => {
+        const pill = document.createElement('button');
+        pill.className = 'chat-suggestion-pill';
+        pill.innerHTML =
+          '<img src="https://unpkg.com/lucide-static@latest/icons/' + s.icon + '.svg" alt="sg" />' + s.text;
+        pill.addEventListener('click', () => {
+          chatInput.value = s.text;
+          chatInput.focus();
+        });
+        chatSuggestions.appendChild(pill);
+      });
+    }
+
+    initChat();
+
+    function sendChat() {
+      const text = chatInput.value.trim();
+      if (!text) {
+        showToast('先说一句你现在卡住的地方吧～');
+        return;
+      }
+
+      const meMsg = { role: 'me', text };
+      renderChatBubble(meMsg);
+      chatInput.value = '';
+
+      setTimeout(() => {
+        const aiMsg = {
+          role: 'ai',
+          header: '会聊鸭 · 即时建议',
+          time: '刚刚',
+          text:
+            '我已经学会了你这一句的表达风格，接下来有类似场景时，会优先用「你的方式」来回答。\n\n如果你愿意，再告诉我：你更希望我这类回复偏幽默一点，还是再正式一点？',
+          tags: ['已记录：你的表达偏好', '建议：完善「语气」与「称呼」偏好'],
+          actions: ['以后类似场景都按这个语气来', '给我几个不同风格的备用版本'],
+        };
+        renderChatBubble(aiMsg);
+        chatStream.scrollTop = chatStream.scrollHeight;
+      }, 500);
+
+      chatStream.scrollTop = chatStream.scrollHeight;
+    }
+
+    chatSendBtn.addEventListener('click', sendChat);
+
+    chatInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendChat();
+      }
+    });
+
+    // 工具集 Mock
+    const toolGrid = document.getElementById('toolGrid');
+    const mockTools = [
+      {
+        icon: 'messages-square',
+        title: '万能话术生成器',
+        subtitle: '把你打的草稿，改成更「会聊天」的版本。',
+        badges: ['语气转换', '话术结构优化'],
+        metric: '今日使用 126 次',
+        hot: true,
+      },
+      {
+        icon: 'smile-plus',
+        title: '表情包智能搭配',
+        subtitle: '自动补上「不尴尬又不油腻」的表情包。',
+        badges: ['支持微信收藏夹', '识别语境'],
+        metric: '命中率 89%',
+      },
+      {
+        icon: 'sparkle',
+        title: '朋友圈文案助手',
+        subtitle: '把产品卖点换成「不打广告」的说法。',
+        badges: ['多版本 A/B 测试', '适配不同平台'],
+        metric: '已生成 1,023 条',
+      },
+      {
+        icon: 'brain-circuit',
+        title: '客户画像速览',
+        subtitle: '一句话看懂对方到底在意什么。',
+        badges: ['行为线索拆解', '自动打标签'],
+        metric: '分析耗时 < 2s',
+      },
+      {
+        icon: 'shield-check',
+        title: '风险话术雷达',
+        subtitle: '提前标记「可能踩雷」的敏感表达。',
+        badges: ['行业自定义词库', '实时提示'],
+        metric: '已拦截 64 次',
+      },
+      {
+        icon: 'pen-line',
+        title: '道歉&挽回助手',
+        subtitle: '既真诚负责，又保留专业边界。',
+        badges: ['情绪安抚', '补偿方案模版'],
+        metric: '好评率 94%',
+      },
+    ];
+
+    mockTools.forEach((tool) => {
+      const card = document.createElement('div');
+      card.className = 'tool-card';
+      card.setAttribute('data-toast', 'Mock：打开「' + tool.title + '」');
+
+      const header = document.createElement('div');
+      header.className = 'tool-card-header';
+
+      const main = document.createElement('div');
+      main.style.display = 'flex';
+      main.style.gap = '8px';
+
+      const iconWrap = document.createElement('div');
+      iconWrap.className = 'tool-icon';
+      iconWrap.innerHTML =
+        '<img src="https://unpkg.com/lucide-static@latest/icons/' + tool.icon + '.svg" alt="icon" />';
+
+      const meta = document.createElement('div');
+      meta.className = 'tool-meta';
+      const title = document.createElement('div');
+      title.className = 'tool-title';
+      title.textContent = tool.title;
+      const subtitle = document.createElement('div');
+      subtitle.className = 'tool-subtitle';
+      subtitle.textContent = tool.subtitle;
+      meta.appendChild(title);
+      meta.appendChild(subtitle);
+
+      main.appendChild(iconWrap);
+      main.appendChild(meta);
+
+      const badge = document.createElement('span');
+      badge.className = 'badge';
+      badge.innerHTML =
+        '<img src="https://unpkg.com/lucide-static@latest/icons/wand-2.svg" alt="hot" />' +
+        (tool.hot ? '热门 · 今日推荐' : 'AI 工具');
+
+      header.appendChild(main);
+      header.appendChild(badge);
+
+      const badgeRow = document.createElement('div');
+      badgeRow.className = 'tool-badge-row';
+      tool.badges.forEach((b) => {
+        const tag = document.createElement('span');
+        tag.className = 'tool-badge';
+        tag.innerHTML =
+          '<img src="https://unpkg.com/lucide-static@latest/icons/sparkles.svg" alt="t" />' + b;
+        badgeRow.appendChild(tag);
+      });
+
+      const metricRow = document.createElement('div');
+      metricRow.className = 'tool-metric-row';
+      const metricLeft = document.createElement('span');
+      metricLeft.textContent = tool.metric;
+      const metricRight = document.createElement('span');
+      metricRight.className = 'tool-metric-pill';
+      metricRight.innerHTML =
+        '<img src="https://unpkg.com/lucide-static@latest/icons/chevron-right.svg" alt="go" style="width:11px;height:11px;" /> 进入';
+      metricRow.appendChild(metricLeft);
+      metricRow.appendChild(metricRight);
+
+      card.appendChild(header);
+      card.appendChild(badgeRow);
+      card.appendChild(metricRow);
+      toolGrid.appendChild(card);
+    });
+
+    // 实验室 Mock
+    const labGrid = document.getElementById('labGrid');
+    const mockLabs = [
+      {
+        icon: 'bot-message-square',
+        title: '多轮对话「导演模式」',
+        subtitle: '不是一句一句给文案，而是帮你设计整场对话节奏。',
+        tags: ['对话脚本', '不同结局分支'],
+        beta: true,
+        ppl: '已有 73 位体验',
+      },
+      {
+        icon: 'audio-waveform',
+        title: '语音语气微调',
+        subtitle: '帮你把「生硬语气」修成「温柔坚定」，仍然保留你的声线。',
+        tags: ['录音优化', '情绪校准'],
+        beta: true,
+        ppl: '排队等待人数 12',
+      },
+      {
+        icon: 'globe-2',
+        title: '跨平台自动同步',
+        subtitle: '把不同平台聊散的线索，聚成一张「关系网」。',
+        tags: ['微信/企微/飞书', '防止遗漏跟进'],
+        beta: false,
+        ppl: '设计阶段 · 欢迎提需求',
+      },
+    ];
+
+    mockLabs.forEach((lab) => {
+      const card = document.createElement('div');
+      card.className = 'lab-card';
+      card.setAttribute('data-toast', 'Mock：预约「' + lab.title + '」实验功能');
+
+      const header = document.createElement('div');
+      header.className = 'lab-card-header';
+
+      const main = document.createElement('div');
+      main.className = 'lab-card-main';
+
+      const icon = document.createElement('div');
+      icon.className = 'lab-icon';
+      icon.innerHTML =
+        '<img src="https://unpkg.com/lucide-static@latest/icons/' + lab.icon + '.svg" alt="lab" />';
+
+      const text = document.createElement('div');
+      text.className = 'lab-text';
+      const title = document.createElement('div');
+      title.className = 'lab-title';
+      title.textContent = lab.title;
+      const subtitle = document.createElement('div');
+      subtitle.className = 'lab-subtitle';
+      subtitle.textContent = lab.subtitle;
+      text.appendChild(title);
+      text.appendChild(subtitle);
+
+      const tagRow = document.createElement('div');
+      tagRow.className = 'lab-tag-row';
+      lab.tags.forEach((t) => {
+        const tag = document.createElement('span');
+        tag.className = 'lab-tag-pill';
+        tag.textContent = t;
+        tagRow.appendChild(tag);
+      });
+      text.appendChild(tagRow);
+
+      main.appendChild(icon);
+      main.appendChild(text);
+
+      const right = document.createElement('div');
+      right.className = 'lab-footer-row';
+      if (lab.beta) {
+        right.innerHTML =
+          '<span><strong>Beta</strong> · 体验中</span><span class="lab-chip-beta">预约体验</span>';
+      } else {
+        right.innerHTML = '<span>' + lab.ppl + '</span><span class="lab-chip-beta">征集想法</span>';
+      }
+
+      header.appendChild(main);
+      header.appendChild(right);
+
+      const bottomRow = document.createElement('div');
+      bottomRow.className = 'lab-footer-row';
+      bottomRow.innerHTML =
+        '<span>' + lab.ppl + '</span><span><strong>说明</strong> · 所有操作仅为 Mock 展示</span>';
+
+      card.appendChild(header);
+      card.appendChild(bottomRow);
+      labGrid.appendChild(card);
+    });
+
+    // 开关交互
+    const smartRiskToggle = document.getElementById('smartRiskToggle');
+    const smartRiskLabel = document.getElementById('smartRiskLabel');
+    const toggleSmartRiskRow = document.getElementById('toggleSmartRiskRow');
+
+    function toggleSmartRisk() {
+      const isOn = smartRiskToggle.classList.contains('on');
+      if (isOn) {
+        smartRiskToggle.classList.remove('on');
+        smartRiskLabel.textContent = '已关闭';
+        showToast('Mock：已关闭敏感话术预警');
+      } else {
+        smartRiskToggle.classList.add('on');
+        smartRiskLabel.textContent = '已开启';
+        showToast('Mock：已开启敏感话术预警');
+      }
+    }
+
+    smartRiskToggle.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleSmartRisk();
+    });
+
+    toggleSmartRiskRow.addEventListener('click', () => {
+      toggleSmartRisk();
+    });
+  </script>
+</body>
+</html>
+
+
+[Tool result] Write
+
+assistant:
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>会聊鸭 - 设计预览</title>
+  <style>
+    :root {
+      --bg-body: radial-gradient(circle at top, #161b2b 0, #050711 55%, #020308 100%);
+      --phone-bg: #050815;
+      --accent: #4f46e5;
+      --accent-soft: rgba(79, 70, 229, 0.12);
+      --accent-strong: rgba(129, 140, 248, 0.95);
+      --accent-gradient: linear-gradient(135deg, #6366f1, #a855f7);
+      --text-main: #e5e7eb;
+      --text-muted: #9ca3af;
+      --border-subtle: rgba(148, 163, 184, 0.18);
+      --card-bg: rgba(15, 23, 42, 0.94);
+      --card-soft-bg: rgba(15, 23, 42, 0.78);
+      --danger: #f97373;
+      --success: #22c55e;
+      --shadow-strong: 0 24px 80px rgba(15, 23, 42, 0.88);
+      --radius-lg: 24px;
+      --radius-xl: 32px;
+      --blur-strong: 20px;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      background: var(--bg-body);
+      color: var(--text-main);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", sans-serif;
+    }
+
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 12px;
+    }
+
+    .stage {
+      position: relative;
+      width: min(420px, 100%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* 环境光与渐变光圈 */
+    .stage::before {
+      content: "";
+      position: absolute;
+      inset: -80px -40px auto;
+      background:
+        radial-gradient(circle at top left, rgba(96, 165, 250, 0.28), transparent 60%),
+        radial-gradient(circle at top right, rgba(244, 114, 182, 0.32), transparent 60%);
+      opacity: 0.85;
+      filter: blur(24px);
+      z-index: -2;
+    }
+
+    .stage::after {
+      content: "";
+      position: absolute;
+      inset: auto -30px -80px;
+      background: radial-gradient(circle at bottom, rgba(56, 189, 248, 0.3), transparent 65%);
+      filter: blur(22px);
+      opacity: 0.7;
+      z-index: -2;
+    }
+
+    /* 手机外壳 */
+    .phone-shell {
+      position: relative;
+      width: 390px;
+      max-width: 100%;
+      height: 844px;
+      border-radius: calc(var(--radius-xl) + 8px);
+      background:
+        radial-gradient(circle at 20% 0, rgba(56, 189, 248, 0.26), transparent 60%),
+        radial-gradient(circle at 80% 0, rgba(244, 114, 182, 0.38), transparent 65%),
+        linear-gradient(135deg, #020617, #020617);
+      padding: 10px;
+      box-shadow:
+        0 0 0 1px rgba(148, 163, 184, 0.32),
+        0 30px 80px rgba(15, 23, 42, 1);
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      justify-content: center;
+    }
+
+    .phone-shell::before {
+      content: "";
+      position: absolute;
+      inset: 22px 48px auto;
+      height: 26px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 50%, #0f172a, #020617);
+      box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.8);
+      top: 18px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .phone-shell::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      background: radial-gradient(circle at -10% 15%, rgba(148, 163, 184, 0.14), transparent 55%);
+      mix-blend-mode: screen;
+      opacity: 0.8;
+      pointer-events: none;
+    }
+
+    .phone-inner {
+      position: relative;
+      flex: 1;
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+      background:
+        radial-gradient(circle at top, rgba(15, 23, 42, 0.85), rgba(15, 23, 42, 1)),
+        linear-gradient(180deg, #020617, #020617);
+      box-shadow:
+        inset 0 0 0 1px rgba(15, 23, 42, 1),
+        inset 0 0 0 1px rgba(15, 23, 42, 0.9);
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* 顶部状态栏 */
+    .status-bar {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 18px 6px;
+      font-size: 11px;
+      color: #e5e7eb;
+      letter-spacing: 0.04em;
+      z-index: 2;
+    }
+
+    .status-bar-time {
+      font-weight: 600;
+    }
+
+    .status-bar-icons {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      opacity: 0.9;
+    }
+
+    .status-pill {
+      padding: 2px 6px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      font-size: 10px;
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      background: rgba(15, 23, 42, 0.8);
+      backdrop-filter: blur(10px);
+    }
+
+    .status-pill-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: radial-gradient(circle, #4ade80, #22c55e);
+      box-shadow: 0 0 6px rgba(74, 222, 128, 0.6);
+    }
+
+    /* 顶部导航 */
+    .top-nav {
+      position: relative;
+      padding: 10px 16px 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      z-index: 2;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 10px;
+      background: radial-gradient(circle at 0 0, #22c55e, #16a34a);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow:
+        0 0 0 1px rgba(34, 197, 94, 0.7),
+        0 10px 18px rgba(22, 163, 74, 0.65);
+    }
+
+    .brand-avatar-inner {
+      width: 18px;
+      height: 18px;
+      border-radius: 7px;
+      background: conic-gradient(from 200deg, #bbf7d0, #4ade80, #a7f3d0);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #052e16;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    .brand-text {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .brand-title {
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .brand-chip {
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 999px;
+      background: rgba(34, 197, 94, 0.12);
+      border: 1px solid rgba(34, 197, 94, 0.45);
+      color: #bbf7d0;
+    }
+
+    .brand-subtitle {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .icon-button {
+      width: 28px;
+      height: 28px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      background: rgba(15, 23, 42, 0.9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+    }
+
+    .icon-button img {
+      width: 15px;
+      height: 15px;
+      filter: drop-shadow(0 0 6px rgba(148, 163, 184, 0.7));
+    }
+
+    .icon-button.primary {
+      background: radial-gradient(circle at 0 0, #4f46e5, #7c3aed);
+      border-color: transparent;
+      box-shadow:
+        0 0 0 1px rgba(129, 140, 248, 0.5),
+        0 12px 24px rgba(79, 70, 229, 0.7);
+    }
+
+    .icon-button:active {
+      transform: scale(0.94) translateY(1px);
+      box-shadow: 0 4px 10px rgba(15, 23, 42, 0.8);
+    }
+
+    /* 标签页导航 */
+    .page-tabs {
+      padding: 0 16px 8px;
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+
+    .page-tabs::-webkit-scrollbar {
+      display: none;
+    }
+
+    .page-tab {
+      flex: 0 0 auto;
+      padding: 6px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      font-size: 11px;
+      color: var(--text-muted);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      background: linear-gradient(135deg, rgba(15, 23, 42, 0.96), rgba(15, 23, 42, 0.9));
+      backdrop-filter: blur(12px);
+      transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.16s ease, box-shadow 0.16s ease;
+    }
+
+    .page-tab img {
+      width: 14px;
+      height: 14px;
+      opacity: 0.85;
+    }
+
+    .page-tab span {
+      white-space: nowrap;
+    }
+
+    .page-tab.active {
+      color: #e5e7eb;
+      border-color: rgba(129, 140, 248, 0.9);
+      background:
+        radial-gradient(circle at 0 0, rgba(56, 189, 248, 0.24), transparent 55%),
+        linear-gradient(135deg, rgba(79, 70, 229, 0.92), rgba(129, 140, 248, 0.96));
+      box-shadow:
+        0 0 0 1px rgba(191, 219, 254, 0.3),
+        0 12px 28px rgba(79, 70, 229, 0.85);
+      transform: translateY(-1px);
+    }
+
+    .page-tab:active {
+      transform: scale(0.97) translateY(0);
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 1);
+    }
+
+    /* 内容区域 */
+    .content {
+      position: relative;
+      flex: 1;
+      padding: 4px 14px 10px;
+      overflow: hidden;
+    }
+
+    .page {
+      position: absolute;
+      inset: 0 0 0 0;
+      padding: 4px 2px 6px;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateX(10px);
+      transition: opacity 0.22s ease, transform 0.22s ease;
+      overflow-y: auto;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+
+    .page::-webkit-scrollbar {
+      display: none;
+    }
+
+    .page.active {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateX(0);
+    }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 2px 10px;
+      font-size: 13px;
+      letter-spacing: 0.02em;
+    }
+
+    .section-title-main {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .section-title-main strong {
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    .section-title-main span {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .section-title-right {
+      font-size: 11px;
+      color: var(--accent-strong);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(129, 140, 248, 0.45);
+      background: rgba(15, 23, 42, 0.96);
+    }
+
+    .section-title-right img {
+      width: 12px;
+      height: 12px;
+    }
+
+    .pill-row {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 0 2px 10px;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+      font-size: 11px;
+    }
+
+    .pill-row::-webkit-scrollbar {
+      display: none;
+    }
+
+    .pill {
+      flex: 0 0 auto;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      background: rgba(15, 23, 42, 0.98);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: border-color 0.16s ease, background 0.16s ease, color 0.16s ease, transform 0.16s ease;
+    }
+
+    .pill img {
+      width: 13px;
+      height: 13px;
+      opacity: 0.85;
+    }
+
+    .pill.active {
+      border-color: rgba(34, 197, 94, 0.9);
+      background: linear-gradient(135deg, rgba(22, 163, 74, 0.98), rgba(34, 197, 94, 1));
+      color: #ecfdf5;
+      box-shadow:
+        0 0 0 1px rgba(190, 242, 100, 0.4),
+        0 12px 24px rgba(21, 128, 61, 0.9);
+      transform: translateY(-1px);
+    }
+
+    /* 卡片基础样式 */
+    .card {
+      border-radius: 18px;
+      background: var(--card-bg);
+      border: 1px solid var(--border-subtle);
+      padding: 12px;
+      margin-bottom: 12px;
+      box-shadow:
+        0 18px 40px rgba(15, 23, 42, 0.95),
+        0 0 0 1px rgba(15, 23, 42, 0.9);
+    }
+
+    .card-soft {
+      border-radius: 16px;
+      background: var(--card-soft-bg);
+      border: 1px solid rgba(31, 41, 55, 0.8);
+      box-shadow: 0 14px 32px rgba(15, 23, 42, 0.95);
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .card-title {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .card-title-main {
+      font-size: 14px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .card-title-main img {
+      width: 16px;
+      height: 16px;
+    }
+
+    .card-title-sub {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .badge {
+      font-size: 10px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      color: var(--text-muted);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: rgba(15, 23, 42, 0.9);
+    }
+
+    .badge img {
+      width: 11px;
+      height: 11px;
+    }
+
+    /* 首页模块 */
+    .hero-card {
+      position: relative;
+      padding: 14px 14px 12px;
+      border-radius: 20px;
+      background:
+        radial-gradient(circle at 10% 0, rgba(34, 197, 94, 0.2), transparent 55%),
+        radial-gradient(circle at 90% 0, rgba(56, 189, 248, 0.3), transparent 55%),
+        linear-gradient(145deg, #020617, #020617);
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      overflow: hidden;
+      box-shadow: 0 24px 60px rgba(15, 23, 42, 1);
+      margin-bottom: 12px;
+    }
+
+    .hero-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .hero-chip-row {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .hero-chip-main {
+      font-size: 11px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: rgba(22, 163, 74, 0.16);
+      border: 1px solid rgba(22, 163, 74, 0.6);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: #bbf7d0;
+    }
+
+    .hero-chip-main img {
+      width: 13px;
+      height: 13px;
+    }
+
+    .hero-chip-sub {
+      font-size: 11px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .hero-chip-sub-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 999px;
+      background: radial-gradient(circle, #4ade80, #16a34a);
+      box-shadow: 0 0 6px rgba(74, 222, 128, 0.6);
+    }
+
+    .hero-ai-orb {
+      width: 52px;
+      height: 52px;
+      border-radius: 999px;
+      background:
+        conic-gradient(from 210deg, rgba(56, 189, 248, 0.15), rgba(249, 115, 22, 0.35), rgba(249, 115, 22, 0.75), rgba(56, 189, 248, 0.5), rgba(16, 185, 129, 0.75));
+      padding: 2px;
+      position: relative;
+      box-shadow:
+        0 0 0 1px rgba(148, 163, 184, 0.6),
+        0 18px 40px rgba(79, 70, 229, 0.9);
+    }
+
+    .hero-ai-orb-inner {
+      width: 100%;
+      height: 100%;
+      border-radius: inherit;
+      background: radial-gradient(circle at 25% 0, rgba(248, 250, 252, 0.65), rgba(15, 23, 42, 1));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-ai-orb-inner::before {
+      content: "";
+      position: absolute;
+      inset: 16% 14%;
+      border-radius: 50%;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      opacity: 0.7;
+    }
+
+    .hero-ai-orb-inner::after {
+      content: "";
+      width: 16px;
+      height: 16px;
+      border-radius: 8px;
+      background: radial-gradient(circle at 30% 20%, #e5f3ff, #3b82f6);
+      box-shadow:
+        0 0 0 1px rgba(191, 219, 254, 0.7),
+        0 0 18px rgba(56, 189, 248, 0.9);
+    }
+
+    .hero-body-title {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      margin-bottom: 4px;
+    }
+
+    .hero-body-sub {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+    }
+
+    .hero-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+
+    .hero-tag {
+      font-size: 10px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.45);
+      color: var(--text-muted);
+    }
+
+    .hero-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .hero-cta-button {
+      flex: 1;
+      padding: 9px 10px;
+      border-radius: 999px;
+      border: none;
+      outline: none;
+      background: var(--accent-gradient);
+      color: #e5e7eb;
+      font-size: 13px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      cursor: pointer;
+      box-shadow:
+        0 0 0 1px rgba(191, 219, 254, 0.45),
+        0 14px 30px rgba(79, 70, 229, 0.95);
+      transition: transform 0.16s ease, box-shadow 0.16s ease;
+    }
+
+    .hero-cta-button img {
+      width: 15px;
+      height: 15px;
+    }
+
+    .hero-cta-button:active {
+      transform: translateY(1px) scale(0.98);
+      box-shadow: 0 6px 16px rgba(15, 23, 42, 0.9);
+    }
+
+    .hero-stats {
+      font-size: 10px;
+      color: var(--text-muted);
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .hero-stats span strong {
+      color: #e5e7eb;
+    }
+
+    /* 聊天页 */
+    .chat-stream {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding: 4px 2px 6px;
+    }
+
+    .chat-bubble-row {
+      display: flex;
+      gap: 8px;
+      align-items: flex-end;
+    }
+
+    .chat-bubble-row.mine {
+      justify-content: flex-end;
+    }
+
+    .chat-avatar {
+      width: 26px;
+      height: 26px;
+      border-radius: 10px;
+      background: radial-gradient(circle at 0 0, #38bdf8, #1d4ed8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 600;
+      color: #eff6ff;
+      box-shadow: 0 10px 20px rgba(37, 99, 235, 0.7);
+      flex-shrink: 0;
+    }
+
+    .chat-bubble {
+      max-width: 75%;
+      padding: 7px 9px;
+      border-radius: 14px 14px 14px 4px;
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px solid rgba(51, 65, 85, 0.9);
+      font-size: 12px;
+      line-height: 1.5;
+      color: #e5e7eb;
+    }
+
+    .chat-bubble.mine {
+      border-radius: 14px 14px 4px 14px;
+      background: linear-gradient(135deg, #4f46e5, #6366f1);
+      border-color: rgba(191, 219, 254, 0.6);
+      color: #e5e7eb;
+      box-shadow:
+        0 0 0 1px rgba(129, 140, 248, 0.6),
+        0 12px 22px rgba(79, 70, 229, 0.8);
+    }
+
+    .chat-bubble-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 4px;
+      font-size: 10px;
+      color: var(--text-muted);
+    }
+
+    .chat-bubble-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: 6px;
+    }
+
+    .chat-bubble-tag {
+      padding: 2px 6px;
+      border-radius: 999px;
+      font-size: 10px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      color: var(--text-muted);
+    }
+
+    .chat-bubble-actions {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-top: 6px;
+      font-size: 10px;
+    }
+
+    .chat-action-btn {
+      padding: 2px 6px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      background: rgba(15, 23, 42, 0.9);
+      color: var(--text-muted);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+    }
+
+    .chat-action-btn img {
+      width: 11px;
+      height: 11px;
+    }
+
+    .chat-input-wrapper {
+      position: sticky;
+      bottom: 0;
+      margin: 6px 0 0;
+      padding: 8px 2px 4px;
+      background: linear-gradient(180deg, rgba(15, 23, 42, 0), #020617 40%, #020617 100%);
+    }
+
+    .chat-input-bar {
+      display: flex;
+      align-items: flex-end;
+      gap: 6px;
+      border-radius: 999px;
+      padding: 6px 8px 6px 10px;
+      background: rgba(15, 23, 42, 0.98);
+      border: 1px solid rgba(51, 65, 85, 0.9);
+      box-shadow:
+        0 10px 20px rgba(15, 23, 42, 0.98),
+        0 0 0 1px rgba(15, 23, 42, 1);
+    }
+
+    .chat-input-icons {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .chat-input-textarea {
+      flex: 1;
+      border: none;
+      outline: none;
+      resize: none;
+      background: transparent;
+      color: #e5e7eb;
+      font-size: 13px;
+      max-height: 60px;
+      min-height: 20px;
+      padding: 0;
+    }
+
+    .chat-input-textarea::placeholder {
+      color: rgba(148, 163, 184, 0.8);
+    }
+
+    .chat-send-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 999px;
+      border: none;
+      background: var(--accent-gradient);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow:
+        0 0 0 1px rgba(191, 219, 254, 0.6),
+        0 10px 20px rgba(79, 70, 229, 0.9);
+      transition: transform 0.14s ease, box-shadow 0.14s ease;
+    }
+
+    .chat-send-btn img {
+      width: 14px;
+      height: 14px;
+    }
+
+    .chat-send-btn:active {
+      transform: scale(0.94) translateY(1px);
+      box-shadow: 0 4px 10px rgba(15, 23, 42, 1);
+    }
+
+    .chat-suggestion-row {
+      display: flex;
+      gap: 6px;
+      margin-top: 6px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+      font-size: 11px;
+    }
+
+    .chat-suggestion-row::-webkit-scrollbar {
+      display: none;
+    }
+
+    .chat-suggestion-pill {
+      flex: 0 0 auto;
+      padding: 4px 8px;
+      border-radius: 999px;
+      border: 1px dashed rgba(148, 163, 184, 0.5);
+      background: rgba(15, 23, 42, 0.96);
+      color: var(--text-muted);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .chat-suggestion-pill img {
+      width: 11px;
+      height: 11px;
+    }
+
+    /* 工具页 */
+    .tool-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 2px;
+    }
+
+    .tool-card {
+      padding: 10px;
+      border-radius: 16px;
+      background: rgba(15, 23, 42, 0.96);
+      border: 1px solid rgba(31, 41, 55, 0.9);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      cursor: pointer;
+      transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease, background 0.16s ease;
+    }
+
+    .tool-card:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 14px 30px rgba(15, 23, 42, 1);
+      border-color: rgba(129, 140, 248, 0.8);
+      background: radial-gradient(circle at 0 0, rgba(56, 189, 248, 0.08), transparent 55%), rgba(15, 23, 42, 0.98);
+    }
+
+    .tool-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .tool-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 12px;
+      background: radial-gradient(circle at 0 0, rgba(147, 197, 253, 0.3), rgba(79, 70, 229, 0.95));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 10px 18px rgba(79, 70, 229, 0.8);
+    }
+
+    .tool-icon img {
+      width: 16px;
+      height: 16px;
+    }
+
+    .tool-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .tool-title {
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .tool-subtitle {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .tool-badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: 2px;
+      font-size: 10px;
+    }
+
+    .tool-badge {
+      padding: 2px 6px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(55, 65, 81, 0.9);
+      color: var(--text-muted);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .tool-metric-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 6px;
+      font-size: 10px;
+      color: var(--text-muted);
+    }
+
+    .tool-metric-pill {
+      padding: 2px 6px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.98);
+      border: 1px solid rgba(31, 41, 55, 0.9);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .tool-metric-pill strong {
+      color: #e5e7eb;
+    }
+
+    /* 个人页 */
+    .profile-header-card {
+      padding: 12px;
+      border-radius: 18px;
+      background:
+        radial-gradient(circle at 0 0, rgba(129, 140, 248, 0.25), transparent 60%),
+        radial-gradient(circle at 100% 0, rgba(244, 114, 182, 0.35), transparent 60%),
+        linear-gradient(150deg, #020617, #020617);
+      border: 1px solid rgba(129, 140, 248, 0.65);
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 12px;
+      box-shadow:
+        0 0 0 1px rgba(30, 64, 175, 0.8),
+        0 20px 40px rgba(15, 23, 42, 1);
+    }
+
+    .profile-avatar {
+      width: 46px;
+      height: 46px;
+      border-radius: 18px;
+      background:
+        radial-gradient(circle at 0 0, rgba(96, 165, 250, 0.5), rgba(37, 99, 235, 1));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #eff6ff;
+      font-size: 16px;
+      font-weight: 700;
+      box-shadow:
+        0 0 0 1px rgba(191, 219, 254, 0.7),
+        0 18px 30px rgba(30, 64, 175, 0.9);
+    }
+
+    .profile-meta {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .profile-name-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .profile-tag-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      font-size: 10px;
+      color: var(--text-muted);
+    }
+
+    .profile-tag-pill {
+      padding: 2px 6px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.88);
+      border: 1px solid rgba(148, 163, 184, 0.7);
+    }
+
+    .profile-meta-bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 2px;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .profile-meta-bottom span strong {
+      color: #e5e7eb;
+    }
+
+    .profile-chip-live {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: rgba(22, 163, 74, 0.16);
+      border: 1px solid rgba(22, 163, 74, 0.7);
+      color: #bbf7d0;
+      font-size: 10px;
+    }
+
+    .profile-list {
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid rgba(31, 41, 55, 0.9);
+      background: rgba(15, 23, 42, 0.98);
+      box-shadow: 0 18px 40px rgba(15, 23, 42, 1);
+      margin-bottom: 12px;
+    }
+
+    .profile-row {
+      padding: 10px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      border-bottom: 1px solid rgba(31, 41, 55, 0.9);
+      cursor: pointer;
+      transition: background 0.18s ease;
+    }
+
+    .profile-row:last-child {
+      border-bottom: none;
+    }
+
+    .profile-row:hover {
+      background: radial-gradient(circle at 0 0, rgba(56, 189, 248, 0.08), transparent 60%);
+    }
+
+    .profile-row-main {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex: 1;
+    }
+
+    .profile-row-icon {
+      width: 26px;
+      height: 26px;
+      border-radius: 11px;
+      background: rgba(15, 23, 42, 0.98);
+      border: 1px solid rgba(55, 65, 81, 1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .profile-row-icon img {
+      width: 15px;
+      height: 15px;
+    }
+
+    .profile-row-text {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      font-size: 12px;
+    }
+
+    .profile-row-text span:last-child {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .profile-row-right {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 10px;
+      color: var(--text-muted);
+    }
+
+    .toggle {
+      width: 34px;
+      height: 18px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.98);
+      border: 1px solid rgba(55, 65, 81, 1);
+      padding: 1px;
+      display: flex;
+      align-items: center;
+      transition: background 0.16s ease, border-color 0.16s ease;
+    }
+
+    .toggle-thumb {
+      width: 14px;
+      height: 14px;
+      border-radius: 999px;
+      background: #6b7280;
+      transition: transform 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .toggle.on {
+      background: linear-gradient(135deg, #22c55e, #4ade80);
+      border-color: rgba(190, 242, 100, 0.7);
+    }
+
+    .toggle.on .toggle-thumb {
+      transform: translateX(14px);
+      background: #ecfdf5;
+      box-shadow:
+        0 0 0 1px rgba(134, 239, 172, 0.7),
+        0 0 10px rgba(34, 197, 94, 0.9);
+    }
+
+    .profile-footer {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 10px;
+      color: var(--text-muted);
+    }
+
+    .profile-footer-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* 体验页（实验室） */
+    .lab-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .lab-card {
+      padding: 10px 10px 9px;
+      border-radius: 16px;
+      background: rgba(15, 23, 42, 0.96);
+      border: 1px solid rgba(55, 65, 81, 1);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      cursor: pointer;
+      transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease, background 0.16s ease;
+    }
+
+    .lab-card:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 16px 36px rgba(15, 23, 42, 1);
+      border-color: rgba(244, 114, 182, 0.8);
+      background: radial-gradient(circle at 0 0, rgba(244, 114, 182, 0.14), transparent 60%), rgba(15, 23, 42, 0.98);
+    }
+
+    .lab-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .lab-card-main {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .lab-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 12px;
+      background: radial-gradient(circle at 0 0, rgba(251, 113, 133, 0.35), rgba(236, 72, 153, 0.95));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 12px 20px rgba(236, 72, 153, 0.9);
+    }
+
+    .lab-icon img {
+      width: 16px;
+      height: 16px;
+    }
+
+    .lab-text {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .lab-title {
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .lab-subtitle {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .lab-tag-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      font-size: 10px;
+      margin-top: 2px;
+    }
+
+    .lab-tag-pill {
+      padding: 2px 6px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.96);
+      border: 1px solid rgba(55, 65, 81, 1);
+      color: var(--text-muted);
+    }
+
+    .lab-footer-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 10px;
+      color: var(--text-muted);
+    }
+
+    .lab-footer-row span strong {
+      color: #e5e7eb;
+    }
+
+    .lab-chip-beta {
+      padding: 2px 6px;
+      border-radius: 999px;
+      border: 1px solid rgba(244, 114, 182, 0.9);
+      color: #f9a8d4;
+      background: rgba(15, 23, 42, 0.96);
+    }
+
+    /* 全局底部导航 */
+    .global-tabbar {
+      position: relative;
+      padding: 6px 18px 10px;
+      background: radial-gradient(circle at 50% -60%, rgba(129, 140, 248, 0.5), transparent 60%), rgba(2, 6, 23, 0.98);
+      border-top: 1px solid rgba(15, 23, 42, 1);
+      box-shadow:
+        0 -1px 0 rgba(15, 23, 42, 1),
+        0 -20px 35px rgba(15, 23, 42, 0.96);
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      z-index: 3;
+    }
+
+    .global-tab-item {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      font-size: 10px;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 4px 0;
+      border-radius: 999px;
+      transition: background 0.18s ease, color 0.18s ease, transform 0.16s ease;
+    }
+
+    .global-tab-item img {
+      width: 16px;
+      height: 16px;
+      opacity: 0.9;
+    }
+
+    .global-tab-item.active {
+      color: #e5e7eb;
+      background: rgba(15, 23, 42, 0.95);
+      box-shadow:
+        0 0 0 1px rgba(30, 64, 175, 0.85),
+        0 6px 18px rgba(15, 23, 42, 0.98);
+      transform: translateY(-1px);
+    }
+
+    .global-center-pill {
+      position: absolute;
+      inset: -14px 34% auto 34%;
+      height: 26px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 50% -10%, rgba(129, 140, 248, 0.8), transparent 60%);
+      opacity: 0.7;
+      filter: blur(12px);
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    /* Toast */
+    .toast {
+      position: absolute;
+      left: 50%;
+      bottom: 70px;
+      transform: translateX(-50%) translateY(20px);
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.96);
+      border: 1px solid rgba(55, 65, 81, 1);
+      color: var(--text-muted);
+      font-size: 11px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.18s ease, transform 0.18s ease;
+      z-index: 4;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+      pointer-events: auto;
+    }
+
+    .toast img {
+      width: 13px;
+      height: 13px;
+    }
+
+    /* 小红点 */
+    .dot-badge {
+      position: absolute;
+      top: 3px;
+      right: 14px;
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: radial-gradient(circle, #f97373, #b91c1c);
+      box-shadow: 0 0 8px rgba(239, 68, 68, 0.9);
+    }
+
+    @media (max-width: 420px) {
+      body {
+        padding: 12px 8px;
+      }
+
+      .phone-shell {
+        height: 780px;
+      }
+
+      .global-tabbar {
+        padding-inline: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="stage">
+    <div class="phone-shell">
+      <div class="phone-inner">
+        <!-- 状态栏 -->
+        <div class="status-bar">
+          <div class="status-bar-time" id="statusTime">9:41</div>
+          <div class="status-bar-icons">
+            <div class="status-pill">
+              <span class="status-pill-dot"></span>
+              <span>在线</span>
+            </div>
+            <span>5G</span>
+            <span>92%</span>
+          </div>
+        </div>
+
+        <!-- 顶部导航 -->
+        <div class="top-nav">
+          <div class="brand">
+            <div class="brand-avatar">
+              <div class="brand-avatar-inner">鸭</div>
+            </div>
+            <div class="brand-text">
+              <div class="brand-title">
+                会聊鸭
+                <span class="brand-chip">智能会话 · 企业版</span>
+              </div>
+              <div class="brand-subtitle">帮你把每一句话，都说到点子上</div>
+            </div>
+          </div>
+          <div class="top-actions">
+            <button class="icon-button" data-toast="已切换浅色模式示意（Mock）">
+              <img src="https://unpkg.com/lucide-static@latest/icons/moon-star.svg" alt="theme" />
+            </button>
+            <button class="icon-button primary" data-toast="已创建新的会话（Mock）">
+              <img src="https://unpkg.com/lucide-static@latest/icons/sparkles.svg" alt="spark" />
+            </button>
+          </div>
+        </div>
+
+        <!-- 标签页导航（页面级） -->
+        <div class="page-tabs" id="pageTabs">
+          <div class="page-tab active" data-page="home">
+            <img src="https://unpkg.com/lucide-static@latest/icons/layout-dashboard.svg" alt="home" />
+            <span>概览</span>
+          </div>
+          <div class="page-tab" data-page="chat">
+            <img src="https://unpkg.com/lucide-static@latest/icons/message-circle.svg" alt="chat" />
+            <span>智能会话</span>
+          </div>
+          <div class="page-tab" data-page="tools">
+            <img src="https://unpkg.com/lucide-static@latest/icons/app-window.svg" alt="tools" />
+            <span>工具集</span>
+          </div>
+          <div class="page-tab" data-page="lab">
+            <img src="https://unpkg.com/lucide-static@latest/icons/atom.svg" alt="lab" />
+            <span>体验实验室</span>
+          </div>
+          <div class="page-tab" data-page="profile">
+            <img src="https://unpkg.com/lucide-static@latest/icons/user-round.svg" alt="me" />
+            <span>我的</span>
+          </div>
+        </div>
+
+        <!-- 内容区域 -->
+        <div class="content">
+          <!-- 首页：概览 -->
+          <section class="page active" id="page-home">
+            <div class="hero-card">
+              <div class="hero-top">
+                <div class="hero-chip-row">
+                  <div class="hero-chip-main">
+                    <img src="https://unpkg.com/lucide-static@latest/icons/sparkles.svg" alt="spark" />
+                    今日 · 12 个会话已优化
+                  </div>
+                  <div class="hero-chip-sub">
+                    <span class="hero-chip-sub-dot"></span>
+                    已为你自动提取 32 条关键话术
+                  </div>
+                </div>
+                <div class="hero-ai-orb">
+                  <div class="hero-ai-orb-inner"></div>
+                </div>
+              </div>
+              <div class="hero-body-title">一键升级你的「聊天战斗力」</div>
+              <div class="hero-body-sub">从寒暄开场，到成交 closing，每一步都有 AI 在旁轻声提醒。</div>
+              <div class="hero-tags">
+                <span class="hero-tag">实时话术提示</span>
+                <span class="hero-tag">客户画像洞察</span>
+                <span class="hero-tag">AI 代写回复</span>
+                <span class="hero-tag">敏感话术预警</span>
+              </div>
+              <div class="hero-footer">
+                <button class="hero-cta-button" data-open-page="chat">
+                  <img src="https://unpkg.com/lucide-static@latest/icons/message-circle-more.svg" alt="start" />
+                  立即开始一场「聪明」的对话
+                </button>
+                <div class="hero-stats">
+                  <span>今日节省沟通时长 <strong>48 分钟</strong></span>
+                  <span>回复命中率提升 <strong> +23%</strong></span>
+                </div>
+              </div>
+            </div>
+
+            <div class="section-title">
+              <div class="section-title-main">
+                <strong>常用场景</strong>
+                <span>一键进入你最常用的聊天场景</span>
+              </div>
+              <div class="section-title-right">
+                <img src="https://unpkg.com/lucide-static@latest/icons/wand-2.svg" alt="wand" />
+                智能推荐中
+              </div>
+            </div>
+
+            <div class="pill-row" id="scenePills">
+              <div class="pill active" data-scene="welcome">
+                <img src="https://unpkg.com/lucide-static@latest/icons/hand-heart.svg" alt="welcome" />
+                <span>首次加好友欢迎语</span>
+              </div>
+              <div class="pill" data-scene="follow">
+                <img src="https://unpkg.com/lucide-static@latest/icons/clock-3.svg" alt="follow" />
+                <span>跟进还没回消息</span>
+              </div>
+              <div class="pill" data-scene="close">
+                <img src="https://unpkg.com/lucide-static@latest/icons/badge-check.svg" alt="deal" />
+                <span>临门一脚促成交</span>
+              </div>
+              <div class="pill" data-scene="service">
+                <img src="https://unpkg.com/lucide-static@latest/icons/headset.svg" alt="service" />
+                <span>售后安抚与挽回</span>
+              </div>
+            </div>
+
+            <div class="card card-soft" id="sceneCard">
+              <div class="card-header">
+                <div class="card-title">
+                  <div class="card-title-main">
+                    <img src="https://unpkg.com/lucide-static@latest/icons/quote.svg" alt="quote" />
+                    推荐话术 · 首次加好友
+                  </div>
+                  <div class="card-title-sub">轻松打破尴尬，避免「加完就没下文」。</div>
+                </div>
+                <div class="badge">
+                  <img src="https://unpkg.com/lucide-static@latest/icons/sparkle.svg" alt="ai" />
+                  AI 根据你行业自动适配
+                </div>
+              </div>
+              <div style="font-size:12px; line-height:1.6; margin-bottom:8px;" id="sceneContent">
+                「嗨，我是<span style="color:#e5e7eb;"> 小周</span>，刚在<span style="color:#e5e7eb;">社群里看到你</span>，感觉你对<span style="color:#e5e7eb;">XXX</span>挺有想法的，就厚着脸皮加你一下～以后有好东西也第一时间想到了你。」
+              </div>
+              <div style="display:flex; justify-content:space-between; align-items:center; font-size:11px; color:var(--text-muted);">
+                <span>近 7 日命中率 <span style="color:#e5e7eb;">87%</span></span>
+                <div style="display:flex; gap:6px;">
+                  <button class="chat-action-btn" data-toast="已复制到剪贴板（Mock）">
+                    <img src="https://unpkg.com/lucide-static@latest/icons/copy.svg" alt="copy" />
+                    复制话术
+                  </button>
+                  <button class="chat-action-btn" data-toast="已替换为更活泼语气（Mock）">
+                    <img src="https://unpkg.com/lucide-static@latest/icons/sliders-horizontal.svg" alt="tone" />
+                    调整语气
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">
+                  <div class="card-title-main">
+                    <img src="https://unpkg.com/lucide-static@latest/icons/activity.svg" alt="metrics" />
+                    今日沟通健康度
+                  </div>
+                  <div class="card-title-sub">基于最近 50 条消息，实时评估你的聊天表现。</div>
+                </div>
+                <div class="badge">
+                  <img src="https://unpkg.com/lucide-static@latest/icons/shield-check.svg" alt="safe" />
+                  本地评估 · 不上传隐私
+                </div>
+              </div>
+              <div style="display:flex; gap:10px; margin-bottom:8px; font-size:11px;">
+                <div style="flex:1; padding:8px; border-radius:12px; background:rgba(15,23,42,0.96); border:1px solid rgba(55,65,81,1);">
+                  <div style="font-size:10px; color:var(--text-muted); margin-bottom:4px;">回应及时度</div>
+                  <div style="font-size:18px; font-weight:600; color:#22c55e;">92</div>
+                  <div style="font-size:10px; color:var(--text-muted);">平均 1.3 分钟内回复</div>
+                </div>
+                <div style="flex:1; padding:8px; border-radius:12px; background:rgba(15,23,42,0.96); border:1px solid rgba(55,65,81,1);">
+                  <div style="font-size:10px; color:var(--text-muted); margin-bottom:4px;">共情友好度</div>
+                  <div style="font-size:18px; font-weight:600; color:#facc15;">84</div>
+                  <div style="font-size:10px; color:var(--text-muted);">建议增加称呼与确认</div>
+                </div>
+              </div>
+              <div style="font-size:11px; color:var(--text-muted); display:flex; justify-content:space-between; align-items:center;">
+                <span>4 个会话存在「快要冷场」风险，建议跟进。</span>
+                <button class="chat-action-btn" data-open-page="chat">
+                  <img src="https://unpkg.com/lucide-static@latest/icons/list-check.svg" alt="detail" />
+                  去查看详情
+                </button>
+              </div>
+            </div>
+          </section>
+
+          <!-- 智能会话页 -->
+          <section class="page" id="page-chat">
+            <div class="section-title">
+              <div class="section-title-main">
+                <strong>智能会话</strong>
+                <span>像和习惯你很多年的搭档一起聊天。</span>
+              </div>
+              <div class="section-title-right">
+                <img src="https://unpkg.com/lucide-static@latest/icons/sparkles.svg" alt="spark" />
+                对话智能增强中
+              </div>
+            </div>
+
+            <div class="card card-soft" style="margin-bottom:8px;">
+              <div class="card-header">
+                <div class="card-title">
+                  <div class="card-title-main">
+                    <img src="https://unpkg.com/lucide-static@latest/icons/users.svg" alt="customer" />
+                    当前客户：来自社群的小林
+                  </div>
+                  <div class="card-title-sub">系统已识别为「对新事物感兴趣，偏理性决策」。</div>
+                </div>
+                <div class="badge">
+                  <img src="https://unpkg.com/lucide-static@latest/icons/sparkle.svg" alt="auto" />
+                  自动总结画像
+                </div>
+              </div>
+              <div style="display:flex; gap:8px; font-size:10px; color:var(--text-muted);">
+                <span>价格敏感：中</span>
+                <span>聊天节奏：偏慢</span>
+                <span>历史成交率：32%</span>
+              </div>
+            </div>
+
+            <div class="chat-stream" id="chatStream"></div>
+
+            <div class="chat-input-wrapper">
+              <div class="chat-input-bar">
+                <div class="chat-input-icons">
+                  <button class="icon-button" style="width:22px;height:22px; border-radius:10px;" data-toast="打开文件发送（Mock）">
+                    <img src="https://unpkg.com/lucide-static@latest/icons/file-plus-2.svg" alt="file" />
+                  </button>
+                  <button class="icon-button" style="width:22px;height:22px; border-radius:10px;" data-toast="打开图片选择器（Mock）">
+                    <img src="https://unpkg.com/lucide-static@latest/icons/image-plus.svg" alt="img" />
+                  </button>
+                </div>
+                <textarea class="chat-input-textarea" id="chatInput" rows="1" placeholder="和会聊鸭说说你现在这个聊天卡在哪儿了…"></textarea>
+                <button class="chat-send-btn" id="chatSendBtn">
+                  <img src="https://unpkg.com/lucide-static@latest/icons/send.svg" alt="send" />
+                </button>
+              </div>
+              <div class="chat-suggestion-row" id="chatSuggestions"></div>
+            </div>
+          </section>
+
+          <!-- 工具集 -->
+          <section class="page" id="page-tools">
+            <div class="section-title">
+              <div class="section-title-main">
+                <strong>工具集</strong>
+                <span>把高频动作封装成一键工具，省心省脑。</span>
+              </div>
+              <div class="section-title-right">
+                <img src="https://unpkg.com/lucide-static@latest/icons/scan-eye.svg" alt="scan" />
+                即将支持聊天自动识别场景
+              </div>
+            </div>
+
+            <div class="tool-grid" id="toolGrid"></div>
+          </section>
+
+          <!-- 体验实验室 -->
+          <section class="page" id="page-lab">
+            <div class="section-title">
+              <div class="section-title-main">
+                <strong>体验实验室</strong>
+                <span>一些还在打磨中的新能力，欢迎大胆试用。</span>
+              </div>
+              <div class="section-title-right">
+                <img src="https://unpkg.com/lucide-static@latest/icons/beaker.svg" alt="beaker" />
+                实验功能 · Mock
+              </div>
+            </div>
+
+            <div class="lab-grid" id="labGrid"></div>
+          </section>
+
+          <!-- 我的 -->
+          <section class="page" id="page-profile">
+            <div class="profile-header-card">
+              <div class="profile-avatar">周</div>
+              <div class="profile-meta">
+                <div class="profile-name-row">
+                  小周 · 会聊鸭
+                  <span style="font-size:10px; padding:2px 6px; border-radius:999px; background:rgba(15,23,42,0.96); border:1px solid rgba(148,163,184,0.7); color:var(--text-muted);">运营 / 私域转化</span>
+                </div>
+                <div class="profile-tag-row">
+                  <span class="profile-tag-pill">擅长：社群冷启动、私聊转化</span>
+                  <span class="profile-tag-pill">最近：在练习“不卑不亢”的拒绝话术</span>
+                </div>
+                <div class="profile-meta-bottom">
+                  <span>累计陪你优化 <strong>1,284</strong> 条消息</span>
+                  <span class="profile-chip-live">
+                    <span class="status-pill-dot"></span>
+                    今天也在线帮你打怪
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div class="profile-list">
+              <div class="profile-row" data-toast="Mock：打开偏好设置">
+                <div class="profile-row-main">
+                  <div class="profile-row-icon">
+                    <img src="https://unpkg.com/lucide-static@latest/icons/sliders-horizontal.svg" alt="pref" />
+                  </div>
+                  <div class="profile-row-text">
+                    <span>沟通偏好</span>
+                    <span>语气、称呼、表情包使用频率等个性化设置</span>
+                  </div>
+                </div>
+                <div class="profile-row-right">
+                  <span>偏理性 · 克制幽默</span>
+                  <img src="https://unpkg.com/lucide-static@latest/icons/chevron-right.svg" alt="more" />
+                </div>
+              </div>
+
+              <div class="profile-row" id="toggleSmartRiskRow">
+                <div class="profile-row-main">
+                  <div class="profile-row-icon">
+                    <img src="https://unpkg.com/lucide-static@latest/icons/shield-alert.svg" alt="risk" />
+                  </div>
+                  <div class="profile-row-text">
+                    <span>敏感话术预警</span>
+                    <span>检测「踩雷」风险词，提前拉你一把</span>
+                  </div>
+                </div>
+                <div class="profile-row-right">
+                  <span id="smartRiskLabel">已开启</span>
+                  <div class="toggle on" id="smartRiskToggle">
+                    <div class="toggle-thumb"></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="profile-row" data-toast="Mock：同步历史聊天数据用于训练">
+                <div class="profile-row-main">
+                  <div class="profile-row-icon">
+                    <img src="https://unpkg.com/lucide-static@latest/icons/database.svg" alt="data" />
+                  </div>
+                  <div class="profile-row-text">
+                    <span>历史聊天训练</span>
+                    <span>让会聊鸭学会你的表达风格</span>
+                  </div>
+                </div>
+                <div class="profile-row-right">
+                  <span>已分析 3,247 条</span>
+                  <img src="https://unpkg.com/lucide-static@latest/icons/chevron-right.svg" alt="more" />
+                </div>
+              </div>
+
+              <div class="profile-row" data-toast="Mock：进入反馈面板">
+                <div class="profile-row-main">
+                  <div class="profile-row-icon">
+                    <img src="https://unpkg.com/lucide-static@latest/icons/message-square-heart.svg" alt="feedback" />
+                  </div>
+                  <div class="profile-row-text">
+                    <span>我要吐槽 / 提需求</span>
+                    <span>每一条反馈，都会变成下一次的小惊喜</span>
+                  </div>
+                </div>
+                <div class="profile-row-right">
+                  <span>期待你的灵感</span>
+                  <img src="https://unpkg.com/lucide-static@latest/icons/chevron-right.svg" alt="more" />
+                </div>
+              </div>
+            </div>
+
+            <div class="profile-footer">
+              <div class="profile-footer-row">
+                <span>当前版本：<strong>会聊鸭 · 0.9.3-beta</strong></span>
+                <span style="display:flex; align-items:center; gap:4px;">
+                  <img src="https://unpkg.com/lucide-static@latest/icons/sparkles.svg" alt="spark" style="width:12px;height:12px;" />
+                  下次迭代：增加「多平台同步」
+                </span>
+              </div>
+              <div class="profile-footer-row" style="color:rgba(148,163,184,0.8);">
+                <span>所有示例数据均为 Mock，用于设计与演示。</span>
+                <span>© 会聊鸭 Design Preview</span>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <!-- 全局底部导航 -->
+        <div class="global-tabbar" id="bottomNav">
+          <div class="global-center-pill"></div>
+          <div class="global-tab-item active" data-page="home">
+            <img src="https://unpkg.com/lucide-static@latest/icons/layout-dashboard.svg" alt="home" />
+            <span>首页</span>
+          </div>
+          <div class="global-tab-item" data-page="chat">
+            <img src="https://unpkg.com/lucide-static@latest/icons/message-circle.svg" alt="chat" />
+            <span>会话</span>
+          </div>
+          <div class="global-tab-item" data-page="tools">
+            <img src="https://unpkg.com/lucide-static@latest/icons/app-window.svg" alt="tools" />
+            <span>工具</span>
+          </div>
+          <div class="global-tab-item" data-page="lab">
+            <img src="https://unpkg.com/lucide-static@latest/icons/atom.svg" alt="lab" />
+            <span>实验</span>
+          </div>
+          <div class="global-tab-item" data-page="profile">
+            <img src="https://unpkg.com/lucide-static@latest/icons/user-round.svg" alt="me" />
+            <span>我的</span>
+          </div>
+          <span class="dot-badge"></span>
+        </div>
+
+        <!-- Toast 提示 -->
+        <div class="toast" id="toast">
+          <img src="https://unpkg.com/lucide-static@latest/icons/info.svg" alt="info" />
+          <span id="toastText">这是一个示例提示</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 模拟状态栏时间
+    (function initStatusTime() {
+      const el = document.getElementById('statusTime');
+      if (!el) return;
+      const now = new Date();
+      const h = String(now.getHours()).padStart(2, '0');
+      const m = String(now.getMinutes()).padStart(2, '0');
+      el.textContent = h + ':' + m;
+    })();
+
+    const toastEl = document.getElementById('toast');
+    const toastText = document.getElementById('toastText');
+    let toastTimer = null;
+
+    function showToast(text) {
+      if (!toastEl) return;
+      toastText.textContent = text;
+      toastEl.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toastEl.classList.remove('show'), 1900);
+    }
+
+    // 页面切换
+    const pages = ['home', 'chat', 'tools', 'lab', 'profile'];
+
+    function switchPage(target) {
+      if (!pages.includes(target)) return;
+
+      pages.forEach((p) => {
+        const section = document.getElementById('page-' + p);
+        if (!section) return;
+        if (p === target) {
+          section.classList.add('active');
+        } else {
+          section.classList.remove('active');
+        }
+      });
+
+      document.querySelectorAll('.page-tab').forEach((tab) => {
+        const page = tab.getAttribute('data-page');
+        if (page === target) tab.classList.add('active');
+        else tab.classList.remove('active');
+      });
+
+      document.querySelectorAll('.global-tab-item').forEach((tab) => {
+        const page = tab.getAttribute('data-page');
+        if (page === target) tab.classList.add('active');
+        else tab.classList.remove('active');
+      });
+    }
+
+    document.getElementById('pageTabs').addEventListener('click', (e) => {
+      const tab = e.target.closest('.page-tab');
+      if (!tab) return;
+      const page = tab.getAttribute('data-page');
+      switchPage(page);
+    });
+
+    document.getElementById('bottomNav').addEventListener('click', (e) => {
+      const item = e.target.closest('.global-tab-item');
+      if (!item) return;
+      const page = item.getAttribute('data-page');
+      switchPage(page);
+    });
+
+    // 任意带 data-open-page 的按钮直接跳转
+    document.body.addEventListener('click', (e) => {
+      const target = e.target.closest('[data-open-page]');
+      if (target) {
+        const page = target.getAttribute('data-open-page');
+        switchPage(page);
+      }
+    });
+
+    // Toast 绑定
+    document.body.addEventListener('click', (e) => {
+      const btn = e.target.closest('[data-toast]');
+      if (!btn) return;
+      const text = btn.getAttribute('data-toast');
+      showToast(text || '示例交互（Mock）');
+    });
+
+    // 场景 Mock 数据
+    const sceneMap = {
+      welcome: {
+        title: '推荐话术 · 首次加好友',
+        desc: '轻松打破尴尬，避免「加完就没下文」。',
+        content:
+          '「嗨，我是<span style="color:#e5e7eb;"> 小周</span>，刚在<span style="color:#e5e7eb;">社群里看到你</span>，感觉你对<span style="color:#e5e7eb;">XXX</span>挺有想法的，就厚着脸皮加你一下～以后有好东西也第一时间想到了你。」',
+      },
+      follow: {
+        title: '推荐话术 · 跟进还没回消息',
+        desc: '既礼貌又不显得「追问」，给对方台阶也给自己台阶。',
+        content:
+          '「刚刚突然想到，怕你会不会被我之前那条消息打扰到，如果现在不方便看完全没关系～等你有空再聊，我这边会把你之前提到的<span style="color:#e5e7eb;">XXX</span>记在备忘里。」',
+      },
+      close: {
+        title: '推荐话术 · 临门一脚促成交',
+        desc: '避免「最后一步」硬推，用选项和安全感推进。',
+        content:
+          '「我帮你简单汇总了一下刚刚聊到的重点👇<br/>1）你现在最在意的是<span style="color:#e5e7eb;">XXX</span><br/>2）如果能在<span style="color:#e5e7eb;">YY 天内看到变化</span>你就愿意尝试；<br/>要不这样，我先帮你锁一份<span style="color:#e5e7eb;">可随时退款</span>的名额，你这两天再想想？不合适我也第一时间帮你取消。」',
+      },
+      service: {
+        title: '推荐话术 · 售后安抚与挽回',
+        desc: '承认问题 + 给到具体补偿，而不是泛泛道歉。',
+        content:
+          '「这次体验确实没有做到你一开始期待的那个样子，是我这边准备不充分。为了弥补这次的打扰，我可以为你做两件事👇<br/>1）额外提供一份<span style="color:#e5e7eb;">专属方案梳理</span>；<br/>2）如果最终还是觉得不合适，我会帮你<span style="color:#e5e7eb;">无条件退款</span>。<br/>你愿意再给我一次把事情处理好的机会吗？」',
+      },
+    };
+
+    const sceneCardTitle = document.querySelector('#sceneCard .card-title-main');
+    const sceneCardDesc = document.querySelector('#sceneCard .card-title-sub');
+    const sceneContent = document.getElementById('sceneContent');
+    const scenePills = document.getElementById('scenePills');
+
+    scenePills.addEventListener('click', (e) => {
+      const pill = e.target.closest('.pill');
+      if (!pill) return;
+      const key = pill.getAttribute('data-scene');
+      if (!sceneMap[key]) return;
+      scenePills.querySelectorAll('.pill').forEach((el) => el.classList.remove('active'));
+      pill.classList.add('active');
+      const data = sceneMap[key];
+      const textTitle = data.title || '';
+      const icon =
+        key === 'welcome'
+          ? 'quote'
+          : key === 'follow'
+          ? 'clock-3'
+          : key === 'close'
+          ? 'badge-check'
+          : 'headset';
+      sceneCardTitle.innerHTML =
+        '<img src="https://unpkg.com/lucide-static@latest/icons/' + icon + '.svg" alt="icon" />' +
+        textTitle;
+      sceneCardDesc.textContent = data.desc;
+      sceneContent.innerHTML = data.content;
+    });
+
+    // 聊天 Mock
+    const chatStream = document.getElementById('chatStream');
+    const chatInput = document.getElementById('chatInput');
+    const chatSendBtn = document.getElementById('chatSendBtn');
+    const chatSuggestions = document.getElementById('chatSuggestions');
+
+    const mockChatHistory = [
+      {
+        role: 'ai',
+        header: '会聊鸭 · 会话体检',
+        time: '刚刚',
+        text:
+          '我看了一眼你和小林的聊天记录：\n- 你已经很真诚地介绍了产品背景；\n- 小林多次提到「要再想想」，但没有给出具体原因。\n\n建议你下一条消息，帮他把顾虑说出来。',
+        tags: ['建议：帮对方说出顾虑', '风险：对方可能在比较同类产品'],
+        actions: ['生成一条更柔和的追问', '用更轻松的语气重新说一遍'],
+      },
+      {
+        role: 'me',
+        text: '他一直说要再想想，我又不太好意思问得太细…',
+      },
+      {
+        role: 'ai',
+        header: '会聊鸭 · 建议话术',
+        time: '30 秒前',
+        text:
+          '可以尝试这样问：\n\n「我完全理解你要多比较几家看看～只是怕我今天讲得不够清楚，\n如果方便的话，你最在意的是价格、效果，还是后期服务？我可以直接围绕你最关心的那块详细说说。」',
+        tags: ['保留对方体面', '引导说出真实顾虑'],
+        actions: ['帮我换成更简短一点的版本', '保持这个结构，换另一种说法'],
+      },
+    ];
+
+    const mockSuggestions = [
+      {
+        icon: 'sparkles',
+        text: '帮我改成更活泼一点，但不要太油',
+      },
+      {
+        icon: 'concert',
+        text: '生成一个适合发朋友圈的总结文案',
+      },
+      {
+        icon: 'file-pen-line',
+        text: '把刚刚这段对话整理成一份跟进笔记',
+      },
+    ];
+
+    function renderChatBubble(msg) {
+      const row = document.createElement('div');
+      row.className = 'chat-bubble-row ' + (msg.role === 'me' ? 'mine' : '');
+
+      if (msg.role === 'ai') {
+        const avatar = document.createElement('div');
+        avatar.className = 'chat-avatar';
+        avatar.textContent = '鸭';
+        row.appendChild(avatar);
+      }
+
+      const bubble = document.createElement('div');
+      bubble.className = 'chat-bubble ' + (msg.role === 'me' ? 'mine' : '');
+
+      if (msg.role === 'ai') {
+        const header = document.createElement('div');
+        header.className = 'chat-bubble-header';
+        const left = document.createElement('span');
+        left.textContent = msg.header || '会聊鸭';
+        const right = document.createElement('span');
+        right.textContent = msg.time || '刚刚';
+        header.appendChild(left);
+        header.appendChild(right);
+        bubble.appendChild(header);
+      }
+
+      const content = document.createElement('div');
+      content.style.whiteSpace = 'pre-line';
+      content.style.fontSize = '12px';
+      content.textContent = msg.text;
+      bubble.appendChild(content);
+
+      if (msg.tags && msg.tags.length) {
+        const tagWrap = document.createElement('div');
+        tagWrap.className = 'chat-bubble-tags';
+        msg.tags.forEach((t) => {
+          const tag = document.createElement('span');
+          tag.className = 'chat-bubble-tag';
+          tag.textContent = t;
+          tagWrap.appendChild(tag);
+        });
+        bubble.appendChild(tagWrap);
+      }
+
+      if (msg.actions && msg.actions.length) {
+        const actionWrap = document.createElement('div');
+        actionWrap.className = 'chat-bubble-actions';
+        msg.actions.forEach((a) => {
+          const btn = document.createElement('button');
+          btn.className = 'chat-action-btn';
+          btn.setAttribute('data-toast', 'Mock：' + a);
+          btn.innerHTML =
+            '<img src="https://unpkg.com/lucide-static@latest/icons/sparkles.svg" alt="act" />' + a;
+          actionWrap.appendChild(btn);
+        });
+        bubble.appendChild(actionWrap);
+      }
+
+      row.appendChild(bubble);
+      chatStream.appendChild(row);
+    }
+
+    function initChat() {
+      mockChatHistory.forEach(renderChatBubble);
+      chatStream.scrollTop = chatStream.scrollHeight;
+
+      mockSuggestions.forEach((s) => {
+        const pill = document.createElement('button');
+        pill.className = 'chat-suggestion-pill';
+        pill.innerHTML =
+          '<img src="https://unpkg.com/lucide-static@latest/icons/' + s.icon + '.svg" alt="sg" />' + s.text;
+        pill.addEventListener('click', () => {
+          chatInput.value = s.text;
+          chatInput.focus();
+        });
+        chatSuggestions.appendChild(pill);
+      });
+    }
+
+    initChat();
+
+    function sendChat() {
+      const text = chatInput.value.trim();
+      if (!text) {
+        showToast('先说一句你现在卡住的地方吧～');
+        return;
+      }
+
+      const meMsg = { role: 'me', text };
+      renderChatBubble(meMsg);
+      chatInput.value = '';
+
+      setTimeout(() => {
+        const aiMsg = {
+          role: 'ai',
+          header: '会聊鸭 · 即时建议',
+          time: '刚刚',
+          text:
+            '我已经学会了你这一句的表达风格，接下来有类似场景时，会优先用「你的方式」来回答。\n\n如果你愿意，再告诉我：你更希望我这类回复偏幽默一点，还是再正式一点？',
+          tags: ['已记录：你的表达偏好', '建议：完善「语气」与「称呼」偏好'],
+          actions: ['以后类似场景都按这个语气来', '给我几个不同风格的备用版本'],
+        };
+        renderChatBubble(aiMsg);
+        chatStream.scrollTop = chatStream.scrollHeight;
+      }, 500);
+
+      chatStream.scrollTop = chatStream.scrollHeight;
+    }
+
+    chatSendBtn.addEventListener('click', sendChat);
+
+    chatInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendChat();
+      }
+    });
+
+    // 工具集 Mock
+    const toolGrid = document.getElementById('toolGrid');
+    const mockTools = [
+      {
+        icon: 'messages-square',
+        title: '万能话术生成器',
+        subtitle: '把你打的草稿，改成更「会聊天」的版本。',
+        badges: ['语气转换', '话术结构优化'],
+        metric: '今日使用 126 次',
+        hot: true,
+      },
+      {
+        icon: 'smile-plus',
+        title: '表情包智能搭配',
+        subtitle: '自动补上「不尴尬又不油腻」的表情包。',
+        badges: ['支持微信收藏夹', '识别语境'],
+        metric: '命中率 89%',
+      },
+      {
+        icon: 'sparkle',
+        title: '朋友圈文案助手',
+        subtitle: '把产品卖点换成「不打广告」的说法。',
+        badges: ['多版本 A/B 测试', '适配不同平台'],
+        metric: '已生成 1,023 条',
+      },
+      {
+        icon: 'brain-circuit',
+        title: '客户画像速览',
+        subtitle: '一句话看懂对方到底在意什么。',
+        badges: ['行为线索拆解', '自动打标签'],
+        metric: '分析耗时 < 2s',
+      },
+      {
+        icon: 'shield-check',
+        title: '风险话术雷达',
+        subtitle: '提前标记「可能踩雷」的敏感表达。',
+        badges: ['行业自定义词库', '实时提示'],
+        metric: '已拦截 64 次',
+      },
+      {
+        icon: 'pen-line',
+        title: '道歉&挽回助手',
+        subtitle: '既真诚负责，又保留专业边界。',
+        badges: ['情绪安抚', '补偿方案模版'],
+        metric: '好评率 94%',
+      },
+    ];
+
+    mockTools.forEach((tool) => {
+      const card = document.createElement('div');
+      card.className = 'tool-card';
+      card.setAttribute('data-toast', 'Mock：打开「' + tool.title + '」');
+
+      const header = document.createElement('div');
+      header.className = 'tool-card-header';
+
+      const main = document.createElement('div');
+      main.style.display = 'flex';
+      main.style.gap = '8px';
+
+      const iconWrap = document.createElement('div');
+      iconWrap.className = 'tool-icon';
+      iconWrap.innerHTML =
+        '<img src="https://unpkg.com/lucide-static@latest/icons/' + tool.icon + '.svg" alt="icon" />';
+
+      const meta = document.createElement('div');
+      meta.className = 'tool-meta';
+      const title = document.createElement('div');
+      title.className = 'tool-title';
+      title.textContent = tool.title;
+      const subtitle = document.createElement('div');
+      subtitle.className = 'tool-subtitle';
+      subtitle.textContent = tool.subtitle;
+      meta.appendChild(title);
+      meta.appendChild(subtitle);
+
+      main.appendChild(iconWrap);
+      main.appendChild(meta);
+
+      const badge = document.createElement('span');
+      badge.className = 'badge';
+      badge.innerHTML =
+        '<img src="https://unpkg.com/lucide-static@latest/icons/wand-2.svg" alt="hot" />' +
+        (tool.hot ? '热门 · 今日推荐' : 'AI 工具');
+
+      header.appendChild(main);
+      header.appendChild(badge);
+
+      const badgeRow = document.createElement('div');
+      badgeRow.className = 'tool-badge-row';
+      tool.badges.forEach((b) => {
+        const tag = document.createElement('span');
+        tag.className = 'tool-badge';
+        tag.innerHTML =
+          '<img src="https://unpkg.com/lucide-static@latest/icons/sparkles.svg" alt="t" />' + b;
+        badgeRow.appendChild(tag);
+      });
+
+      const metricRow = document.createElement('div');
+      metricRow.className = 'tool-metric-row';
+      const metricLeft = document.createElement('span');
+      metricLeft.textContent = tool.metric;
+      const metricRight = document.createElement('span');
+      metricRight.className = 'tool-metric-pill';
+      metricRight.innerHTML =
+        '<img src="https://unpkg.com/lucide-static@latest/icons/chevron-right.svg" alt="go" style="width:11px;height:11px;" /> 进入';
+      metricRow.appendChild(metricLeft);
+      metricRow.appendChild(metricRight);
+
+      card.appendChild(header);
+      card.appendChild(badgeRow);
+      card.appendChild(metricRow);
+      toolGrid.appendChild(card);
+    });
+
+    // 实验室 Mock
+    const labGrid = document.getElementById('labGrid');
+    const mockLabs = [
+      {
+        icon: 'bot-message-square',
+        title: '多轮对话「导演模式」',
+        subtitle: '不是一句一句给文案，而是帮你设计整场对话节奏。',
+        tags: ['对话脚本', '不同结局分支'],
+        beta: true,
+        ppl: '已有 73 位体验',
+      },
+      {
+        icon: 'audio-waveform',
+        title: '语音语气微调',
+        subtitle: '帮你把「生硬语气」修成「温柔坚定」，仍然保留你的声线。',
+        tags: ['录音优化', '情绪校准'],
+        beta: true,
+        ppl: '排队等待人数 12',
+      },
+      {
+        icon: 'globe-2',
+        title: '跨平台自动同步',
+        subtitle: '把不同平台聊散的线索，聚成一张「关系网」。',
+        tags: ['微信/企微/飞书', '防止遗漏跟进'],
+        beta: false,
+        ppl: '设计阶段 · 欢迎提需求',
+      },
+    ];
+
+    mockLabs.forEach((lab) => {
+      const card = document.createElement('div');
+      card.className = 'lab-card';
+      card.setAttribute('data-toast', 'Mock：预约「' + lab.title + '」实验功能');
+
+      const header = document.createElement('div');
+      header.className = 'lab-card-header';
+
+      const main = document.createElement('div');
+      main.className = 'lab-card-main';
+
+      const icon = document.createElement('div');
+      icon.className = 'lab-icon';
+      icon.innerHTML =
+        '<img src="https://unpkg.com/lucide-static@latest/icons/' + lab.icon + '.svg" alt="lab" />';
+
+      const text = document.createElement('div');
+      text.className = 'lab-text';
+      const title = document.createElement('div');
+      title.className = 'lab-title';
+      title.textContent = lab.title;
+      const subtitle = document.createElement('div');
+      subtitle.className = 'lab-subtitle';
+      subtitle.textContent = lab.subtitle;
+      text.appendChild(title);
+      text.appendChild(subtitle);
+
+      const tagRow = document.createElement('div');
+      tagRow.className = 'lab-tag-row';
+      lab.tags.forEach((t) => {
+        const tag = document.createElement('span');
+        tag.className = 'lab-tag-pill';
+        tag.textContent = t;
+        tagRow.appendChild(tag);
+      });
+      text.appendChild(tagRow);
+
+      main.appendChild(icon);
+      main.appendChild(text);
+
+      const right = document.createElement('div');
+      right.className = 'lab-footer-row';
+      if (lab.beta) {
+        right.innerHTML =
+          '<span><strong>Beta</strong> · 体验中</span><span class="lab-chip-beta">预约体验</span>';
+      } else {
+        right.innerHTML = '<span>' + lab.ppl + '</span><span class="lab-chip-beta">征集想法</span>';
+      }
+
+      header.appendChild(main);
+      header.appendChild(right);
+
+      const bottomRow = document.createElement('div');
+      bottomRow.className = 'lab-footer-row';
+      bottomRow.innerHTML =
+        '<span>' + lab.ppl + '</span><span><strong>说明</strong> · 所有操作仅为 Mock 展示</span>';
+
+      card.appendChild(header);
+      card.appendChild(bottomRow);
+      labGrid.appendChild(card);
+    });
+
+    // 开关交互
+    const smartRiskToggle = document.getElementById('smartRiskToggle');
+    const smartRiskLabel = document.getElementById('smartRiskLabel');
+    const toggleSmartRiskRow = document.getElementById('toggleSmartRiskRow');
+
+    function toggleSmartRisk() {
+      const isOn = smartRiskToggle.classList.contains('on');
+      if (isOn) {
+        smartRiskToggle.classList.remove('on');
+        smartRiskLabel.textContent = '已关闭';
+        showToast('Mock：已关闭敏感话术预警');
+      } else {
+        smartRiskToggle.classList.add('on');
+        smartRiskLabel.textContent = '已开启';
+        showToast('Mock：已开启敏感话术预警');
+      }
+    }
+
+    smartRiskToggle.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleSmartRisk();
+    });
+
+    toggleSmartRiskRow.addEventListener('click', () => {
+      toggleSmartRisk();
+    });
+  </script>
+</body>
+</html>

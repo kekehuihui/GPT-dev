@@ -1,0 +1,350 @@
+[2025-03-14 13:46:26.519] [info]  app ready []
+[2025-03-14 13:46:26.793] [info]  VideoClipper server init []
+[2025-03-14 13:46:26.795] [info]  BurnSubtitle server init []
+[2025-03-14 13:46:26.800] [info]  Checking for update
+[2025-03-14 13:46:26.802] [info]  正在检查更新…… []
+[2025-03-14 13:46:28.022] [info]  app activate []
+[2025-03-14 13:46:28.122] [info]  Generated new staging user ID: 216fb5e8-004d-5049-b108-ed0721cbdb1f
+[2025-03-14 13:46:28.273] [error] Error: Error: Cannot find channel "latest-mac.yml" update info: HttpError: 404 Not Found
+"method: GET url: http://oss.agilestudio.cn/app/download/latest-mac.yml?noCache=1im9j13t0\n\nPlease double check that your authentication token is correct. Due to security reasons, actual status maybe not reported, but 404.\n"
+Headers: {
+  "server": "Tengine",
+  "content-type": "application/xml",
+  "content-length": "396",
+  "connection": "keep-alive",
+  "date": "Fri, 14 Mar 2025 05:46:28 GMT",
+  "x-oss-request-id": "67D3C2B4199EDA3134CB6353",
+  "x-oss-cdn-auth": "success",
+  "x-oss-server-time": "3",
+  "x-oss-ec": "0026-00000001",
+  "via": "cache65.l2cn1827[36,35,404-1280,M], cache49.l2cn1827[38,0], kunlun7.cn6425[51,50,404-1280,M], kunlun10.cn6425[53,0]",
+  "ali-swift-global-savetime": "1741931188",
+  "x-cache": "MISS TCP_MISS dirn:-2:-2",
+  "x-swift-error": "orig response 4XX error",
+  "x-swift-savetime": "Fri, 14 Mar 2025 05:46:28 GMT",
+  "x-swift-cachetime": "1",
+  "access-control-allow-origin": "*",
+  "timing-allow-origin": "*",
+  "eagleid": "3da0c01417419311882677790e"
+}
+    at h (/Applications/33台词.app/Contents/Resources/app.asar/background.js:2:317448)
+    at o.handleResponse (/Applications/33台词.app/Contents/Resources/app.asar/background.js:2:319285)
+    at ClientRequest.<anonymous> (/Applications/33台词.app/Contents/Resources/app.asar/background.js:2:318748)
+    at ClientRequest.emit (node:events:390:28)
+    at SimpleURLLoaderWrapper.<anonymous> (node:electron/js2c/browser_init:101:6917)
+    at SimpleURLLoaderWrapper.emit (node:events:390:28)
+    at Object.t.newError (/Applications/33台词.app/Contents/Resources/app.asar/background.js:2:12219)
+    at s.getLatestVersion (/Applications/33台词.app/Contents/Resources/app.asar/background.js:2:330280)
+    at async l.getUpdateInfoAndProvider (/Applications/33台词.app/Contents/Resources/app.asar/background.js:2:166191)
+    at async l.doCheckForUpdates (/Applications/33台词.app/Contents/Resources/app.asar/background.js:2:166477)
+[2025-03-14 13:46:28.276] [info]  检查更新出错 []
+[2025-03-14 13:46:28.279] [info]  Error: Cannot find channel "latest-mac.yml" update info: HttpError: 404 Not Found
+"method: GET url: http://oss.agilestudio.cn/app/download/latest-mac.yml?noCache=1im9j13t0\n\nPlease double check that your authentication token is correct. Due to security reasons, actual status maybe not reported, but 404.\n"
+Headers: {
+  "server": "Tengine",
+  "content-type": "application/xml",
+  "content-length": "396",
+  "connection": "keep-alive",
+  "date": "Fri, 14 Mar 2025 05:46:28 GMT",
+  "x-oss-request-id": "67D3C2B4199EDA3134CB6353",
+  "x-oss-cdn-auth": "success",
+  "x-oss-server-time": "3",
+  "x-oss-ec": "0026-00000001",
+  "via": "cache65.l2cn1827[36,35,404-1280,M], cache49.l2cn1827[38,0], kunlun7.cn6425[51,50,404-1280,M], kunlun10.cn6425[53,0]",
+  "ali-swift-global-savetime": "1741931188",
+  "x-cache": "MISS TCP_MISS dirn:-2:-2",
+  "x-swift-error": "orig response 4XX error",
+  "x-swift-savetime": "Fri, 14 Mar 2025 05:46:28 GMT",
+  "x-swift-cachetime": "1",
+  "access-control-allow-origin": "*",
+  "timing-allow-origin": "*",
+  "eagleid": "3da0c01417419311882677790e"
+}
+    at h (/Applications/33台词.app/Contents/Resources/app.asar/background.js:2:317448)
+    at o.handleResponse (/Applications/33台词.app/Contents/Resources/app.asar/background.js:2:319285)
+    at ClientRequest.<anonymous> (/Applications/33台词.app/Contents/Resources/app.asar/background.js:2:318748)
+    at ClientRequest.emit (node:events:390:28)
+    at SimpleURLLoaderWrapper.<anonymous> (node:electron/js2c/browser_init:101:6917)
+    at SimpleURLLoaderWrapper.emit (node:events:390:28)
+    at Object.t.newError (/Applications/33台词.app/Contents/Resources/app.asar/background.js:2:12219)
+    at s.getLatestVersion (/Applications/33台词.app/Contents/Resources/app.asar/background.js:2:330280)
+    at async l.getUpdateInfoAndProvider (/Applications/33台词.app/Contents/Resources/app.asar/background.js:2:166191)
+    at async l.doCheckForUpdates (/Applications/33台词.app/Contents/Resources/app.asar/background.js:2:166477) []
+[2025-03-14 13:46:28.283] [info]  Cannot check for updates: Error: Cannot find channel "latest-mac.yml" update info: HttpError: 404 Not Found
+"method: GET url: http://oss.agilestudio.cn/app/download/latest-mac.yml?noCache=1im9j13t0\n\nPlease double check that your authentication token is correct. Due to security reasons, actual status maybe not reported, but 404.\n"
+Headers: {
+  "server": "Tengine",
+  "content-type": "application/xml",
+  "content-length": "396",
+  "connection": "keep-alive",
+  "date": "Fri, 14 Mar 2025 05:46:28 GMT",
+  "x-oss-request-id": "67D3C2B4199EDA3134CB6353",
+  "x-oss-cdn-auth": "success",
+  "x-oss-server-time": "3",
+  "x-oss-ec": "0026-00000001",
+  "via": "cache65.l2cn1827[36,35,404-1280,M], cache49.l2cn1827[38,0], kunlun7.cn6425[51,50,404-1280,M], kunlun10.cn6425[53,0]",
+  "ali-swift-global-savetime": "1741931188",
+  "x-cache": "MISS TCP_MISS dirn:-2:-2",
+  "x-swift-error": "orig response 4XX error",
+  "x-swift-savetime": "Fri, 14 Mar 2025 05:46:28 GMT",
+  "x-swift-cachetime": "1",
+  "access-control-allow-origin": "*",
+  "timing-allow-origin": "*",
+  "eagleid": "3da0c01417419311882677790e"
+}
+    at h (/Applications/33台词.app/Contents/Resources/app.asar/background.js:2:317448)
+    at o.handleResponse (/Applications/33台词.app/Contents/Resources/app.asar/background.js:2:319285)
+    at ClientRequest.<anonymous> (/Applications/33台词.app/Contents/Resources/app.asar/background.js:2:318748)
+    at ClientRequest.emit (node:events:390:28)
+    at SimpleURLLoaderWrapper.<anonymous> (node:electron/js2c/browser_init:101:6917)
+    at SimpleURLLoaderWrapper.emit (node:events:390:28)
+    at Object.t.newError (/Applications/33台词.app/Contents/Resources/app.asar/background.js:2:12219)
+    at s.getLatestVersion (/Applications/33台词.app/Contents/Resources/app.asar/background.js:2:330280)
+    at async l.getUpdateInfoAndProvider (/Applications/33台词.app/Contents/Resources/app.asar/background.js:2:166191)
+    at async l.doCheckForUpdates (/Applications/33台词.app/Contents/Resources/app.asar/background.js:2:166477) []
+[2025-03-14 13:46:29.775] [info]  ffmpegPath [ '/Users/dongxuanke/.33TaiCi/plugin/ffmpeg' ]
+[2025-03-14 13:46:29.783] [info]  ffmpeg not installed, not install begin []
+[2025-03-14 13:46:30.577] [info]  download ffmege end, [
+  {
+    fileName: 'ffmpeg-darwin-x64.zip',
+    filePath: '/Users/dongxuanke/.33TaiCi/plugin/ffmpeg-darwin-x64.zip',
+    totalSize: 23756751,
+    incomplete: false,
+    onDiskSize: 23756751,
+    downloadedSize: 23756751
+  }
+]
+[2025-03-14 13:46:30.643] [info]  getSystemFontsCb [ 260 ]
+[2025-03-14 13:46:30.648] [info]  getSystemFontsCb [ 260 ]
+[2025-03-14 13:46:33.642] [info]  getSystemFontsCb [ 260 ]
+[2025-03-14 13:46:33.647] [info]  getSystemFontsCb [ 260 ]
+[2025-03-14 14:28:21.406] [info]  app activate []
+[2025-03-14 14:32:19.102] [info]  app activate []
+[2025-03-15 01:56:05.209] [info]  app ready []
+[2025-03-15 01:56:05.437] [info]  VideoClipper server init []
+[2025-03-15 01:56:05.438] [info]  BurnSubtitle server init []
+[2025-03-15 01:56:05.443] [info]  Checking for update
+[2025-03-15 01:56:05.444] [info]  正在检查更新…… []
+[2025-03-15 01:56:07.073] [error] Error: Error: Cannot find channel "latest-mac.yml" update info: HttpError: 404 Not Found
+"method: GET url: http://oss.agilestudio.cn/app/download/latest-mac.yml?noCache=1imasp4f6\n\nPlease double check that your authentication token is correct. Due to security reasons, actual status maybe not reported, but 404.\n"
+Headers: {
+  "content-length": "396",
+  "access-control-allow-origin": "*",
+  "ali-swift-global-savetime": "1741974967",
+  "connection": "keep-alive",
+  "content-type": "application/xml",
+  "date": "Fri, 14 Mar 2025 17:56:07 GMT",
+  "eagleid": "da620c9d17419749668586896e",
+  "keep-alive": "timeout=4",
+  "proxy-connection": "keep-alive",
+  "server": "Tengine",
+  "timing-allow-origin": "*",
+  "via": "cache59.l2cn3021[142,141,404-1280,M], cache44.l2cn3021[142,0], kunlun5.cn7036[237,237,404-1280,M], kunlun9.cn7036[239,0]",
+  "x-cache": "MISS TCP_MISS dirn:-2:-2",
+  "x-oss-cdn-auth": "success",
+  "x-oss-ec": "0026-00000001",
+  "x-oss-request-id": "67D46DB7C3CC07383597370B",
+  "x-oss-server-time": "2",
+  "x-swift-cachetime": "1",
+  "x-swift-error": "orig response 4XX error",
+  "x-swift-savetime": "Fri, 14 Mar 2025 17:56:07 GMT"
+}
+    at h (/Applications/33台词.app/Contents/Resources/app.asar/background.js:2:317448)
+    at o.handleResponse (/Applications/33台词.app/Contents/Resources/app.asar/background.js:2:319285)
+    at ClientRequest.<anonymous> (/Applications/33台词.app/Contents/Resources/app.asar/background.js:2:318748)
+    at ClientRequest.emit (node:events:390:28)
+    at SimpleURLLoaderWrapper.<anonymous> (node:electron/js2c/browser_init:101:6917)
+    at SimpleURLLoaderWrapper.emit (node:events:390:28)
+    at Object.t.newError (/Applications/33台词.app/Contents/Resources/app.asar/background.js:2:12219)
+    at s.getLatestVersion (/Applications/33台词.app/Contents/Resources/app.asar/background.js:2:330280)
+    at async l.getUpdateInfoAndProvider (/Applications/33台词.app/Contents/Resources/app.asar/background.js:2:166191)
+    at async l.doCheckForUpdates (/Applications/33台词.app/Contents/Resources/app.asar/background.js:2:166477)
+[2025-03-15 01:56:07.076] [info]  检查更新出错 []
+[2025-03-15 01:56:07.077] [info]  Error: Cannot find channel "latest-mac.yml" update info: HttpError: 404 Not Found
+"method: GET url: http://oss.agilestudio.cn/app/download/latest-mac.yml?noCache=1imasp4f6\n\nPlease double check that your authentication token is correct. Due to security reasons, actual status maybe not reported, but 404.\n"
+Headers: {
+  "content-length": "396",
+  "access-control-allow-origin": "*",
+  "ali-swift-global-savetime": "1741974967",
+  "connection": "keep-alive",
+  "content-type": "application/xml",
+  "date": "Fri, 14 Mar 2025 17:56:07 GMT",
+  "eagleid": "da620c9d17419749668586896e",
+  "keep-alive": "timeout=4",
+  "proxy-connection": "keep-alive",
+  "server": "Tengine",
+  "timing-allow-origin": "*",
+  "via": "cache59.l2cn3021[142,141,404-1280,M], cache44.l2cn3021[142,0], kunlun5.cn7036[237,237,404-1280,M], kunlun9.cn7036[239,0]",
+  "x-cache": "MISS TCP_MISS dirn:-2:-2",
+  "x-oss-cdn-auth": "success",
+  "x-oss-ec": "0026-00000001",
+  "x-oss-request-id": "67D46DB7C3CC07383597370B",
+  "x-oss-server-time": "2",
+  "x-swift-cachetime": "1",
+  "x-swift-error": "orig response 4XX error",
+  "x-swift-savetime": "Fri, 14 Mar 2025 17:56:07 GMT"
+}
+    at h (/Applications/33台词.app/Contents/Resources/app.asar/background.js:2:317448)
+    at o.handleResponse (/Applications/33台词.app/Contents/Resources/app.asar/background.js:2:319285)
+    at ClientRequest.<anonymous> (/Applications/33台词.app/Contents/Resources/app.asar/background.js:2:318748)
+    at ClientRequest.emit (node:events:390:28)
+    at SimpleURLLoaderWrapper.<anonymous> (node:electron/js2c/browser_init:101:6917)
+    at SimpleURLLoaderWrapper.emit (node:events:390:28)
+    at Object.t.newError (/Applications/33台词.app/Contents/Resources/app.asar/background.js:2:12219)
+    at s.getLatestVersion (/Applications/33台词.app/Contents/Resources/app.asar/background.js:2:330280)
+    at async l.getUpdateInfoAndProvider (/Applications/33台词.app/Contents/Resources/app.asar/background.js:2:166191)
+    at async l.doCheckForUpdates (/Applications/33台词.app/Contents/Resources/app.asar/background.js:2:166477) []
+[2025-03-15 01:56:07.080] [info]  Cannot check for updates: Error: Cannot find channel "latest-mac.yml" update info: HttpError: 404 Not Found
+"method: GET url: http://oss.agilestudio.cn/app/download/latest-mac.yml?noCache=1imasp4f6\n\nPlease double check that your authentication token is correct. Due to security reasons, actual status maybe not reported, but 404.\n"
+Headers: {
+  "content-length": "396",
+  "access-control-allow-origin": "*",
+  "ali-swift-global-savetime": "1741974967",
+  "connection": "keep-alive",
+  "content-type": "application/xml",
+  "date": "Fri, 14 Mar 2025 17:56:07 GMT",
+  "eagleid": "da620c9d17419749668586896e",
+  "keep-alive": "timeout=4",
+  "proxy-connection": "keep-alive",
+  "server": "Tengine",
+  "timing-allow-origin": "*",
+  "via": "cache59.l2cn3021[142,141,404-1280,M], cache44.l2cn3021[142,0], kunlun5.cn7036[237,237,404-1280,M], kunlun9.cn7036[239,0]",
+  "x-cache": "MISS TCP_MISS dirn:-2:-2",
+  "x-oss-cdn-auth": "success",
+  "x-oss-ec": "0026-00000001",
+  "x-oss-request-id": "67D46DB7C3CC07383597370B",
+  "x-oss-server-time": "2",
+  "x-swift-cachetime": "1",
+  "x-swift-error": "orig response 4XX error",
+  "x-swift-savetime": "Fri, 14 Mar 2025 17:56:07 GMT"
+}
+    at h (/Applications/33台词.app/Contents/Resources/app.asar/background.js:2:317448)
+    at o.handleResponse (/Applications/33台词.app/Contents/Resources/app.asar/background.js:2:319285)
+    at ClientRequest.<anonymous> (/Applications/33台词.app/Contents/Resources/app.asar/background.js:2:318748)
+    at ClientRequest.emit (node:events:390:28)
+    at SimpleURLLoaderWrapper.<anonymous> (node:electron/js2c/browser_init:101:6917)
+    at SimpleURLLoaderWrapper.emit (node:events:390:28)
+    at Object.t.newError (/Applications/33台词.app/Contents/Resources/app.asar/background.js:2:12219)
+    at s.getLatestVersion (/Applications/33台词.app/Contents/Resources/app.asar/background.js:2:330280)
+    at async l.getUpdateInfoAndProvider (/Applications/33台词.app/Contents/Resources/app.asar/background.js:2:166191)
+    at async l.doCheckForUpdates (/Applications/33台词.app/Contents/Resources/app.asar/background.js:2:166477) []
+[2025-03-15 01:56:09.667] [info]  getSystemFontsCb [ 260 ]
+[2025-03-15 01:56:09.673] [info]  getSystemFontsCb [ 260 ]
+[2025-03-15 01:56:10.443] [info]  getSystemFontsCb [ 260 ]
+[2025-03-15 01:56:10.444] [info]  getSystemFontsCb [ 260 ]
+[2025-03-15 02:41:32.057] [info]  app activate []
+[2025-03-16 02:01:35.061] [info]  app ready []
+[2025-03-16 02:01:35.397] [info]  VideoClipper server init []
+[2025-03-16 02:01:35.399] [info]  BurnSubtitle server init []
+[2025-03-16 02:01:35.406] [info]  Checking for update
+[2025-03-16 02:01:35.408] [info]  正在检查更新…… []
+[2025-03-16 02:01:37.075] [error] Error: Error: Cannot find channel "latest-mac.yml" update info: HttpError: 404 Not Found
+"method: GET url: http://oss.agilestudio.cn/app/download/latest-mac.yml?noCache=1imdfftmd\n\nPlease double check that your authentication token is correct. Due to security reasons, actual status maybe not reported, but 404.\n"
+Headers: {
+  "server": "Tengine",
+  "content-type": "application/xml",
+  "content-length": "396",
+  "connection": "keep-alive",
+  "date": "Sat, 15 Mar 2025 18:01:37 GMT",
+  "x-oss-request-id": "67D5C081E3C8F7373544004A",
+  "x-oss-cdn-auth": "success",
+  "x-oss-server-time": "1",
+  "x-oss-ec": "0026-00000001",
+  "via": "cache70.l2cn3163[102,101,404-1280,M], cache17.l2cn3163[102,0], kunlun10.cn6707[247,247,404-1280,M], kunlun5.cn6707[250,0]",
+  "ali-swift-global-savetime": "1742061697",
+  "x-cache": "MISS TCP_MISS dirn:-2:-2",
+  "x-swift-error": "orig response 4XX error",
+  "x-swift-savetime": "Sat, 15 Mar 2025 18:01:37 GMT",
+  "x-swift-cachetime": "1",
+  "access-control-allow-origin": "*",
+  "timing-allow-origin": "*",
+  "eagleid": "748eed1917420616968683712e"
+}
+    at h (/Applications/33台词.app/Contents/Resources/app.asar/background.js:2:317448)
+    at o.handleResponse (/Applications/33台词.app/Contents/Resources/app.asar/background.js:2:319285)
+    at ClientRequest.<anonymous> (/Applications/33台词.app/Contents/Resources/app.asar/background.js:2:318748)
+    at ClientRequest.emit (node:events:390:28)
+    at SimpleURLLoaderWrapper.<anonymous> (node:electron/js2c/browser_init:101:6917)
+    at SimpleURLLoaderWrapper.emit (node:events:390:28)
+    at Object.t.newError (/Applications/33台词.app/Contents/Resources/app.asar/background.js:2:12219)
+    at s.getLatestVersion (/Applications/33台词.app/Contents/Resources/app.asar/background.js:2:330280)
+    at async l.getUpdateInfoAndProvider (/Applications/33台词.app/Contents/Resources/app.asar/background.js:2:166191)
+    at async l.doCheckForUpdates (/Applications/33台词.app/Contents/Resources/app.asar/background.js:2:166477)
+[2025-03-16 02:01:37.079] [info]  检查更新出错 []
+[2025-03-16 02:01:37.080] [info]  Error: Cannot find channel "latest-mac.yml" update info: HttpError: 404 Not Found
+"method: GET url: http://oss.agilestudio.cn/app/download/latest-mac.yml?noCache=1imdfftmd\n\nPlease double check that your authentication token is correct. Due to security reasons, actual status maybe not reported, but 404.\n"
+Headers: {
+  "server": "Tengine",
+  "content-type": "application/xml",
+  "content-length": "396",
+  "connection": "keep-alive",
+  "date": "Sat, 15 Mar 2025 18:01:37 GMT",
+  "x-oss-request-id": "67D5C081E3C8F7373544004A",
+  "x-oss-cdn-auth": "success",
+  "x-oss-server-time": "1",
+  "x-oss-ec": "0026-00000001",
+  "via": "cache70.l2cn3163[102,101,404-1280,M], cache17.l2cn3163[102,0], kunlun10.cn6707[247,247,404-1280,M], kunlun5.cn6707[250,0]",
+  "ali-swift-global-savetime": "1742061697",
+  "x-cache": "MISS TCP_MISS dirn:-2:-2",
+  "x-swift-error": "orig response 4XX error",
+  "x-swift-savetime": "Sat, 15 Mar 2025 18:01:37 GMT",
+  "x-swift-cachetime": "1",
+  "access-control-allow-origin": "*",
+  "timing-allow-origin": "*",
+  "eagleid": "748eed1917420616968683712e"
+}
+    at h (/Applications/33台词.app/Contents/Resources/app.asar/background.js:2:317448)
+    at o.handleResponse (/Applications/33台词.app/Contents/Resources/app.asar/background.js:2:319285)
+    at ClientRequest.<anonymous> (/Applications/33台词.app/Contents/Resources/app.asar/background.js:2:318748)
+    at ClientRequest.emit (node:events:390:28)
+    at SimpleURLLoaderWrapper.<anonymous> (node:electron/js2c/browser_init:101:6917)
+    at SimpleURLLoaderWrapper.emit (node:events:390:28)
+    at Object.t.newError (/Applications/33台词.app/Contents/Resources/app.asar/background.js:2:12219)
+    at s.getLatestVersion (/Applications/33台词.app/Contents/Resources/app.asar/background.js:2:330280)
+    at async l.getUpdateInfoAndProvider (/Applications/33台词.app/Contents/Resources/app.asar/background.js:2:166191)
+    at async l.doCheckForUpdates (/Applications/33台词.app/Contents/Resources/app.asar/background.js:2:166477) []
+[2025-03-16 02:01:37.083] [info]  Cannot check for updates: Error: Cannot find channel "latest-mac.yml" update info: HttpError: 404 Not Found
+"method: GET url: http://oss.agilestudio.cn/app/download/latest-mac.yml?noCache=1imdfftmd\n\nPlease double check that your authentication token is correct. Due to security reasons, actual status maybe not reported, but 404.\n"
+Headers: {
+  "server": "Tengine",
+  "content-type": "application/xml",
+  "content-length": "396",
+  "connection": "keep-alive",
+  "date": "Sat, 15 Mar 2025 18:01:37 GMT",
+  "x-oss-request-id": "67D5C081E3C8F7373544004A",
+  "x-oss-cdn-auth": "success",
+  "x-oss-server-time": "1",
+  "x-oss-ec": "0026-00000001",
+  "via": "cache70.l2cn3163[102,101,404-1280,M], cache17.l2cn3163[102,0], kunlun10.cn6707[247,247,404-1280,M], kunlun5.cn6707[250,0]",
+  "ali-swift-global-savetime": "1742061697",
+  "x-cache": "MISS TCP_MISS dirn:-2:-2",
+  "x-swift-error": "orig response 4XX error",
+  "x-swift-savetime": "Sat, 15 Mar 2025 18:01:37 GMT",
+  "x-swift-cachetime": "1",
+  "access-control-allow-origin": "*",
+  "timing-allow-origin": "*",
+  "eagleid": "748eed1917420616968683712e"
+}
+    at h (/Applications/33台词.app/Contents/Resources/app.asar/background.js:2:317448)
+    at o.handleResponse (/Applications/33台词.app/Contents/Resources/app.asar/background.js:2:319285)
+    at ClientRequest.<anonymous> (/Applications/33台词.app/Contents/Resources/app.asar/background.js:2:318748)
+    at ClientRequest.emit (node:events:390:28)
+    at SimpleURLLoaderWrapper.<anonymous> (node:electron/js2c/browser_init:101:6917)
+    at SimpleURLLoaderWrapper.emit (node:events:390:28)
+    at Object.t.newError (/Applications/33台词.app/Contents/Resources/app.asar/background.js:2:12219)
+    at s.getLatestVersion (/Applications/33台词.app/Contents/Resources/app.asar/background.js:2:330280)
+    at async l.getUpdateInfoAndProvider (/Applications/33台词.app/Contents/Resources/app.asar/background.js:2:166191)
+    at async l.doCheckForUpdates (/Applications/33台词.app/Contents/Resources/app.asar/background.js:2:166477) []
+[2025-03-16 02:01:39.228] [info]  getSystemFontsCb [ 260 ]
+[2025-03-16 02:01:39.233] [info]  getSystemFontsCb [ 260 ]
+[2025-03-16 02:01:40.137] [info]  getSystemFontsCb [ 260 ]
+[2025-03-16 02:01:40.146] [info]  getSystemFontsCb [ 260 ]
+[2025-03-16 02:56:59.090] [info]  app window-all-closed []
+[2025-03-16 15:00:51.461] [info]  app activate []
+[2025-03-16 15:00:51.800] [info]  VideoClipper server init []
+[2025-03-16 15:00:51.805] [info]  BurnSubtitle server init []
+[2025-03-16 15:00:57.669] [info]  getSystemFontsCb [ 260 ]
+[2025-03-16 15:00:57.674] [info]  getSystemFontsCb [ 260 ]
+[2025-03-16 15:00:58.051] [info]  getSystemFontsCb [ 260 ]
+[2025-03-16 15:00:58.051] [info]  getSystemFontsCb [ 260 ]
+[2025-03-17 13:57:02.042] [info]  app activate []
