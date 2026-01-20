@@ -1,0 +1,533 @@
+import React, { useState, useEffect, useRef } from 'react';
+import { 
+  AreaChart, Area, Line, LineChart, ComposedChart, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, 
+  BarChart, Bar, Cell, PieChart, Pie, ReferenceLine, ScatterChart, Scatter, ZAxis
+} from 'recharts';
+import { 
+  Activity, MessageSquare, Zap, Search, Bell, Settings, 
+  ArrowUpRight, ArrowDownRight, TrendingUp, TrendingDown, 
+  Layers, FileText, ChevronDown, Monitor, Share2, Globe, Target, Sparkles, Loader2, X, 
+  Thermometer, BarChart3, PieChart as PieChartIcon, LayoutGrid, Flame, ExternalLink, Clock,
+  Calendar, Megaphone, Banknote, AlertTriangle, ArrowRight, Link, Info, Download, Printer, FileCheck,
+  Trophy, TrendingUp as TrendingUpIcon, AlertCircle, Eye, Briefcase, ChevronRight, ArrowLeft, Filter,
+  Waves, Coffee, Moon, Gavel, BarChart2, User, ThumbsUp, MessageCircle, Network, History,
+  Send, Bot, Share, BellRing, Vote, ThumbsDown, Database
+} from 'lucide-react';
+
+// ==========================================
+// 1. 全局配置与模拟数据
+// ==========================================
+
+const STOCKS = [
+  { code: '600519', name: '贵州茅台', price: 1780.50, change: 1.25, marketVal: '2.1T' },
+  { code: '300750', name: '宁德时代', price: 210.20, change: -0.85, marketVal: '980B' },
+  { code: '002594', name: '比亚迪', price: 288.60, change: 2.10, marketVal: '760B' },
+  { code: '688981', name: '中芯国际', price: 54.30, change: 0.45, marketVal: '420B' },
+  { code: '601318', name: '中国平安', price: 42.10, change: -0.30, marketVal: '800B' },
+];
+
+const INDICES = [
+  { name: '上证指数', code: '000001', value: 3050.21, change: 0.85, volume: '4500亿' },
+  { name: '深证成指', code: '399001', value: 9850.12, change: 1.20, volume: '5800亿' },
+  { name: '创业板指', code: '399006', value: 1890.55, change: -0.45, volume: '2100亿' },
+  { name: '科创50', code: '000688', value: 860.30, change: 1.55, volume: '890亿' },
+];
+
+const MARKET_BREADTH = [
+  { range: '跌停', count: 12, color: '#059669' },
+  { range: '-7%~', count: 45, color: '#10b981' },
+  { range: '-3%~', count: 320, color: '#34d399' },
+  { range: '平盘', count: 210, color: '#94a3b8' },
+  { range: '~3%', count: 2800, color: '#fb7185' },
+  { range: '~7%', count: 850, color: '#f43f5e' },
+  { range: '涨停', count: 68, color: '#e11d48' },
+];
+
+const SENTIMENT_LEADERBOARD = [
+  { rank: 1, code: '603259', name: '药明康德', price: 52.10, change: -8.50, heat: 98500, sentiment: -0.85, tag: '法案利空', reason: '美生物安全法案发酵，恐慌情绪蔓延' },
+  { rank: 2, code: '601127', name: '赛力斯', price: 88.90, change: -3.40, heat: 92100, sentiment: -0.45, tag: '获利兑现', reason: '问界销量虽然新高，但短期涨幅过大' },
+  { rank: 3, code: '002230', name: '科大讯飞', price: 45.60, change: 5.20, heat: 88400, sentiment: 0.78, tag: '大模型落地', reason: '星火大模型 V4.0 发布，B端订单超预期' },
+  { rank: 4, code: '300750', name: '宁德时代', price: 210.20, change: -0.85, heat: 76200, sentiment: 0.65, tag: '业绩预喜', reason: 'Q3 财报前瞻显示利润率修复' },
+  { rank: 5, code: '002594', name: '比亚迪', price: 288.60, change: 2.10, heat: 65000, sentiment: 0.55, tag: '出口数据', reason: '9月海外出口数据同比翻倍' },
+];
+
+const SECTORS_ALL = [
+  { name: '低空经济', change: 4.5, hot: 98, limitUp: 12, total: 45, netInflow: '+15.2亿', turnover: '15.2%', volRatio: 2.5, leadStock: '万丰奥威' },
+  { name: '半导体', change: 3.2, hot: 85, limitUp: 8, total: 120, netInflow: '+8.5亿', turnover: '8.5%', volRatio: 1.8, leadStock: '中芯国际' },
+  { name: 'AI应用', change: 2.8, hot: 82, limitUp: 5, total: 68, netInflow: '+3.2亿', turnover: '12.1%', volRatio: 2.1, leadStock: '科大讯飞' },
+  { name: 'CPO概念', change: 2.1, hot: 75, limitUp: 3, total: 35, netInflow: '+1.5亿', turnover: '9.8%', volRatio: 1.5, leadStock: '中际旭创' },
+  { name: '消费电子', change: 1.8, hot: 68, limitUp: 2, total: 95, netInflow: '-2.1亿', turnover: '6.5%', volRatio: 1.2, leadStock: '立讯精密' },
+  { name: '白酒', change: 0.5, hot: 45, limitUp: 1, total: 20, netInflow: '+2.1亿', turnover: '2.1%', volRatio: 0.8, leadStock: '贵州茅台' },
+  { name: '银行', change: -0.2, hot: 35, limitUp: 0, total: 42, netInflow: '-1.2亿', turnover: '0.8%', volRatio: 0.6, leadStock: '招商银行' },
+  { name: '医药生物', change: -0.8, hot: 32, limitUp: 0, total: 210, netInflow: '-8.5亿', turnover: '3.2%', volRatio: 0.7, leadStock: '恒瑞医药' },
+  { name: '房地产', change: -1.5, hot: 40, limitUp: 0, total: 85, netInflow: '-5.6亿', turnover: '4.5%', volRatio: 0.9, leadStock: '万科A' },
+  { name: '光伏设备', change: -2.1, hot: 28, limitUp: 0, total: 65, netInflow: '-12.1亿', turnover: '5.6%', volRatio: 1.1, leadStock: '隆基绿能' },
+];
+const SECTORS_BRIEF = SECTORS_ALL.slice(0, 5);
+
+const UPCOMING_EVENTS_ALL = [
+  { id: 1, date: '10-24', daysLeft: 2, title: '全球低空经济产业峰会', target: '低空经济', type: 'sector', mediaHeat: 92, fundFlow: '-12.5亿', priceChange: '+15.2%', prediction: 'risk', summary: '声量过热，警惕利好兑现', description: '全球顶级的低空经济产业峰会。', aiAnalysis: '...' },
+  { id: 2, date: '10-26', daysLeft: 4, title: '华为全场景新品发布会', target: '消费电子', type: 'sector', mediaHeat: 65, fundFlow: '+5.2亿', priceChange: '+2.1%', prediction: 'opportunity', summary: '声量爬坡期，资金抢筹明显', description: '华为即将发布 Mate 70 系列。', aiAnalysis: '...' },
+  { id: 3, date: '10-30', daysLeft: 8, title: 'Q3 财报披露截止日', target: '新能源', type: 'sector', mediaHeat: 45, fundFlow: '+1.8亿', priceChange: '-0.5%', prediction: 'opportunity', summary: '舆情低位，业绩预期差博弈', description: 'A股上市公司三季报披露最后期限。', aiAnalysis: '...' },
+  { id: 4, date: '11-05', daysLeft: 14, title: '美国大选投票日', target: '贵金属', type: 'sector', mediaHeat: 88, fundFlow: '+22亿', priceChange: '+5.6%', prediction: 'neutral', summary: '宏观分歧大，避险情绪升温', description: '美国总统大选投票日。', aiAnalysis: '...' },
+];
+const UPCOMING_EVENTS_BRIEF = UPCOMING_EVENTS_ALL.slice(0, 4);
+
+const STOCK_NEWS_ALL = [
+  { id: 1, title: '重磅！公司拟斥资 30 亿- 60 亿元回购股份，注销式回购提振信心', source: '证券时报', time: '15分钟前', heat: 98520, sentiment: 'pos', url: '#' },
+  { id: 2, title: '外资加仓名单曝光：北向资金连续5日净买入，重点锁定该龙头', source: '东方财富网', time: '32分钟前', heat: 87400, sentiment: 'pos', url: '#' },
+  { id: 3, title: '行业深度：价格战何时休？产业链上下游博弈加剧，毛利承压', source: '财联社', time: '1小时前', heat: 65200, sentiment: 'neg', url: '#' },
+  { id: 4, title: '分析师会议纪要：Q3 业绩指引超预期，AI 业务成新增长极', source: '雪球专栏', time: '2小时前', heat: 54100, sentiment: 'pos', url: '#' },
+  { id: 5, title: '技术面突发：放量突破半年线，MACD金叉，反弹空间打开？', source: '新浪财经', time: '4小时前', heat: 32000, sentiment: 'neu', url: '#' },
+];
+const STOCK_NEWS_BRIEF = STOCK_NEWS_ALL.slice(0, 3);
+
+const KEYWORDS = [
+  { text: '业绩超预期', weight: 85, type: 'pos' },
+  { text: '主力吸筹', weight: 72, type: 'pos' },
+  { text: '量价齐升', weight: 65, type: 'pos' },
+  { text: '上方压力', weight: 45, type: 'neg' },
+  { text: '缩量回调', weight: 30, type: 'neu' },
+];
+
+const BACKTEST_DATA = Array.from({length: 30}, (_, i) => ({
+  day: i + 1,
+  strategy: 1000 * (1 + Math.sin(i * 0.2) * 0.15 + i * 0.02),
+  benchmark: 1000 * (1 + Math.sin(i * 0.2) * 0.05 + i * 0.005),
+}));
+
+// 初始化模拟时间
+const INITIAL_MOCK_TIME = new Date();
+INITIAL_MOCK_TIME.setHours(11, 28, 0, 0);
+
+const getMarketStatus = (date) => {
+  const h = date.getHours();
+  const m = date.getMinutes();
+  const totalMinutes = h * 60 + m;
+  if (totalMinutes >= 9 * 60 + 15 && totalMinutes < 9 * 60 + 30) return { status: 'auction', label: '集合竞价', color: 'bg-violet-500', icon: Gavel, message: '撮合匹配中...' };
+  if (totalMinutes >= 9 * 60 + 30 && totalMinutes < 11 * 60 + 30) return { status: 'trading', label: '连续竞价', color: 'bg-emerald-500', icon: Activity, message: '交易进行中' };
+  if (totalMinutes >= 11 * 60 + 30 && totalMinutes < 13 * 60) return { status: 'break', label: '午间休市', color: 'bg-orange-400', icon: Coffee, message: '市场休息中' };
+  if (totalMinutes >= 13 * 60 && totalMinutes < 15 * 60) return { status: 'trading', label: '连续竞价', color: 'bg-emerald-500', icon: Activity, message: '午后开盘' };
+  return { status: 'closed', label: '已闭市', color: 'bg-slate-500', icon: Moon, message: '复盘时间' };
+};
+
+const generateChartData = () => {
+  return Array.from({ length: 60 }, (_, i) => {
+    const basePrice = 100;
+    const trend = Math.sin(i * 0.1) * 10;
+    const noise = (Math.random() - 0.5) * 5;
+    const sentimentBase = Math.sin((i + 5) * 0.1); 
+    const smartMoney = sentimentBase + (Math.random() - 0.5) * 0.3;
+    const dumbMoney = sentimentBase - (Math.random() - 0.5) * 0.8; 
+    
+    return {
+      time: `10:${i < 10 ? '0' + i : i}`,
+      price: parseFloat((basePrice + trend + noise).toFixed(2)),
+      sentiment: parseFloat((sentimentBase + (Math.random() - 0.5) * 0.5).toFixed(2)),
+      smartMoney: parseFloat(smartMoney.toFixed(2)),
+      dumbMoney: parseFloat(dumbMoney.toFixed(2)),
+      volume: Math.floor(Math.random() * 2000) + 1000
+    };
+  });
+};
+
+// ==========================================
+// 3. 子组件定义 (在主组件之前)
+// ==========================================
+
+const GaugeChart = ({ value }) => {
+  const normalizedValue = Math.min(Math.max(value, 0), 100);
+  const colors = ['#047857', '#34d399', '#cbd5e1', '#fbbf24', '#f43f5e'];
+  const labels = ['极度冰点', '情绪低迷', '多空平衡', '情绪升温', '极度亢奋'];
+  const zoneIndex = Math.min(Math.floor(normalizedValue / 20), 4);
+  const currentLabel = labels[zoneIndex];
+  const currentColor = colors[zoneIndex];
+  const angle = (normalizedValue / 100) * 180 - 90;
+  
+  const ticks = Array.from({length: 11}, (_, i) => {
+    const tickAngle = (i * 18) - 90;
+    const isMajor = i % 2 === 0;
+    const labelVal = i * 10;
+    const rad = (tickAngle - 90) * (Math.PI / 180);
+    const textR = 60; 
+    
+    return (
+      <g key={i} transform={`rotate(${tickAngle} 100 100)`}>
+         <line x1="100" y1="20" x2="100" y2={isMajor ? 28 : 25} stroke={isMajor ? "#334155" : "#cbd5e1"} strokeWidth={isMajor ? 2 : 1} />
+         {isMajor && <text x="100" y="38" transform={`rotate(${-tickAngle} 100 38)`} textAnchor="middle" fontSize="8" fill="#94a3b8" fontWeight="bold">{labelVal}</text>}
+      </g>
+    );
+  });
+
+  return (
+    <div className="flex flex-col items-center justify-center w-full h-full pt-2">
+       <div className="relative w-[240px] h-[120px] overflow-hidden">
+          <svg viewBox="0 0 200 100" className="w-full h-full overflow-visible">
+             <defs><linearGradient id="gaugeGradient" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stopColor="#047857" /><stop offset="25%" stopColor="#34d399" /><stop offset="50%" stopColor="#cbd5e1" /><stop offset="75%" stopColor="#fbbf24" /><stop offset="100%" stopColor="#f43f5e" /></linearGradient><filter id="shadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="2" stdDeviation="2" floodOpacity="0.1" /></filter></defs>
+             <path d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="#f1f5f9" strokeWidth={14} strokeLinecap="round" />
+             <path d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="url(#gaugeGradient)" strokeWidth={14} strokeLinecap="round" strokeDasharray={`${(normalizedValue / 100) * 251} 251`} className="transition-all duration-1000 ease-out" />
+             {ticks}
+             <g transform={`rotate(${angle} 100 100)`} className="transition-transform duration-700 ease-out origin-[100px_100px]"><path d="M 98 100 L 100 25 L 102 100 Z" fill="#1e293b" /><circle cx="100" cy="100" r="5" fill="#1e293b" /><circle cx="100" cy="100" r="2" fill="white" /></g>
+          </svg>
+          <div className="absolute bottom-0 left-0 text-[10px] font-bold text-emerald-600/80">恐慌</div>
+          <div className="absolute bottom-0 right-0 text-[10px] font-bold text-rose-600/80">贪婪</div>
+       </div>
+       <div className="text-center mt-2 z-10">
+          <div className="text-3xl font-extrabold text-slate-900 font-feature-settings-tnum tracking-tight">{value}</div>
+          <div className="text-xs font-bold mt-1 px-3 py-1 rounded-full inline-block border transition-colors duration-300" style={{ backgroundColor: `${currentColor}15`, color: currentColor === '#cbd5e1' ? '#64748b' : currentColor, borderColor: `${currentColor}30` }}>{currentLabel}</div>
+       </div>
+    </div>
+  );
+};
+
+const EnhancedMetricCard = ({ title, value, subValue, trend, icon: Icon, colorClass, bgClass, type = 'normal' }) => (
+  <div className="bg-white border border-gray-100/80 rounded-2xl p-6 shadow-sm hover:shadow-lg hover:shadow-gray-100/50 transition-all duration-300 group flex flex-col justify-between h-full relative overflow-hidden">
+    <div className="flex justify-between items-start mb-2">
+       <div className={`p-3 rounded-xl ${bgClass} group-hover:scale-110 transition-transform duration-300`}><Icon size={20} className={colorClass} /></div>
+       {type === 'heat' && <div className="text-[10px] bg-orange-100 text-orange-600 px-2 py-0.5 rounded-full font-bold animate-pulse">HOT</div>}
+    </div>
+    <div className="mt-2">
+      <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">{title}</p>
+      <div className="flex items-baseline gap-2">
+         <h3 className="text-2xl font-bold text-gray-900 tracking-tight font-feature-settings-tnum">{value}</h3>
+         <div className={`flex items-center gap-0.5 text-xs font-medium ${trend === 'up' ? 'text-rose-600' : trend === 'down' ? 'text-emerald-600' : 'text-gray-500'}`}>{trend === 'up' ? <TrendingUp size={12} /> : <TrendingDown size={12} />}{subValue}</div>
+      </div>
+      {type === 'heat' && (<div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden mt-3"><div className="h-full bg-gradient-to-r from-orange-300 to-rose-500" style={{width: '85%'}}></div></div>)}
+      {type === 'divergence' && (<div className="flex gap-1 h-1.5 mt-3"><div className="bg-rose-400 rounded-l-full" style={{width: '70%'}}></div><div className="bg-emerald-400 rounded-r-full" style={{width: '30%'}}></div></div>)}
+    </div>
+  </div>
+);
+
+const RippleGraph = () => (
+    <div className="relative w-full h-[500px] bg-slate-900 rounded-2xl overflow-hidden shadow-inner flex items-center justify-center">
+       <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10"></div>
+       <svg className="absolute inset-0 w-full h-full pointer-events-none"><line x1="50%" y1="50%" x2="70%" y2="30%" stroke="#475569" strokeWidth="2" strokeDasharray="5,5" /><line x1="50%" y1="50%" x2="70%" y2="70%" stroke="#475569" strokeWidth="2" strokeDasharray="5,5" /><line x1="70%" y1="30%" x2="85%" y2="20%" stroke="#334155" strokeWidth="1" /><line x1="70%" y1="30%" x2="85%" y2="40%" stroke="#334155" strokeWidth="1" /><line x1="70%" y1="70%" x2="85%" y2="60%" stroke="#334155" strokeWidth="1" /><line x1="70%" y1="70%" x2="85%" y2="80%" stroke="#334155" strokeWidth="1" /></svg>
+       <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10 flex flex-col items-center animate-pulse"><div className="w-24 h-24 rounded-full bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shadow-[0_0_30px_rgba(99,102,241,0.6)] border-4 border-indigo-400/30"><div className="text-center text-white"><div className="text-xs font-bold opacity-80">核心事件</div><div className="text-sm font-bold">算力需求爆发</div></div></div></div>
+       <div className="absolute left-[70%] top-[30%] -translate-x-1/2 -translate-y-1/2 z-10"><div className="w-20 h-20 rounded-full bg-slate-800 border-2 border-indigo-500/50 flex flex-col items-center justify-center hover:scale-110 transition-transform cursor-pointer shadow-lg"><span className="text-xs text-indigo-300 font-bold">CPO 光模块</span><span className="text-xs text-rose-500 font-mono">+4.2%</span></div></div>
+       <div className="absolute left-[70%] top-[70%] -translate-x-1/2 -translate-y-1/2 z-10"><div className="w-20 h-20 rounded-full bg-slate-800 border-2 border-indigo-500/50 flex flex-col items-center justify-center hover:scale-110 transition-transform cursor-pointer shadow-lg"><span className="text-xs text-indigo-300 font-bold">液冷服务器</span><span className="text-xs text-rose-500 font-mono">+3.8%</span></div></div>
+       {['光芯片', 'PCB', '冷板', '浸没式'].map((name, i) => (<div key={i} className={`absolute left-[85%] z-10 -translate-x-1/2 -translate-y-1/2`} style={{ top: `${20 + i * 20}%` }}><div className="px-3 py-1.5 bg-slate-800/80 border border-slate-700 rounded-full text-xs text-slate-300 hover:bg-slate-700 cursor-pointer whitespace-nowrap">{name} <span className="text-rose-400 ml-1">+{Math.floor(Math.random()*5)}%</span></div></div>))}
+    </div>
+);
+
+const SmartMoneyChart = ({ data }) => (
+    <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm mb-6 h-80 flex flex-col w-full">
+       <div className="flex justify-between items-center mb-4"><h3 className="font-bold text-gray-800 flex items-center gap-2"><Briefcase className="text-violet-500" size={18}/> 聪明钱 vs 傻瓜钱</h3><div className="flex gap-3 text-xs"><span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-violet-500"></span> 机构情绪</span><span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-gray-400"></span> 散户情绪</span></div></div>
+       <div className="flex-1 min-h-0"><ResponsiveContainer width="100%" height="100%"><LineChart data={data}><CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" /><XAxis dataKey="time" hide /><YAxis hide domain={[-1.5, 1.5]} /><Tooltip /><Line type="monotone" dataKey="smartMoney" stroke="#8b5cf6" strokeWidth={2} dot={false} /><Line type="monotone" dataKey="dumbMoney" stroke="#94a3b8" strokeWidth={2} strokeDasharray="5 5" dot={false} /></LineChart></ResponsiveContainer></div>
+       <p className="text-xs text-gray-500 mt-2 text-center bg-violet-50 py-1.5 rounded-lg border border-violet-100"><span className="font-bold text-violet-700">AI 洞察：</span> 当前出现明显底背离，散户恐慌离场，机构正在低位吸筹。</p>
+    </div>
+);
+
+const SentimentPK = () => {
+  const [vote, setVote] = useState(null); 
+  return (
+    <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm w-full mb-6">
+       <div className="flex justify-between items-center mb-4"><h3 className="font-bold text-gray-800 flex items-center gap-2"><Vote className="text-indigo-500" size={18}/> 情绪 PK 擂台</h3><span className="text-xs text-gray-400">1.2w 人参与</span></div>
+       <p className="text-xs text-gray-600 mb-4 text-center">你认为明日走势如何？</p>
+       <div className="flex gap-4"><button onClick={() => setVote('bull')} className={`flex-1 py-3 rounded-xl border flex items-center justify-center gap-2 transition-all ${vote === 'bull' ? 'bg-rose-500 text-white border-rose-500' : 'bg-white border-rose-200 text-rose-500 hover:bg-rose-50'}`}><TrendingUpIcon size={16}/> 看涨</button><button onClick={() => setVote('bear')} className={`flex-1 py-3 rounded-xl border flex items-center justify-center gap-2 transition-all ${vote === 'bear' ? 'bg-emerald-500 text-white border-emerald-500' : 'bg-white border-emerald-200 text-emerald-500 hover:bg-emerald-50'}`}><TrendingDown size={16}/> 看跌</button></div>
+       {vote && <div className="mt-4 pt-4 border-t border-gray-100"><div className="w-full h-2 bg-emerald-100 rounded-full overflow-hidden"><div className="h-full bg-rose-500" style={{width: '68%'}}></div></div><p className="text-[10px] text-gray-400 mt-2 text-center">您的投票已记录，战胜了 85% 的用户</p></div>}
+    </div>
+  );
+};
+
+const BacktestView = () => (
+  <div className="animate-in fade-in slide-in-from-right-4 duration-500 pb-12">
+     <div className="bg-white border border-gray-200 rounded-2xl p-8 shadow-sm">
+        <div className="flex justify-between items-start mb-8"><div><h2 className="text-2xl font-bold text-gray-900 mb-2">舆情因子策略回测</h2><p className="text-sm text-gray-500">策略逻辑：当舆情净值 {'>'} 0.8 且主力净流入转正时买入；舆情净值 {'<'} -0.5 时卖出。</p></div><div className="text-right"><div className="text-3xl font-mono font-bold text-rose-500">+42.8%</div><div className="text-xs text-gray-400 uppercase">近一年收益率</div></div></div>
+        <div className="h-80 w-full mb-8"><ResponsiveContainer width="100%" height="100%"><LineChart data={BACKTEST_DATA}><CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" /><XAxis dataKey="day" tickLine={false} axisLine={false} /><YAxis domain={['auto', 'auto']} tickLine={false} axisLine={false} /><Tooltip contentStyle={{borderRadius:'8px'}} /><Line type="monotone" dataKey="strategy" stroke="#f43f5e" strokeWidth={3} dot={false} name="策略净值" /><Line type="monotone" dataKey="benchmark" stroke="#94a3b8" strokeWidth={2} dot={false} name="基准指数" /></LineChart></ResponsiveContainer></div>
+        <div className="grid grid-cols-4 gap-4">{[{l:'最大回撤',v:'-8.5%'}, {l:'夏普比率',v:'2.1'}, {l:'胜率',v:'65%'}, {l:'盈亏比',v:'1.8'}].map((m,i)=>(<div key={i} className="bg-gray-50 p-4 rounded-xl text-center border border-gray-100"><div className="text-xs text-gray-400 mb-1">{m.l}</div><div className="text-lg font-bold text-gray-800">{m.v}</div></div>))}</div>
+     </div>
+  </div>
+);
+
+const AICopilotWidget = () => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [messages, setMessages] = useState([{ role: 'ai', text: '你好！我是 Ripple AI 助手。你可以问我：“为什么今天医药板块跌了？” 或者 “帮我分析一下茅台的资金流”。' }]);
+  const [input, setInput] = useState('');
+  const handleSend = () => { if (!input.trim()) return; setMessages([...messages, { role: 'user', text: input }]); setInput(''); setTimeout(() => { setMessages(prev => [...prev, { role: 'ai', text: '收到，正在分析全网舆情数据... (模拟回答：主力资金今日在医药板块呈现净流出态势，主要受集采传闻影响，恐慌指数上升至 85。)' }]); }, 1000); };
+  return (
+    <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end">
+      {isOpen && <div className="bg-white w-80 h-96 rounded-2xl shadow-2xl border border-gray-200 mb-4 flex flex-col overflow-hidden animate-in slide-in-from-bottom-5 fade-in duration-300"><div className="bg-gradient-to-r from-indigo-600 to-violet-600 p-4 text-white flex justify-between items-center"><div className="flex items-center gap-2"><Bot size={18}/> <span className="font-bold text-sm">Ripple Copilot</span></div><button onClick={() => setIsOpen(false)}><X size={16} className="opacity-80 hover:opacity-100"/></button></div><div className="flex-1 overflow-y-auto p-4 space-y-3 bg-slate-50">{messages.map((m, i) => (<div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}><div className={`max-w-[85%] p-3 rounded-xl text-xs leading-relaxed ${m.role === 'user' ? 'bg-indigo-600 text-white rounded-br-none' : 'bg-white border border-gray-200 text-gray-700 rounded-bl-none shadow-sm'}`}>{m.text}</div></div>))}</div><div className="p-3 border-t border-gray-100 bg-white flex gap-2"><input type="text" value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleSend()} placeholder="输入你的问题..." className="flex-1 bg-gray-100 rounded-full px-4 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/50" /><button onClick={handleSend} className="p-2 bg-indigo-600 text-white rounded-full hover:bg-indigo-700"><Send size={14}/></button></div></div>}
+      <button onClick={() => setIsOpen(!isOpen)} className="w-14 h-14 bg-gradient-to-br from-indigo-600 to-violet-600 rounded-full shadow-lg shadow-indigo-500/40 text-white flex items-center justify-center hover:scale-110 transition-transform">{isOpen ? <X size={24} /> : <Bot size={28} />}</button>
+    </div>
+  );
+};
+
+const ShareCardModal = ({ isOpen, onClose, stock }) => {
+  if (!isOpen) return null;
+  return (
+    <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-md animate-in zoom-in-95">
+      <div className="bg-gradient-to-br from-slate-900 to-slate-800 p-1 rounded-2xl shadow-2xl max-w-sm w-full"><div className="bg-slate-900 rounded-xl p-6 relative overflow-hidden text-center text-white border border-slate-700"><div className="absolute top-0 right-0 p-20 bg-indigo-500/20 rounded-full blur-3xl -mr-10 -mt-10"></div><div className="flex justify-center mb-4"><div className="p-3 bg-indigo-500/20 rounded-full border border-indigo-500/50"><Waves size={32} className="text-indigo-400"/></div></div><h2 className="text-2xl font-bold mb-1">{stock.name}</h2><p className="text-indigo-400 font-mono text-sm mb-6">{stock.code}</p><div className="grid grid-cols-2 gap-4 mb-6"><div className="bg-slate-800 p-3 rounded-lg border border-slate-700"><div className="text-xs text-slate-400 mb-1">舆情热度</div><div className="text-xl font-bold text-rose-500">98,520</div></div><div className="bg-slate-800 p-3 rounded-lg border border-slate-700"><div className="text-xs text-slate-400 mb-1">AI 评级</div><div className="text-xl font-bold text-emerald-400">超配</div></div></div><div className="bg-indigo-600 text-white py-3 rounded-lg font-bold text-sm mb-4 cursor-pointer hover:bg-indigo-500 transition-colors">保存图片到相册</div><button onClick={onClose} className="text-slate-500 text-xs hover:text-white">关闭预览</button></div></div>
+    </div>
+  );
+};
+
+const EventDetailModal = ({ event, onClose }) => {
+  if (!event) return null;
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-in fade-in duration-200">
+      <div className="bg-white w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+        <div className="relative h-32 bg-gradient-to-r from-indigo-600 to-violet-600 p-6 flex flex-col justify-end"><button onClick={onClose} className="absolute top-4 right-4 p-2 bg-white/10 hover:bg-white/20 rounded-full text-white transition-colors"><X size={20} /></button><div className="flex items-center gap-3 mb-2"><span className="bg-white/20 backdrop-blur-md px-2 py-0.5 rounded text-xs font-bold text-white flex items-center gap-1"><Calendar size={12} /> {event.date}</span><span className="bg-orange-500/90 px-2 py-0.5 rounded text-xs font-bold text-white flex items-center gap-1"><Clock size={12} /> 倒计时 {event.daysLeft} 天</span></div><h2 className="text-2xl font-bold text-white">{event.title}</h2></div>
+        <div className="flex-1 overflow-y-auto p-6 space-y-6">
+          <div><h3 className="text-sm font-bold text-gray-900 flex items-center gap-2 mb-2"><Info size={16} className="text-indigo-600" /> 事件背景</h3><p className="text-sm text-gray-600 leading-relaxed bg-gray-50 p-3 rounded-lg border border-gray-100">{event.description}</p></div>
+          <div><h3 className="text-sm font-bold text-gray-900 flex items-center gap-2 mb-2"><Sparkles size={16} className="text-violet-600 fill-violet-600" /> Gemini 深度推演</h3><div className="bg-gradient-to-br from-violet-50 to-indigo-50 p-4 rounded-xl border border-indigo-100 text-sm text-gray-700 leading-relaxed shadow-sm">{event.aiAnalysis}</div></div>
+          <div><h3 className="text-sm font-bold text-gray-900 flex items-center gap-2 mb-3"><Link size={16} className="text-emerald-600" /> 核心关联资产</h3><div className="space-y-2">{event.relatedAssets && event.relatedAssets.map((stock, idx) => (<div key={idx} className="flex items-center justify-between p-3 bg-white border border-gray-200 rounded-lg hover:border-indigo-300 transition-colors"><div className="flex flex-col"><div className="flex items-center gap-2"><span className="font-bold text-gray-800 text-sm">{stock.name}</span><span className="text-xs text-gray-400 font-mono">{stock.code}</span></div><span className="text-xs text-gray-500 mt-1">{stock.logic}</span></div><div className="flex items-center gap-4 text-right"><div><div className="text-[10px] text-gray-400">相关度</div><div className="text-xs font-bold text-indigo-600">{(stock.correlation * 100).toFixed(0)}%</div></div><div><div className="text-[10px] text-gray-400">现价</div><div className={`text-sm font-bold font-mono ${stock.change > 0 ? 'text-rose-600' : 'text-emerald-600'}`}>{stock.price} ({stock.change > 0 ? '+' : ''}{stock.change}%)</div></div></div></div>))}</div></div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const ExportConfigModal = ({ isOpen, onClose, stock, onGenerate }) => {
+  if (!isOpen || !stock) return null;
+  const [startDate, setStartDate] = useState(new Date().toISOString().split('T')[0]);
+  const [startTime, setStartTime] = useState("09:00");
+  const [endDate, setEndDate] = useState(new Date().toISOString().split('T')[0]);
+  const [endTime, setEndTime] = useState("15:00");
+  const [options, setOptions] = useState({ volumeTrend: true, keywordCloud: true, mediaStats: true, aiRating: true });
+  return (<div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200"><div className="bg-white w-full max-w-md rounded-2xl shadow-2xl border border-gray-200 overflow-hidden"><div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50"><h3 className="font-bold text-gray-800 flex items-center gap-2"><Download size={18} className="text-indigo-600" /> 导出舆情深度研报</h3><button onClick={onClose}><X size={20} className="text-gray-400 hover:text-gray-600"/></button></div><div className="p-6 space-y-6"><div className="flex items-center gap-3 p-3 bg-indigo-50 border border-indigo-100 rounded-lg"><div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold text-xs">{stock.code.substring(0,2)}</div><div><div className="font-bold text-gray-900">{stock.name}</div><div className="text-xs text-gray-500">正在生成该标的的舆情量化分析报告</div></div></div><div><label className="text-xs font-bold text-gray-500 uppercase mb-2 block">时间窗口</label><div className="grid grid-cols-2 gap-4"><div><span className="text-[10px] text-gray-400">开始</span><div className="flex gap-2"><input type="date" value={startDate} onChange={e=>setStartDate(e.target.value)} className="w-full text-xs border rounded p-1.5" /><input type="time" value={startTime} onChange={e=>setStartTime(e.target.value)} className="w-16 text-xs border rounded p-1.5" /></div></div><div><span className="text-[10px] text-gray-400">结束</span><div className="flex gap-2"><input type="date" value={endDate} onChange={e=>setEndDate(e.target.value)} className="w-full text-xs border rounded p-1.5" /><input type="time" value={endTime} onChange={e=>setEndTime(e.target.value)} className="w-16 text-xs border rounded p-1.5" /></div></div></div></div><div><label className="text-xs font-bold text-gray-500 uppercase mb-2 block">数据维度</label><div className="grid grid-cols-2 gap-3">{['声量趋势', '关键词云', '媒体统计', 'AI 评级'].map((label,i)=><label key={i} className="flex items-center gap-2 cursor-pointer"><input type="checkbox" defaultChecked className="accent-indigo-600" /><span className="text-sm text-gray-700">{label}</span></label>)}</div></div></div><div className="p-4 border-t border-gray-100 bg-gray-50 flex justify-end gap-3"><button onClick={onClose} className="px-4 py-2 text-sm text-gray-600 hover:bg-gray-200 rounded-lg">取消</button><button onClick={() => onGenerate({stock, timeRange:{start:startDate, end:endDate}, options})} className="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium flex items-center gap-2"><FileCheck size={16}/> 开始生成</button></div></div></div>);
+};
+
+const GeneratedReportModal = ({ isOpen, onClose, reportData }) => {
+  if (!isOpen || !reportData) return null;
+  return (<div className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-md animate-in zoom-in-95 duration-300"><div className="bg-white w-full max-w-4xl h-[85vh] rounded-xl shadow-2xl flex flex-col overflow-hidden"><div className="h-14 bg-slate-800 flex justify-between items-center px-6 text-white shrink-0"><div className="flex items-center gap-2"><FileText size={18} className="text-indigo-400" /><span className="font-bold text-sm">研报预览</span><span className="text-slate-500 text-xs ml-2">Generated by Gemini 2.5</span></div><div className="flex gap-3"><button className="px-3 py-1.5 bg-indigo-600 rounded text-xs">打印</button><button className="px-3 py-1.5 bg-white text-slate-900 rounded text-xs">下载 PDF</button><button onClick={onClose}><X size={20} className="text-slate-400 hover:text-white"/></button></div></div><div className="flex-1 overflow-y-auto bg-gray-100 p-8 custom-scrollbar"><div className="max-w-3xl mx-auto bg-white shadow-lg min-h-[1000px] p-12 relative"><div className="border-b-2 border-indigo-600 pb-6 mb-8 flex justify-between items-start"><div><h1 className="text-3xl font-bold text-gray-900 mb-2">{reportData.stock.name} 舆情深度报告</h1><div className="text-sm text-gray-500">生成时间: {new Date().toLocaleString()}</div></div><div className="text-right"><div className="text-2xl font-bold text-indigo-600 flex items-center justify-end gap-2"><Waves size={24}/> 波纹 Ripple</div></div></div><div className="grid grid-cols-3 gap-6 mb-10 bg-slate-50 p-6 rounded-xl border border-slate-100"><div className="text-center border-r border-gray-200"><div className="text-sm text-gray-500 uppercase mb-2">舆情 Alpha</div><div className="text-5xl font-extrabold text-rose-600">8.4</div></div><div className="text-center border-r border-gray-200"><div className="text-sm text-gray-500 uppercase mb-2">AI 评级</div><div className="text-3xl font-bold text-gray-800 mt-2">超配</div></div><div className="pl-4 flex flex-col justify-center gap-2"><div className="text-xs text-gray-500">散户热度 <span className="text-orange-500 font-bold">High</span></div><div className="w-full bg-gray-200 h-1.5 rounded-full"><div className="bg-orange-500 h-1.5 rounded-full" style={{width:'85%'}}></div></div></div></div><div className="mb-10"><h3 className="text-lg font-bold text-gray-900 border-l-4 border-indigo-600 pl-3 mb-4">综合评价</h3><p className="text-sm text-gray-700 leading-relaxed">在选定的时间窗口内，该标的呈现“量价齐升”态势。讨论热度环比激增 145%，建议关注后续资金承接情况。</p></div></div></div></div></div>);
+};
+
+const EventCard = ({ event, onClick }) => {
+  const isRisk = event.prediction === 'risk';
+  const isOpportunity = event.prediction === 'opportunity';
+  return (<div onClick={() => onClick(event)} className={`relative bg-white border rounded-xl p-4 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all group overflow-hidden cursor-pointer ${isRisk ? 'border-l-4 border-l-emerald-500' : isOpportunity ? 'border-l-4 border-l-rose-500' : 'border-l-4 border-l-gray-300'}`}><div className="flex justify-between items-start mb-3"><div className="flex items-center gap-2"><div className="bg-gray-100 px-2 py-1 rounded text-xs font-bold text-gray-600 flex items-center gap-1"><Calendar size={12} /> {event.date}</div>{event.daysLeft <= 3 && <span className="bg-red-100 text-red-600 text-[10px] font-bold px-1.5 py-0.5 rounded animate-pulse">倒计时 {event.daysLeft} 天</span>}</div><div className={`text-xs font-bold px-2 py-0.5 rounded-full flex items-center gap-1 ${isRisk ? 'bg-emerald-50 text-emerald-700' : isOpportunity ? 'bg-rose-50 text-rose-700' : 'bg-gray-100 text-gray-600'}`}>{isRisk ? <AlertTriangle size={10} /> : isOpportunity ? <Target size={10} /> : <Activity size={10} />}{isRisk ? '高位风险' : isOpportunity ? '潜伏机会' : '中性观望'}</div></div><h4 className="font-bold text-gray-900 text-sm mb-1 group-hover:text-indigo-600 transition-colors flex items-center justify-between">{event.title}<ArrowRight size={14} className="opacity-0 group-hover:opacity-100 transition-opacity text-indigo-400" /></h4><div className="text-xs text-gray-500 mb-3 flex items-center gap-1">关联{event.type === 'sector' ? '板块' : '个股'}: <span className="font-bold text-indigo-600">{event.target}</span></div><div className="grid grid-cols-3 gap-2 bg-gray-50 p-2 rounded-lg mb-3"><div><div className="text-[10px] text-gray-400 flex items-center gap-1"><Megaphone size={10}/> 媒体声量</div><div className="text-xs font-bold text-gray-800 mt-0.5">{event.mediaHeat}</div></div><div><div className="text-[10px] text-gray-400 flex items-center gap-1"><Banknote size={10}/> 资金流向</div><div className={`text-xs font-bold mt-0.5 ${event.fundFlow.includes('-') ? 'text-emerald-600' : 'text-rose-600'}`}>{event.fundFlow}</div></div><div><div className="text-[10px] text-gray-400 flex items-center gap-1"><TrendingUp size={10}/> 近期涨幅</div><div className={`text-xs font-bold mt-0.5 ${event.priceChange.includes('-') ? 'text-emerald-600' : 'text-rose-600'}`}>{event.priceChange}</div></div></div><div className="flex items-start gap-2"><Sparkles size={12} className="text-indigo-500 mt-0.5 shrink-0" /><p className="text-xs text-gray-600 leading-tight"><span className="font-bold text-indigo-700">AI 预测：</span>{event.summary}</p></div></div>);
+};
+const NewsRow = ({ data, index }) => (<div className="flex items-center justify-between p-3.5 border-b border-gray-50 hover:bg-gray-50/50 transition-colors group"><div className="flex items-start gap-3 flex-1 min-w-0"><div className={`flex-shrink-0 w-5 h-5 flex items-center justify-center rounded text-[10px] font-bold ${index < 3 ? 'bg-orange-100 text-orange-600' : 'bg-gray-100 text-gray-500'}`}>{index + 1}</div><div className="flex-1 min-w-0"><a href={data.url} target="_blank" rel="noopener noreferrer" className="block text-sm font-medium text-gray-800 hover:text-indigo-600 truncate transition-colors mb-1">{data.title}</a><div className="flex items-center gap-2 text-[10px] text-gray-400"><span className="bg-gray-100 px-1.5 py-0.5 rounded text-gray-500">{data.source}</span><span className="flex items-center gap-1"><Clock size={10} /> {data.time}</span><span className={`px-1.5 py-0.5 rounded font-medium ${data.sentiment === 'pos' ? 'bg-rose-50 text-rose-600' : data.sentiment === 'neg' ? 'bg-emerald-50 text-emerald-600' : 'bg-gray-100 text-gray-500'}`}>{data.sentiment === 'pos' ? '利多' : data.sentiment === 'neg' ? '利空' : '中性'}</span></div></div></div><div className="flex items-center gap-4 pl-4"><div className="text-right"><div className="flex items-center gap-1 justify-end text-[10px] font-bold text-orange-500 mb-0.5"><Flame size={10} className="fill-orange-500" />{(data.heat / 10000).toFixed(1)}w</div><div className="w-16 h-1 bg-gray-100 rounded-full overflow-hidden"><div className="h-full bg-gradient-to-r from-orange-300 to-red-500" style={{width: `${Math.min(data.heat / 1000, 100)}%`}}></div></div></div><a href={data.url} target="_blank" rel="noopener noreferrer" className="p-1.5 text-gray-300 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all opacity-0 group-hover:opacity-100"><ExternalLink size={14} /></a></div></div>);
+const CommentRow = ({ user, text, score, time, platform, onAnalyze }) => { const [analyzing, setAnalyzing] = useState(false); const [analysis, setAnalysis] = useState(null); const handleAnalyze = async () => { if (analysis) { setAnalysis(null); return; } setAnalyzing(true); const result = await onAnalyze(text); setAnalysis(result); setAnalyzing(false); }; return (<div className="group flex flex-col border-b border-gray-50 hover:bg-gray-50/80 transition-colors px-4 py-3"><div className="flex gap-3"><div className="flex-shrink-0 pt-0.5"><div className="w-7 h-7 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center text-gray-600 font-bold text-[10px] shadow-inner border border-white">{user[0]}</div></div><div className="flex-1 min-w-0"><div className="flex justify-between items-center mb-1"><div className="flex items-center gap-2"><span className="text-xs font-semibold text-gray-900">{user}</span><span className="text-[9px] text-gray-500 px-1 py-0.5 bg-white border border-gray-200 rounded font-medium">{platform}</span></div><span className="text-[10px] text-gray-400 font-mono">{time}</span></div><p className="text-xs text-gray-600 leading-relaxed group-hover:text-gray-900 transition-colors">{text}</p>{analysis && <div className="mt-2 p-2 bg-indigo-50/60 border border-indigo-100 rounded text-[10px] text-indigo-800 animate-in fade-in slide-in-from-top-1 shadow-sm"><span className="font-bold flex items-center gap-1 mb-0.5 text-indigo-600"><Sparkles size={10} className="fill-indigo-600" /> AI 意图洞察</span>{analysis}</div>}</div><div className="flex flex-col items-end justify-start min-w-[40px] gap-1 pt-0.5"><div className="text-center"><span className={`text-xs font-bold font-mono ${score > 0 ? 'text-rose-500' : 'text-emerald-500'}`}>{score > 0 ? '+' : ''}{score}</span></div><button onClick={handleAnalyze} disabled={analyzing} className="p-1 rounded-full text-gray-300 hover:text-indigo-600 hover:bg-indigo-50 transition-all opacity-0 group-hover:opacity-100">{analyzing ? <Loader2 size={12} className="animate-spin text-indigo-600" /> : <Sparkles size={12} />}</button></div></div></div>); };
+const SentimentLeaderboard = ({ onStockClick }) => (<div className="bg-white border border-gray-100 rounded-2xl shadow-sm overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500"><div className="p-6 border-b border-gray-50 bg-gradient-to-r from-white to-gray-50 flex justify-between items-center"><div><h3 className="text-lg font-bold text-gray-900 flex items-center gap-2"><Trophy className="text-amber-500 fill-amber-500" size={20} /> 舆情龙虎榜 (Sentiment 100)</h3><p className="text-xs text-gray-500 mt-1">全网声量实时排名，AI 识别核心驱动力</p></div><div className="flex gap-2"><span className="text-[10px] bg-rose-50 text-rose-600 px-2 py-1 rounded font-medium border border-rose-100">🔥 情绪过热区</span><span className="text-[10px] bg-emerald-50 text-emerald-600 px-2 py-1 rounded font-medium border border-emerald-100">❄️ 情绪冰点区</span></div></div><div className="overflow-x-auto"><table className="w-full text-sm text-left"><thead className="text-xs text-gray-500 uppercase bg-gray-50 border-b border-gray-100"><tr><th className="px-6 py-4 w-16 text-center">排名</th><th className="px-6 py-4">标的名称</th><th className="px-6 py-4">最新价 / 涨跌幅</th><th className="px-6 py-4 w-48">全网声量热度</th><th className="px-6 py-4">AI 情绪倾向</th><th className="px-6 py-4">核心驱动题材</th><th className="px-6 py-4 text-right">操作</th></tr></thead><tbody className="divide-y divide-gray-50">{SENTIMENT_LEADERBOARD.map((item, index) => {const stockObj = STOCKS.find(s => s.code === item.code) || { ...item, marketVal: '1000B' };return (<tr key={item.code} onClick={() => onStockClick(stockObj)} className="hover:bg-indigo-50/30 transition-colors cursor-pointer group"><td className="px-6 py-4 text-center">{index < 3 ? <div className={`w-6 h-6 mx-auto rounded-full flex items-center justify-center text-xs font-bold text-white shadow-sm ${index === 0 ? 'bg-amber-400' : index === 1 ? 'bg-slate-400' : 'bg-orange-700'}`}>{item.rank}</div> : <span className="text-gray-400 font-mono font-medium">{item.rank}</span>}</td><td className="px-6 py-4"><div className="font-bold text-gray-900 group-hover:text-indigo-600 transition-colors">{item.name}</div><div className="text-xs text-gray-400 font-mono">{item.code}</div></td><td className="px-6 py-4"><div className="font-mono font-medium text-gray-800">{item.price.toFixed(2)}</div><div className={`text-xs font-bold ${item.change > 0 ? 'text-rose-500' : 'text-emerald-500'}`}>{item.change > 0 ? '+' : ''}{item.change}%</div></td><td className="px-6 py-4"><div className="flex items-center gap-2 mb-1"><Flame size={12} className={`fill-current ${index < 3 ? 'text-rose-500' : 'text-orange-400'}`} /><span className="text-xs font-bold font-mono text-gray-700">{(item.heat / 10000).toFixed(1)}w</span></div><div className="w-full bg-gray-100 rounded-full h-1.5 overflow-hidden"><div className={`h-full rounded-full ${index < 3 ? 'bg-gradient-to-r from-rose-400 to-red-600' : 'bg-orange-300'}`} style={{ width: `${Math.min(item.heat / 1000, 100)}%` }}></div></div></td><td className="px-6 py-4"><div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-bold border ${item.sentiment > 0.5 ? 'bg-rose-50 text-rose-600 border-rose-100' : item.sentiment < -0.5 ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-gray-50 text-gray-600 border-gray-200'}`}>{item.sentiment > 0.5 ? <TrendingUpIcon size={12} /> : item.sentiment < -0.5 ? <AlertCircle size={12} /> : <Activity size={12} />}{item.sentiment > 0.5 ? '极度看多' : item.sentiment < -0.5 ? '恐慌抛售' : '多空博弈'}</div></td><td className="px-6 py-4"><div className="flex flex-col gap-1"><span className="text-xs font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded w-fit border border-indigo-100">#{item.tag}</span><span className="text-[10px] text-gray-400 truncate max-w-[180px]" title={item.reason}>{item.reason}</span></div></td><td className="px-6 py-4 text-right"><button className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-full transition-all group-hover:translate-x-1"><ArrowRight size={18} /></button></td></tr>);})}</tbody></table></div></div>);
+
+// 5. 主程序
+
+export default function SentimentPlatformRefactored() {
+  const [activeTab, setActiveTab] = useState('market'); 
+  const [selectedStock, setSelectedStock] = useState(STOCKS[0]);
+  const [chartData, setChartData] = useState([]);
+  const [comments, setComments] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const searchContainerRef = useRef(null);
+  
+  // States
+  const [selectedEvent, setSelectedEvent] = useState(null);
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+  const [isReportViewOpen, setIsReportViewOpen] = useState(false);
+  const [generatedReportData, setGeneratedReportData] = useState(null);
+  const [isGeneratingExport, setIsGeneratingExport] = useState(false);
+  const [isGeneratingReport, setIsGeneratingReport] = useState(false);
+  const [reportData, setReportData] = useState({ summary: '点击上方 "生成 AI 简报" 按钮...', bullCase: [], riskFactor: [], generatedAt: null });
+  const [marketReport, setMarketReport] = useState({ summary: '', strategy: '', generatedAt: null });
+  const [isShareOpen, setIsShareOpen] = useState(false);
+  const [vote, setVote] = useState(null);
+  
+  // Time
+  const [currentTime, setCurrentTime] = useState(INITIAL_MOCK_TIME);
+  const [marketStatus, setMarketStatus] = useState(getMarketStatus(INITIAL_MOCK_TIME));
+
+  // Init Data
+  useEffect(() => {
+    setChartData(generateChartData());
+    setComments([
+      { id: 1, user: '老法师', text: '从盘口看，大单买入非常坚决，下午大概率涨停。', score: 0.85, time: '10:42', platform: '雪球' },
+      { id: 2, user: '韭菜101', text: '又是诱多，大家千万别上当！', score: -0.62, time: '10:41', platform: '股吧' },
+      { id: 3, user: 'Quant_X', text: '情绪指标已经背离，价格稍后会跟上。', score: 0.45, time: '10:40', platform: '微博' },
+    ]);
+    const timer = setInterval(() => {
+      setCurrentTime(prev => { const newTime = new Date(prev.getTime() + 60000); setMarketStatus(getMarketStatus(newTime)); return newTime; });
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [selectedStock]);
+
+  useEffect(() => {
+    if (marketStatus.status === 'trading' || marketStatus.status === 'auction') {
+      setChartData(prev => {
+        const last = prev[prev.length-1];
+        const newData = {
+          time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'}),
+          price: parseFloat((last.price + (Math.random() - 0.5) * 2).toFixed(2)),
+          sentiment: parseFloat(((Math.random() * 2 - 1) * 0.2 + last.sentiment * 0.8).toFixed(2)),
+          smartMoney: parseFloat((last.smartMoney + (Math.random() - 0.5) * 0.1).toFixed(2)),
+          dumbMoney: parseFloat((last.dumbMoney + (Math.random() - 0.5) * 0.2).toFixed(2)),
+          volume: Math.floor(Math.random() * 2000) + 1000
+        };
+        return [...prev.slice(1), newData];
+      });
+    }
+  }, [currentTime, marketStatus.status]);
+
+  // Handlers
+  const filteredStocks = STOCKS.filter(stock => stock.code.includes(searchQuery) || stock.name.includes(searchQuery));
+  const currentSentiment = chartData.length > 0 ? chartData[chartData.length-1].sentiment : 0;
+
+  const handleAnalyzeComment = async (text) => new Promise(resolve => setTimeout(() => resolve("AI分析：典型的FOMO情绪，建议观望。"), 1000));
+  const handleGenerateStockReport = async () => { setIsGeneratingReport(true); setTimeout(() => { setReportData({ summary: '当前舆情呈现多头排列，建议右侧交易。', bullCase: ['资金净流入', '业绩超预期'], riskFactor: ['高位获利盘', '量能萎缩'], generatedAt: new Date().toLocaleTimeString() }); setIsGeneratingReport(false); }, 1500); };
+  const handleGenerateMarketReport = async () => { setIsGeneratingReport(true); setTimeout(() => { setMarketReport({ summary: '市场情绪回暖，题材股活跃。', strategy: '轻指数，重个股，关注科技主线。', generatedAt: new Date().toLocaleTimeString() }); setIsGeneratingReport(false); }, 1500); };
+  const handleExportClick = () => setIsExportModalOpen(true);
+  const handleConfirmExport = (config) => { setIsExportModalOpen(false); setIsGeneratingExport(true); setTimeout(() => { setGeneratedReportData({ stock: config.stock, timeRange: config.timeRange, options: config.options }); setIsGeneratingExport(false); setIsReportViewOpen(true); }, 2000); };
+  const handleLeaderboardClick = (stock) => { setSelectedStock(stock); setActiveTab('stock'); setReportData({ summary: '等待生成...', bullCase: [], riskFactor: [], generatedAt: null }); };
+  const MarketStatusIcon = marketStatus.icon;
+
+  // DB Simulation Button Handler (Mock DB Injection)
+  const handleSimulateDbInjection = () => {
+    const newComment = {
+      id: Date.now(),
+      user: '模拟数据源',
+      text: 'DB: 刚刚抓取到一条来自 [淘股吧] 的主力复盘贴，正在同步...',
+      score: 0.99,
+      time: new Date().toLocaleTimeString(),
+      platform: 'DB_SYNC'
+    };
+    setComments(prev => [newComment, ...prev]);
+  };
+
+  return (
+    <div className="min-h-screen bg-[#F8FAFC] text-slate-900 font-sans antialiased selection:bg-indigo-100 selection:text-indigo-900">
+      
+      {/* Modals & Overlays */}
+      {selectedEvent && <EventDetailModal event={selectedEvent} onClose={() => setSelectedEvent(null)} />}
+      <ExportConfigModal isOpen={isExportModalOpen} onClose={() => setIsExportModalOpen(false)} stock={selectedStock} onGenerate={handleConfirmExport} />
+      <GeneratedReportModal isOpen={isReportViewOpen} onClose={() => setIsReportViewOpen(false)} reportData={generatedReportData} />
+      {isGeneratingExport && <div className="fixed inset-0 z-[120] flex flex-col items-center justify-center bg-slate-900/50 backdrop-blur-sm"><Loader2 size={48} className="text-white animate-spin mb-4" /><div className="text-white font-bold text-lg">AI 正在生成舆情深度分析报告...</div><div className="text-white/70 text-sm mt-2">正在清洗数据、计算情绪Alpha、生成投资评级</div></div>}
+      <AICopilotWidget />
+      <ShareCardModal isOpen={isShareOpen} onClose={() => setIsShareOpen(false)} stock={selectedStock} />
+      
+      {/* DB Simulation Button */}
+      <button onClick={handleSimulateDbInjection} className="fixed bottom-6 left-6 z-50 px-4 py-2 bg-slate-800 text-white text-xs font-mono rounded-lg shadow-lg hover:bg-slate-700 flex items-center gap-2 border border-slate-600"><Database size={14} className="text-emerald-400"/> 🛠️ 模拟后端推送</button>
+
+      {/* Nav */}
+      <nav className="h-16 bg-white/80 backdrop-blur-md border-b border-gray-200/80 fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6">
+        <div className="flex items-center gap-2.5"><div className="bg-gradient-to-tr from-indigo-600 to-violet-600 p-2 rounded-lg shadow-sm"><Waves className="text-white w-4 h-4" /></div><span className="text-lg font-bold tracking-tight text-gray-900">波纹<span className="text-indigo-600">Ripple</span> v4.6</span></div>
+        <div className="hidden md:flex items-center gap-1 bg-gray-100 p-1 rounded-lg border border-gray-200">
+          {[{id:'market',icon:LayoutGrid,label:'大盘'}, {id:'leaderboard',icon:Trophy,label:'龙虎榜'}, {id:'graph',icon:Network,label:'产业链'}, {id:'stock',icon:Target,label:'个股'}, {id:'backtest',icon:History,label:'回测'}].map(tab => (
+            <button key={tab.id} onClick={() => setActiveTab(tab.id)} className={`px-4 py-1.5 rounded-md text-xs font-bold flex items-center gap-2 transition-all ${activeTab === tab.id ? 'bg-white text-indigo-600 shadow-sm' : 'text-gray-500 hover:text-gray-900'}`}><tab.icon size={14}/> {tab.label}</button>
+          ))}
+        </div>
+        <div className="flex items-center gap-4"><div className="relative group" ref={searchContainerRef}><div className="flex items-center bg-gray-100/80 border border-gray-200 rounded-lg px-3 py-1.5 w-56 hover:w-64 focus-within:w-64 transition-all"><Search className="w-3.5 h-3.5 text-gray-400" /><input type="text" value={searchQuery} onChange={e=>setSearchQuery(e.target.value)} onFocus={()=>setShowSuggestions(true)} placeholder="搜索代码..." className="bg-transparent border-none outline-none text-xs w-full ml-2" /></div>{showSuggestions && searchQuery && <div className="absolute top-full mt-2 right-0 bg-white border border-gray-100 rounded-xl shadow-xl py-1 z-50 w-64">{filteredStocks.length > 0 ? filteredStocks.map(s => <div key={s.code} onClick={() => { setSelectedStock(s); setActiveTab('stock'); setSearchQuery(''); setShowSuggestions(false); }} className="px-3 py-2 hover:bg-indigo-50 cursor-pointer flex justify-between text-xs"><span>{s.name}</span><span>{s.code}</span></div>) : <div className="px-3 py-2 text-xs text-gray-400 text-center">无结果</div>}</div>}</div><div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-100 to-violet-100 border border-white shadow-sm flex items-center justify-center text-xs font-bold text-indigo-700">VIP</div></div>
+      </nav>
+
+      {/* Status Bar */}
+      <div className={`fixed top-16 left-0 right-0 h-8 ${marketStatus.color} text-white flex items-center justify-center text-xs font-medium z-40 shadow-sm transition-colors duration-500`}><div className="flex items-center gap-4"><span className="flex items-center gap-1.5"><Clock size={12}/> {currentTime.toLocaleTimeString('zh-CN', {hour:'2-digit', minute:'2-digit', second:'2-digit'})}</span><span className="w-px h-3 bg-white/30"></span><span className="flex items-center gap-1.5 uppercase tracking-wide"><MarketStatusIcon size={12}/> {marketStatus.label}</span><span className="w-px h-3 bg-white/30"></span><span className="opacity-90">{marketStatus.message}</span></div></div>
+
+      <main className="pt-28 pb-12 px-6 lg:px-10 max-w-[1600px] mx-auto">
+        
+        {/* MARKET TAB */}
+        {activeTab === 'market' && (
+          <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+             <div className="grid grid-cols-4 gap-4 mb-8">{INDICES.map(idx => (<div key={idx.code} className="bg-white border border-gray-100/80 rounded-xl p-4 shadow-sm"><div className="flex justify-between items-center mb-2"><span className="text-xs font-bold text-gray-500">{idx.name}</span><span className={`text-xs font-bold px-1.5 py-0.5 rounded ${idx.change > 0 ? 'bg-rose-50 text-rose-600' : 'bg-emerald-50 text-emerald-600'}`}>{idx.change > 0 ? '+' : ''}{idx.change}%</span></div><div className="flex justify-between items-end"><span className="text-2xl font-bold text-gray-900 font-feature-settings-tnum">{idx.value}</span><span className="text-xs text-gray-400 mb-1">Vol: {idx.volume}</span></div></div>))}</div>
+             <div className="grid grid-cols-12 gap-6 h-[240px] mb-6">
+                <div className="col-span-4 bg-white border border-gray-100 rounded-2xl p-6 shadow-sm flex flex-col justify-center items-center relative overflow-hidden"><h3 className="absolute top-4 left-4 text-xs font-bold text-gray-400 uppercase tracking-wider flex items-center gap-2"><Thermometer size={14} className="text-rose-500"/> 市场情绪</h3><div className="w-full h-full flex items-center justify-center"><GaugeChart value={marketStatus.status === 'break' ? 50 : 78} /></div></div>
+                <div className="col-span-5 grid grid-cols-2 gap-4">
+                   <EnhancedMetricCard title="上涨家数" value="3,840" subValue="72%" trend="up" icon={TrendingUpIcon} colorClass="text-rose-500" bgClass="bg-rose-50" />
+                   <EnhancedMetricCard title="涨停家数" value="68" subValue="+12" trend="up" icon={Flame} colorClass="text-orange-500" bgClass="bg-orange-50" type="heat" />
+                </div>
+                <div className="col-span-3 bg-gradient-to-br from-indigo-500 to-violet-600 rounded-2xl p-6 text-white flex flex-col justify-between shadow-lg shadow-indigo-200"><div><h4 className="text-xs font-bold text-indigo-100 uppercase tracking-wider mb-2">AI 策略建议</h4><div className="text-2xl font-bold">轻指数 重个股</div><div className="text-xs text-indigo-100 mt-1">关注科技成长主线</div></div><div className="bg-white/20 backdrop-blur-md rounded-lg p-3 text-xs font-medium leading-relaxed"><Sparkles size={12} className="inline mr-1"/> 短期情绪共振，上涨概率 72%</div></div>
+             </div>
+             <div className="mt-6 mb-6"><div className="flex justify-between items-center mb-4"><h3 className="font-bold text-gray-800 flex items-center gap-2 text-lg"><Target className="text-rose-500" size={20} /> 智能事件雷达</h3><button onClick={() => setActiveTab('market-events')} className="flex items-center gap-1 text-xs text-indigo-600 font-bold hover:bg-indigo-50 px-2 py-1 rounded transition-colors">查看更多 <ChevronRight size={12} /></button></div><div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">{UPCOMING_EVENTS_BRIEF.map(event => <EventCard key={event.id} event={event} onClick={setSelectedEvent} />)}</div></div>
+             <div className="mt-6 mb-6 bg-white border border-gray-100 rounded-2xl p-6 shadow-sm"><div className="flex justify-between items-center mb-4"><h3 className="font-bold text-gray-900 flex items-center gap-2 text-lg"><PieChartIcon className="text-amber-500" size={20} /> 领涨板块热力</h3><button onClick={() => setActiveTab('market-sectors')} className="flex items-center gap-1 text-xs text-indigo-600 font-bold hover:bg-indigo-50 px-2 py-1 rounded transition-colors">更多板块 <ChevronRight size={12} /></button></div><table className="w-full text-sm text-left"><thead className="text-xs text-gray-500 uppercase bg-gray-50 border-b border-gray-100"><tr><th className="px-4 py-3">板块名称</th><th className="px-4 py-3">热度指数</th><th className="px-4 py-3">涨跌幅</th><th className="px-4 py-3 text-right">主力净流入</th></tr></thead><tbody>{SECTORS_BRIEF.map((sec, i) => <tr key={i} className="hover:bg-gray-50"><td className="px-4 py-3 font-bold">{sec.name}</td><td className="px-4 py-3"><div className="w-24 h-2 bg-gray-100 rounded-full overflow-hidden"><div className="h-full bg-gradient-to-r from-orange-300 to-rose-500" style={{width: `${sec.hot}%`}}></div></div></td><td className="px-4 py-3 text-rose-500 font-bold">+{sec.change}%</td><td className="px-4 py-3 text-right text-rose-500 font-mono">{sec.netInflow}</td></tr>)}</tbody></table></div>
+             <div className="mt-6 bg-gradient-to-br from-indigo-600 to-violet-700 rounded-2xl p-8 text-white shadow-lg"><div className="flex justify-between items-start mb-4"><h3 className="font-bold text-xl tracking-tight flex items-center gap-2"><Sparkles className="text-yellow-300"/> Gemini 市场策略</h3><button onClick={handleGenerateMarketReport} disabled={isGeneratingReport} className="px-4 py-1.5 bg-white/20 rounded-full text-xs font-bold hover:bg-white/30 transition-colors">{isGeneratingReport?'生成中...':'刷新策略'}</button></div><p className="text-indigo-100 text-sm leading-relaxed mb-6">{marketReport.summary || 'Gemini 正在扫描全市场数据...'}</p>{marketReport.strategy && <div className="bg-white/10 p-4 rounded-xl border border-white/20"><h4 className="text-xs font-bold text-yellow-300 uppercase mb-2">Strategy</h4><p className="text-sm font-medium">{marketReport.strategy}</p></div>}</div>
+          </div>
+        )}
+
+        {/* MARKET DRILL-DOWN: EVENTS */}
+        {activeTab === 'market-events' && <div className="animate-in fade-in slide-in-from-right-4 duration-300 min-h-screen pb-12"><div className="mb-6 flex items-center gap-4"><button onClick={() => setActiveTab('market')} className="p-2 bg-white rounded-full hover:bg-gray-100 border border-gray-200"><ArrowLeft size={18}/></button><h2 className="text-2xl font-bold text-gray-900">智能事件雷达・全景视图</h2></div><div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">{UPCOMING_EVENTS_ALL.map(event => <EventCard key={event.id} event={event} onClick={setSelectedEvent} />)}</div></div>}
+        {activeTab === 'market-sectors' && <div className="animate-in fade-in slide-in-from-right-4 duration-300 min-h-screen pb-12"><div className="mb-6 flex items-center gap-4"><button onClick={() => setActiveTab('market')} className="p-2 bg-white rounded-full hover:bg-gray-100 border border-gray-200"><ArrowLeft size={18}/></button><h2 className="text-2xl font-bold text-gray-900">全市场行业板块热力</h2></div><div className="bg-white border border-gray-100 rounded-2xl shadow-sm overflow-hidden"><table className="w-full text-sm text-left"><thead className="text-xs text-gray-500 uppercase bg-gray-50 border-b border-gray-100"><tr><th className="px-6 py-4">板块名称</th><th className="px-6 py-4">热度</th><th className="px-6 py-4">涨跌幅</th><th className="px-6 py-4">领涨股</th><th className="px-6 py-4 text-right">净流入</th><th className="px-6 py-4 text-right">换手率</th><th className="px-6 py-4 text-right">量比</th></tr></thead><tbody>{SECTORS_ALL.map((sec, i) => <tr key={i} className="hover:bg-gray-50"><td className="px-6 py-4 font-bold">{sec.name}</td><td className="px-6 py-4"><div className="w-24 h-1.5 bg-gray-100 rounded-full"><div className="h-full bg-gradient-to-r from-orange-300 to-rose-500" style={{width: `${sec.hot}%`}}></div></div></td><td className="px-6 py-4 font-bold text-rose-500">+{sec.change}%</td><td className="px-6 py-4 text-indigo-600">{sec.leadStock}</td><td className="px-6 py-4 text-right font-mono text-rose-500">{sec.netInflow}</td><td className="px-6 py-4 text-right font-mono">{sec.turnover}</td><td className="px-6 py-4 text-right font-mono">{sec.volRatio}</td></tr>)}</tbody></table></div></div>}
+        {activeTab === 'stock-news' && <div className="animate-in fade-in slide-in-from-right-4 duration-300 min-h-screen pb-12"><div className="mb-6 flex items-center gap-4"><button onClick={() => setActiveTab('stock')} className="p-2 bg-white rounded-full hover:bg-gray-100 border border-gray-200"><ArrowLeft size={18}/></button><h2 className="text-2xl font-bold text-gray-900">{selectedStock.name} - 个股舆情中心</h2></div><div className="bg-white border border-gray-100 rounded-2xl shadow-sm overflow-hidden p-6"><div className="flex gap-4 mb-6"><button className="px-3 py-1.5 bg-indigo-50 text-indigo-700 rounded-lg text-xs font-bold">全部</button><button className="px-3 py-1.5 hover:bg-gray-50 text-gray-600 rounded-lg text-xs font-medium">利好</button><button className="px-3 py-1.5 hover:bg-gray-50 text-gray-600 rounded-lg text-xs font-medium">利空</button></div><div className="space-y-1">{STOCK_NEWS_BRIEF.map((news, i) => <NewsRow key={i} data={news} index={i} />)}</div></div></div>}
+        {activeTab === 'stock-comments' && <div className="animate-in fade-in slide-in-from-right-4 duration-300 min-h-screen pb-12"><div className="mb-6 flex items-center gap-4"><button onClick={() => setActiveTab('stock')} className="p-2 bg-white rounded-full hover:bg-gray-100 border border-gray-200"><ArrowLeft size={18}/></button><h2 className="text-2xl font-bold text-gray-900">{selectedStock.name} - 深度言论广场</h2></div><div className="bg-white border border-gray-100 rounded-2xl shadow-sm overflow-hidden p-6"><div className="space-y-0 divide-y divide-gray-50">{[...Array(10)].map((_, i) => <div key={i} className="p-4 hover:bg-gray-50/50 transition-colors"><div className="flex justify-between items-start mb-2"><div className="flex items-center gap-2"><div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-xs font-bold text-gray-500">U{i}</div><div><div className="text-sm font-bold text-gray-800">股友_{Math.floor(Math.random()*10000)}</div><div className="text-[10px] text-gray-400">持仓: {Math.random()>0.5?'5成':'空仓'}</div></div>{i < 3 && <span className="bg-amber-100 text-amber-700 text-[10px] px-1.5 rounded">大V</span>}</div><span className="text-xs text-gray-400">1{i}分钟前</span></div><p className="text-sm text-gray-700 mb-2">主力今天这个走势完全是在洗盘，大家拿住筹码不要动，明天肯定反包！技术面上MACD已经金叉了。</p><div className="flex items-center gap-4 text-xs text-gray-400"><button className="flex items-center gap-1 hover:text-indigo-600"><ThumbsUp size={14}/> {Math.floor(Math.random()*100)}</button><button className="flex items-center gap-1 hover:text-indigo-600"><MessageCircle size={14}/> {Math.floor(Math.random()*20)}</button></div></div>)}</div></div></div>}
+
+        {/* LEADERBOARD TAB */}
+        {activeTab === 'leaderboard' && <SentimentLeaderboard onStockClick={(stock) => { setSelectedStock(stock); setActiveTab('stock'); setReportData({ summary: '等待生成...', bullCase: [], riskFactor: [], generatedAt: null }); }} />}
+        {activeTab === 'graph' && (
+           <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <div className="mb-6"><h2 className="text-2xl font-bold text-gray-900">产业链波纹传导图谱</h2><p className="text-xs text-gray-500">实时追踪核心事件对上下游板块的舆情传导路径</p></div>
+              <RippleGraph />
+              <div className="grid grid-cols-3 gap-6 mt-6">{['上游：原材料', '中游：制造封测', '下游：终端应用'].map((t,i) => (<div key={i} className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm"><h4 className="font-bold text-gray-800 text-sm mb-2">{t}</h4><div className="h-1.5 bg-gray-100 rounded-full overflow-hidden"><div className="h-full bg-indigo-500" style={{width: `${80 - i * 20}%`}}></div></div><div className="text-[10px] text-gray-400 mt-1">舆情渗透率: {80 - i * 20}%</div></div>))}</div>
+           </div>
+        )}
+        {activeTab === 'backtest' && <BacktestView />}
+
+        {/* 2. STOCK VIEW (VERTICAL FLOW - v4.3 SPACIOUS) */}
+        {activeTab === 'stock' && (
+          <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 flex flex-col gap-6 max-w-5xl mx-auto">
+             
+             {/* HEADER */}
+             <div className="flex justify-between items-end mb-2">
+                <div><h1 className="text-3xl font-extrabold text-slate-900 tracking-tight flex items-center gap-4">{selectedStock.name} <span className="text-xl text-slate-400 font-mono font-light">{selectedStock.code}</span></h1><div className="flex items-center gap-6 text-sm text-slate-500 font-medium mt-2"><span>市值 <span className="text-slate-900 font-semibold">{selectedStock.marketVal}</span></span><span className={`flex items-center gap-1.5 font-bold ${marketStatus.status === 'trading' ? 'text-emerald-600' : 'text-orange-500'}`}><div className={`w-1.5 h-1.5 rounded-full ${marketStatus.status === 'trading' ? 'bg-emerald-500 animate-pulse' : 'bg-orange-500'}`}></div>{marketStatus.status === 'trading' ? '实时连接正常' : '连接挂起 (休市)'}</span></div></div>
+                <div className="flex gap-3"><button onClick={() => setIsShareOpen(true)} className="flex items-center gap-2 px-4 py-2 bg-white hover:bg-gray-50 rounded-lg text-gray-700 font-medium border border-gray-200 shadow-sm text-sm"><Share2 size={15}/> 分享</button><button onClick={handleExportClick} className="flex items-center gap-2 px-4 py-2 bg-white hover:bg-gray-50 rounded-lg text-gray-700 font-medium border border-gray-200 shadow-sm text-sm"><Download size={15} /> 导出研报</button><button onClick={handleGenerateStockReport} disabled={isGeneratingReport} className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg shadow-md text-sm"><Sparkles size={15}/> AI 简报</button></div>
+             </div>
+
+             {/* ROW 1: NEW DASHBOARD LAYOUT (3:6:3) */}
+             <div className="grid grid-cols-12 gap-6 h-[240px]">
+                {/* 1.1 Big Gauge (3 Cols) */}
+                <div className="col-span-3 bg-white border border-gray-100 rounded-2xl p-6 shadow-sm flex flex-col justify-center items-center relative overflow-hidden">
+                   <h4 className="absolute top-4 left-4 text-xs font-bold text-gray-400 uppercase tracking-wider flex items-center gap-2"><Zap size={14} className="text-rose-500"/> 实时情绪</h4>
+                   <div className="w-full h-full flex items-center justify-center scale-90"><GaugeChart value={currentSentiment > 0 ? (currentSentiment + 1) * 50 : 50} /></div>
+                </div>
+                {/* 1.2 Metrics Grid (6 Cols) */}
+                <div className="col-span-6 grid grid-cols-2 gap-4">
+                   <EnhancedMetricCard title="全网热度" value="12,450" subValue="+32/min" trend="up" icon={Flame} colorClass="text-orange-500" bgClass="bg-orange-50" type="heat" />
+                   <EnhancedMetricCard title="多空分歧" value="High" subValue="散户看多" trend="down" icon={Layers} colorClass="text-indigo-500" bgClass="bg-indigo-50" type="divergence" />
+                </div>
+                {/* 1.3 AI Prediction (3 Cols) */}
+                <div className="col-span-3 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl p-6 text-white flex flex-col justify-between shadow-lg shadow-emerald-200 relative overflow-hidden">
+                   <div className="absolute top-0 right-0 p-16 bg-white/10 rounded-full blur-2xl -mr-8 -mt-8 pointer-events-none"></div>
+                   <div className="relative z-10">
+                      <h4 className="text-xs font-bold text-emerald-100 uppercase tracking-wider mb-2">AI Alpha 预测</h4>
+                      <div className="text-4xl font-bold font-mono tracking-tight">+1.2%</div>
+                      <div className="text-xs text-emerald-100 mt-1 opacity-80">未来 4 小时预期</div>
+                   </div>
+                   <div className="relative z-10 bg-white/20 backdrop-blur-md rounded-lg p-3 text-xs font-medium leading-relaxed border border-white/10">
+                      <Sparkles size={12} className="inline mr-1"/> 短期情绪共振，上涨概率 72%
+                   </div>
+                </div>
+             </div>
+             
+             {/* ROW 2: MAIN CHART (Full Width) */}
+             <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm h-[500px] flex flex-col w-full">
+                <div className="flex justify-between items-center mb-4"><h3 className="font-bold text-gray-800 flex items-center gap-2"><BarChart2 size={18} className="text-slate-500"/> 价格与舆情同步视窗</h3></div>
+                <div className="flex-1 min-h-0 mb-2"><ResponsiveContainer width="100%" height="100%"><AreaChart data={chartData} syncId="stockSync"><defs><linearGradient id="colorPrice" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#6366f1" stopOpacity={0.1}/><stop offset="95%" stopColor="#6366f1" stopOpacity={0}/></linearGradient></defs><CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" /><XAxis dataKey="time" hide /><YAxis domain={['auto', 'auto']} orientation="right" tick={{fontSize:11}} stroke="#94a3b8" /><Tooltip contentStyle={{backgroundColor:'#fff', borderRadius:'8px', boxShadow:'0 4px 6px -1px rgba(0,0,0,0.1)'}} /><Area type="monotone" dataKey="price" stroke="#6366f1" strokeWidth={2} fill="url(#colorPrice)" name="股价" /></AreaChart></ResponsiveContainer></div>
+                <div className="h-1/3 min-h-0 border-t border-gray-100 pt-2"><ResponsiveContainer width="100%" height="100%"><BarChart data={chartData} syncId="stockSync"><CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" /><XAxis dataKey="time" tick={{fontSize:11}} stroke="#94a3b8" /><YAxis domain={[-1.5, 1.5]} orientation="right" tick={{fontSize:11}} stroke="#94a3b8" /><Tooltip /><ReferenceLine y={0} stroke="#cbd5e1" /><Bar dataKey="sentiment" name="舆情净值">{chartData.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.sentiment > 0 ? '#f43f5e' : '#10b981'} />)}</Bar></BarChart></ResponsiveContainer></div>
+             </div>
+
+             {/* ROW 3: SMART MONEY (Full Width) */}
+             <div className="w-full"><SmartMoneyChart data={chartData} /></div>
+
+             {/* ROW 4: PK (Full Width) */}
+             <div className="w-full"><SentimentPK /></div>
+
+             {/* ROW 5: NEWS (Full Width) */}
+             <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm flex flex-col w-full">
+                <div className="flex justify-between items-center mb-4"><h3 className="font-bold text-gray-800 flex items-center gap-2"><Flame className="text-orange-500" size={18}/> 实时新闻热点</h3><button onClick={() => setActiveTab('stock-news')} className="flex items-center gap-1 text-xs text-indigo-600 font-bold hover:bg-indigo-50 px-2 py-1 rounded transition-colors">查看更多 <ChevronRight size={12} /></button></div>
+                <div className="space-y-0">{STOCK_NEWS_BRIEF.map((n,i) => <NewsRow key={i} data={n} index={i} />)}</div>
+             </div>
+
+             {/* ROW 6: COMMENTS (Full Width) */}
+             <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm flex flex-col w-full">
+                <div className="flex justify-between items-center mb-4"><h3 className="font-bold text-gray-800 flex items-center gap-2"><MessageSquare className="text-indigo-500" size={18}/> 社区讨论流</h3><button onClick={() => setActiveTab('stock-comments')} className="flex items-center gap-1 text-xs text-indigo-600 font-bold hover:bg-indigo-50 px-2 py-1 rounded transition-colors">查看更多 <ChevronRight size={12} /></button></div>
+                <div className="flex-1 overflow-y-auto custom-scrollbar -mx-2 px-2 max-h-[500px]">{comments.map(c => <CommentRow key={c.id} {...c} onAnalyze={handleAnalyzeComment} />)}</div>
+             </div>
+
+             {/* FOOTER: AI REPORT */}
+             <div className="bg-gradient-to-r from-slate-50 to-white border border-slate-200 rounded-2xl p-8 shadow-sm mb-8">
+                 <div className="flex gap-8">
+                    <div className="w-1/3 border-r border-slate-200 pr-8">
+                       <h4 className="text-xs font-bold text-gray-400 uppercase mb-4 tracking-wider flex items-center gap-2"><FileText size={14}/> 核心关键词云</h4>
+                       <div className="flex flex-wrap gap-2">{KEYWORDS.map((k, i) => <span key={i} className={`px-2 py-1 rounded text-xs font-medium border ${k.type==='pos'?'bg-rose-50 border-rose-100 text-rose-700':k.type==='neg'?'bg-emerald-50 border-emerald-100 text-emerald-700':'bg-gray-50 border-gray-200 text-gray-600'}`}>{k.text}</span>)}</div>
+                    </div>
+                    <div className="flex-1">
+                       <h4 className="text-sm font-bold text-indigo-800 uppercase mb-4 flex items-center gap-2"><Zap size={16} className="fill-indigo-600"/> Gemini 深度研报</h4>
+                       <p className="text-slate-700 text-sm leading-relaxed mb-4">{reportData.summary}</p>
+                       {reportData.bullCase.length > 0 && <div className="grid grid-cols-2 gap-4"><div className="bg-white p-3 rounded border border-rose-100"><h5 className="text-rose-600 font-bold text-xs mb-2">看多逻辑</h5><ul className="list-disc list-inside text-xs text-gray-500">{reportData.bullCase.map(s=><li key={s}>{s}</li>)}</ul></div><div className="bg-white p-3 rounded border border-emerald-100"><h5 className="text-emerald-600 font-bold text-xs mb-2">风险提示</h5><ul className="list-disc list-inside text-xs text-gray-500">{reportData.riskFactor.map(s=><li key={s}>{s}</li>)}</ul></div></div>}
+                    </div>
+                 </div>
+             </div>
+          </div>
+        )}
+
+      </main>
+    </div>
+  );
+}
